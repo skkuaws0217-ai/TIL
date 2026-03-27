@@ -1,0 +1,233 @@
+# ═══════════════════════════════════════════════════════════════
+# 폐 질환별 증상 프로파일 (ICD-10 기반)
+#
+# Reference Sources:
+#   - Harrison's Principles of Internal Medicine, 21st Ed (2022)
+#   - Murray & Nadel's Textbook of Respiratory Medicine, 7th Ed (2022)
+#   - UpToDate Clinical Decision Support (2025)
+#   - WHO ICD-10 Classification
+#
+# 각 질환의 symptoms는 위 교과서/가이드라인에 기재된
+# "Clinical Presentation" 또는 "Signs and Symptoms" 섹션에서 발췌.
+# frequency: common(>50%), frequent(25-50%), occasional(10-25%), rare(<10%)
+# ═══════════════════════════════════════════════════════════════
+
+# ─── Community-Acquired Pneumonia (CAP) ───
+# Ref: Harrison's Ch.121, ATS/IDSA Guidelines 2019
+community_acquired_pneumonia:
+  icd10: [J13, J14, J15, J15.0, J15.1, J15.9, J18.0, J18.1, J18.9]
+  symptoms:
+    - {name: "cough", frequency: "common"}
+    - {name: "fever", frequency: "common"}
+    - {name: "sputum production", frequency: "common"}
+    - {name: "dyspnea", frequency: "frequent"}
+    - {name: "pleuritic chest pain", frequency: "frequent"}
+    - {name: "chills", frequency: "frequent"}
+    - {name: "rigors", frequency: "occasional"}
+    - {name: "fatigue", frequency: "common"}
+    - {name: "myalgia", frequency: "frequent"}
+    - {name: "tachypnea", frequency: "common"}
+    - {name: "tachycardia", frequency: "frequent"}
+    - {name: "nausea", frequency: "occasional"}
+    - {name: "confusion", frequency: "occasional"}  # Elderly
+
+# ─── Hospital-Acquired Pneumonia (HAP) / VAP ───
+# Ref: ATS/IDSA HAP/VAP Guidelines 2016
+hospital_acquired_pneumonia:
+  icd10: [J15.0, J15.1, J15.5, J15.6, J95.851]
+  symptoms:
+    - {name: "fever", frequency: "common"}
+    - {name: "purulent sputum", frequency: "common"}
+    - {name: "cough", frequency: "common"}
+    - {name: "dyspnea", frequency: "common"}
+    - {name: "hypoxia", frequency: "common"}
+    - {name: "tachypnea", frequency: "common"}
+    - {name: "altered mental status", frequency: "occasional"}
+
+# ─── Aspiration Pneumonia ───
+# Ref: Harrison's Ch.121
+aspiration_pneumonia:
+  icd10: [J69.0]
+  symptoms:
+    - {name: "cough", frequency: "common"}
+    - {name: "fever", frequency: "common"}
+    - {name: "dyspnea", frequency: "common"}
+    - {name: "purulent sputum", frequency: "frequent"}
+    - {name: "hypoxia", frequency: "common"}
+
+# ─── COPD Exacerbation ───
+# Ref: GOLD 2024 Guidelines, Harrison's Ch.293
+copd_exacerbation:
+  icd10: [J44.0, J44.1]
+  symptoms:
+    - {name: "dyspnea", frequency: "common"}
+    - {name: "cough", frequency: "common"}
+    - {name: "sputum production", frequency: "common"}
+    - {name: "wheezing", frequency: "common"}
+    - {name: "chest tightness", frequency: "frequent"}
+    - {name: "tachypnea", frequency: "common"}
+    - {name: "fatigue", frequency: "frequent"}
+    - {name: "fever", frequency: "occasional"}  # If infective trigger
+
+# ─── Asthma Exacerbation ───
+# Ref: GINA 2024 Guidelines, Harrison's Ch.292
+asthma_exacerbation:
+  icd10: [J45.21, J45.31, J45.41, J45.51, J46]
+  symptoms:
+    - {name: "wheezing", frequency: "common"}
+    - {name: "dyspnea", frequency: "common"}
+    - {name: "chest tightness", frequency: "common"}
+    - {name: "cough", frequency: "common"}
+    - {name: "tachypnea", frequency: "frequent"}
+    - {name: "tachycardia", frequency: "frequent"}
+
+# ─── Pulmonary Embolism ───
+# Ref: ESC Guidelines 2019, Harrison's Ch.279
+pulmonary_embolism:
+  icd10: [I26.0, I26.02, I26.09, I26.90, I26.92, I26.99]
+  symptoms:
+    - {name: "dyspnea", frequency: "common"}  # 73% per PIOPED II
+    - {name: "pleuritic chest pain", frequency: "frequent"}  # 44%
+    - {name: "cough", frequency: "occasional"}  # 34%
+    - {name: "tachypnea", frequency: "common"}  # 54%
+    - {name: "tachycardia", frequency: "frequent"}  # 24%
+    - {name: "hemoptysis", frequency: "occasional"}  # 13%
+    - {name: "syncope", frequency: "occasional"}  # 10% (massive PE)
+    - {name: "leg swelling", frequency: "frequent"}  # DVT coexistence
+    - {name: "fever", frequency: "occasional"}
+
+# ─── Pulmonary Edema / CHF ───
+# Ref: Harrison's Ch.257, ESC HF Guidelines 2021
+pulmonary_edema:
+  icd10: [J81.0, J81.1, I50.1, I50.20, I50.21]
+  symptoms:
+    - {name: "dyspnea", frequency: "common"}
+    - {name: "orthopnea", frequency: "common"}
+    - {name: "paroxysmal nocturnal dyspnea", frequency: "frequent"}
+    - {name: "cough", frequency: "frequent"}  # Pink frothy sputum in severe
+    - {name: "peripheral edema", frequency: "common"}
+    - {name: "tachycardia", frequency: "frequent"}
+    - {name: "fatigue", frequency: "common"}
+    - {name: "weight loss", frequency: "occasional"}  # Cardiac cachexia
+
+# ─── ARDS ───
+# Ref: Berlin Definition 2012, Harrison's Ch.301
+ards:
+  icd10: [J80]
+  symptoms:
+    - {name: "dyspnea", frequency: "common"}
+    - {name: "tachypnea", frequency: "common"}
+    - {name: "hypoxia", frequency: "common"}
+    - {name: "respiratory distress", frequency: "common"}
+    - {name: "cyanosis", frequency: "frequent"}
+
+# ─── Lung Cancer ───
+# Ref: Harrison's Ch.78, NCCN NSCLC Guidelines 2024
+lung_cancer:
+  icd10: [C34.0, C34.1, C34.2, C34.3, C34.8, C34.9]
+  symptoms:
+    - {name: "cough", frequency: "common"}  # 50-75%
+    - {name: "hemoptysis", frequency: "frequent"}  # 25-50%
+    - {name: "dyspnea", frequency: "frequent"}
+    - {name: "chest pain", frequency: "frequent"}
+    - {name: "weight loss", frequency: "common"}  # >60%
+    - {name: "fatigue", frequency: "common"}
+    - {name: "anorexia", frequency: "frequent"}
+    - {name: "hoarseness", frequency: "occasional"}  # Recurrent laryngeal nerve
+    - {name: "clubbing", frequency: "occasional"}
+
+# ─── Tuberculosis ───
+# Ref: Harrison's Ch.179, WHO TB Guidelines 2022
+tuberculosis:
+  icd10: [A15.0, A15.3, A15.5, A15.6, A15.9]
+  symptoms:
+    - {name: "cough", frequency: "common"}  # >2 weeks chronic cough
+    - {name: "fever", frequency: "common"}
+    - {name: "night sweats", frequency: "common"}
+    - {name: "weight loss", frequency: "common"}
+    - {name: "hemoptysis", frequency: "frequent"}
+    - {name: "fatigue", frequency: "common"}
+    - {name: "anorexia", frequency: "frequent"}
+    - {name: "chest pain", frequency: "occasional"}
+
+# ─── Pleural Effusion ───
+# Ref: Harrison's Ch.302, BTS Pleural Disease Guidelines 2023
+pleural_effusion:
+  icd10: [J90, J91.0, J91.8]
+  symptoms:
+    - {name: "dyspnea", frequency: "common"}
+    - {name: "pleuritic chest pain", frequency: "frequent"}
+    - {name: "cough", frequency: "frequent"}
+    - {name: "fever", frequency: "occasional"}  # If parapneumonic
+
+# ─── Pneumothorax ───
+# Ref: Harrison's Ch.302, BTS Pneumothorax Guidelines 2023
+pneumothorax:
+  icd10: [J93.0, J93.1, J93.11, J93.12, J93.9]
+  symptoms:
+    - {name: "chest pain", frequency: "common"}  # Sudden onset
+    - {name: "dyspnea", frequency: "common"}
+    - {name: "tachycardia", frequency: "frequent"}
+    - {name: "tachypnea", frequency: "frequent"}
+
+# ─── Interstitial Lung Disease / Pulmonary Fibrosis ───
+# Ref: Harrison's Ch.294, ATS/ERS IPF Guidelines 2022
+interstitial_lung_disease:
+  icd10: [J84.1, J84.10, J84.112, J84.17, J84.9]
+  symptoms:
+    - {name: "dyspnea", frequency: "common"}  # Progressive exertional
+    - {name: "dry cough", frequency: "common"}
+    - {name: "fatigue", frequency: "frequent"}
+    - {name: "clubbing", frequency: "occasional"}  # IPF 25-50%
+    - {name: "weight loss", frequency: "occasional"}
+
+# ─── Sarcoidosis ───
+# Ref: Harrison's Ch.368, ATS/ERS/WASOG Statement 2024
+sarcoidosis:
+  icd10: [D86.0, D86.1, D86.2, D86.9]
+  symptoms:
+    - {name: "cough", frequency: "common"}
+    - {name: "dyspnea", frequency: "frequent"}
+    - {name: "fatigue", frequency: "common"}
+    - {name: "erythema nodosum", frequency: "occasional"}
+    - {name: "joint pain", frequency: "occasional"}
+    - {name: "fever", frequency: "occasional"}
+    - {name: "weight loss", frequency: "occasional"}
+    - {name: "chest pain", frequency: "occasional"}
+
+# ─── Bronchiectasis ───
+# Ref: Harrison's Ch.291, ERS Bronchiectasis Guidelines 2017
+bronchiectasis:
+  icd10: [J47.0, J47.1, J47.9]
+  symptoms:
+    - {name: "chronic cough", frequency: "common"}
+    - {name: "sputum production", frequency: "common"}  # Large volume, daily
+    - {name: "hemoptysis", frequency: "frequent"}
+    - {name: "dyspnea", frequency: "frequent"}
+    - {name: "fever", frequency: "occasional"}  # During exacerbations
+    - {name: "fatigue", frequency: "frequent"}
+
+# ─── Pulmonary Hypertension ───
+# Ref: ESC/ERS PH Guidelines 2022, Harrison's Ch.280
+pulmonary_hypertension:
+  icd10: [I27.0, I27.20, I27.21, I27.29]
+  symptoms:
+    - {name: "dyspnea", frequency: "common"}  # Exertional, progressive
+    - {name: "fatigue", frequency: "common"}
+    - {name: "chest pain", frequency: "frequent"}
+    - {name: "syncope", frequency: "occasional"}
+    - {name: "peripheral edema", frequency: "frequent"}
+    - {name: "palpitations", frequency: "occasional"}
+
+# ─── Lung Abscess ───
+# Ref: Harrison's Ch.121, Mandell's Infectious Diseases Ch.69
+lung_abscess:
+  icd10: [J85.1, J85.2]
+  symptoms:
+    - {name: "fever", frequency: "common"}
+    - {name: "cough", frequency: "common"}
+    - {name: "purulent sputum", frequency: "common"}  # Foul-smelling
+    - {name: "weight loss", frequency: "frequent"}
+    - {name: "night sweats", frequency: "frequent"}
+    - {name: "hemoptysis", frequency: "occasional"}
+    - {name: "chest pain", frequency: "occasional"}

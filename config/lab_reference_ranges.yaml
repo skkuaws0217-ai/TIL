@@ -1,0 +1,631 @@
+# ═══════════════════════════════════════════════════════════════════════
+# Lab Reference Ranges & Medical Terminology
+#
+# REFERENCE SOURCES (명확한 교과서/공식 가이드라인 근거만 사용):
+#   [1] Tietz Clinical Guide to Laboratory Tests, 6th Ed (2018)
+#       - 임상 검사 표준 reference range의 국제 표준 교과서
+#   [2] Harrison's Principles of Internal Medicine, 21st Ed (2022)
+#       - Appendix: Laboratory Values of Clinical Importance
+#   [3] WHO/IFCC Reference Intervals (2020)
+#   [4] CLSI C28-A3: Defining, Establishing, and Verifying Reference Intervals
+#   [5] Wallach's Interpretation of Diagnostic Tests, 11th Ed (2020)
+#
+# NOTE: Reference ranges may vary by laboratory, age, sex, and ethnicity.
+# These are standard adult reference intervals from the sources above.
+# MIMIC-IV provided ranges take priority; these are fallback standards.
+# ═══════════════════════════════════════════════════════════════════════
+
+# ─── BLOOD GAS (Arterial) ───
+# Ref: Tietz 6th Ed Ch.28, Harrison's 21st Appendix Table A-1
+
+50821:  # pO2
+  name: "pO2 (Partial Pressure of Oxygen)"
+  unit: "mmHg"
+  ref_source: "Tietz 6th Ed Ch.28; Harrison's 21st Appendix"
+  ranges:
+    lower: 80
+    upper: 100
+  critical:
+    low: 60    # Severe hypoxemia threshold (Harrison's)
+    high: 500  # Oxygen toxicity concern
+  medical_terms:
+    low: "Hypoxemia"
+    high: "Hyperoxemia"
+    critical_low: "Severe Hypoxemia (respiratory failure threshold)"
+
+50818:  # pCO2
+  name: "pCO2 (Partial Pressure of Carbon Dioxide)"
+  unit: "mmHg"
+  ref_source: "Tietz 6th Ed Ch.28; Harrison's 21st Appendix"
+  ranges:
+    lower: 35
+    upper: 45
+  critical:
+    low: 20
+    high: 60
+  medical_terms:
+    low: "Hypocapnia (respiratory alkalosis)"
+    high: "Hypercapnia (respiratory acidosis)"
+    critical_high: "Severe Hypercapnia (ventilatory failure)"
+
+50820:  # pH
+  name: "pH (Blood)"
+  unit: ""
+  ref_source: "Tietz 6th Ed Ch.28; Harrison's 21st Appendix"
+  ranges:
+    lower: 7.35
+    upper: 7.45
+  critical:
+    low: 7.20
+    high: 7.55
+  medical_terms:
+    low: "Acidemia"
+    high: "Alkalemia"
+    critical_low: "Severe Acidemia"
+    critical_high: "Severe Alkalemia"
+
+50803:  # Calculated Bicarbonate (Blood Gas)
+  name: "Bicarbonate (HCO3, calculated)"
+  unit: "mEq/L"
+  ref_source: "Tietz 6th Ed Ch.28"
+  ranges:
+    lower: 22
+    upper: 28
+  medical_terms:
+    low: "Metabolic Acidosis (low HCO3)"
+    high: "Metabolic Alkalosis (high HCO3)"
+
+50802:  # Base Excess
+  name: "Base Excess"
+  unit: "mEq/L"
+  ref_source: "Tietz 6th Ed Ch.28"
+  ranges:
+    lower: -2
+    upper: 2
+  medical_terms:
+    low: "Base Deficit (metabolic acidosis)"
+    high: "Base Excess (metabolic alkalosis)"
+
+50813:  # Lactate
+  name: "Lactate"
+  unit: "mmol/L"
+  ref_source: "Tietz 6th Ed Ch.14; Surviving Sepsis Campaign 2021"
+  ranges:
+    lower: 0.5
+    upper: 2.0
+  critical:
+    high: 4.0  # Severe hyperlactatemia per Surviving Sepsis Campaign
+  medical_terms:
+    low: "Normal Lactate"
+    high: "Hyperlactatemia"
+    critical_high: "Severe Hyperlactatemia (tissue hypoperfusion)"
+
+50801:  # A-a Gradient (MIMIC에 ref 없음 → 교과서 기준 적용)
+  name: "Alveolar-arterial Gradient"
+  unit: "mmHg"
+  ref_source: "Harrison's 21st Ch.286; Normal = age/4 + 4 (young adult <20)"
+  ranges:
+    lower: 0
+    upper: 20   # Young adult; increases ~3mmHg per decade after 30
+  medical_terms:
+    low: "Normal"
+    high: "Elevated A-a Gradient (V/Q mismatch, diffusion impairment, or shunt)"
+
+50825:  # Temperature (Blood Gas)
+  name: "Temperature (Blood Gas)"
+  unit: "°C"
+  ref_source: "Harrison's 21st Ed Ch.17; Normal core body temperature"
+  ranges:
+    lower: 36.1
+    upper: 37.2
+  critical:
+    low: 35.0    # Hypothermia (Harrison's)
+    high: 40.0   # Hyperpyrexia
+  medical_terms:
+    low: "Hypothermia"
+    high: "Hyperthermia (Fever)"
+    critical_low: "Severe Hypothermia"
+    critical_high: "Hyperpyrexia"
+
+# ─── COMPLETE BLOOD COUNT (CBC) ───
+# Ref: Tietz 6th Ed Ch.31; Harrison's 21st Appendix Table A-7
+
+51301:  # WBC
+  name: "White Blood Cell Count"
+  unit: "K/uL"
+  ref_source: "Tietz 6th Ed Ch.31; Harrison's 21st Appendix"
+  ranges:
+    lower: 4.5
+    upper: 11.0
+  critical:
+    low: 2.0    # Severe leukopenia
+    high: 30.0  # Leukemoid reaction threshold
+  medical_terms:
+    low: "Leukopenia"
+    high: "Leukocytosis"
+    critical_low: "Severe Leukopenia (infection risk)"
+    critical_high: "Marked Leukocytosis (leukemoid reaction)"
+
+51300:  # WBC (alternate itemid)
+  name: "White Blood Cell Count"
+  unit: "K/uL"
+  ref_source: "Tietz 6th Ed Ch.31"
+  ranges:
+    lower: 4.5
+    upper: 11.0
+  medical_terms:
+    low: "Leukopenia"
+    high: "Leukocytosis"
+
+51222:  # Hemoglobin
+  name: "Hemoglobin"
+  unit: "g/dL"
+  ref_source: "WHO 2011 Hb concentrations; Tietz 6th Ed Ch.31"
+  ranges:
+    lower: 12.0  # Female lower limit (WHO); Male=13.0
+    upper: 17.5  # Male upper limit; Female=15.5
+  critical:
+    low: 7.0   # Transfusion threshold (AABB 2016 guidelines)
+  medical_terms:
+    low: "Anemia"
+    high: "Polycythemia"
+    critical_low: "Severe Anemia (transfusion threshold per AABB 2016)"
+
+51265:  # Platelet Count
+  name: "Platelet Count"
+  unit: "K/uL"
+  ref_source: "Tietz 6th Ed Ch.31; Harrison's 21st Appendix"
+  ranges:
+    lower: 150
+    upper: 400
+  critical:
+    low: 50   # Spontaneous bleeding risk (Harrison's)
+    high: 1000
+  medical_terms:
+    low: "Thrombocytopenia"
+    high: "Thrombocytosis"
+    critical_low: "Severe Thrombocytopenia (bleeding risk)"
+
+51256:  # Neutrophils %
+  name: "Neutrophils (%)"
+  unit: "%"
+  ref_source: "Tietz 6th Ed Ch.31"
+  ranges:
+    lower: 40
+    upper: 70
+  medical_terms:
+    low: "Neutropenia (relative)"
+    high: "Neutrophilia"
+
+51200:  # Eosinophils %
+  name: "Eosinophils (%)"
+  unit: "%"
+  ref_source: "Tietz 6th Ed Ch.31; Harrison's 21st Ch.62"
+  ranges:
+    lower: 0
+    upper: 5
+  medical_terms:
+    low: "Normal"
+    high: "Eosinophilia"
+  note: ">5% or >500/uL absolute = Eosinophilia per Harrison's"
+
+51244:  # Lymphocytes %
+  name: "Lymphocytes (%)"
+  unit: "%"
+  ref_source: "Tietz 6th Ed Ch.31"
+  ranges:
+    lower: 20
+    upper: 40
+  medical_terms:
+    low: "Lymphopenia"
+    high: "Lymphocytosis"
+
+51146:  # Basophils %
+  name: "Basophils (%)"
+  unit: "%"
+  ref_source: "Tietz 6th Ed Ch.31"
+  ranges:
+    lower: 0
+    upper: 1
+  medical_terms:
+    low: "Normal"
+    high: "Basophilia"
+
+51279:  # RBC
+  name: "Red Blood Cell Count"
+  unit: "M/uL"
+  ref_source: "Tietz 6th Ed Ch.31"
+  ranges:
+    lower: 4.2
+    upper: 5.9
+  medical_terms:
+    low: "Erythrocytopenia"
+    high: "Erythrocytosis"
+
+51277:  # RDW
+  name: "Red Cell Distribution Width"
+  unit: "%"
+  ref_source: "Tietz 6th Ed Ch.31"
+  ranges:
+    lower: 11.5
+    upper: 14.5
+  medical_terms:
+    low: "Normal"
+    high: "Anisocytosis (elevated RDW)"
+
+# ─── INFLAMMATORY MARKERS ───
+# Ref: Tietz 6th Ed Ch.19; Harrison's 21st Ch.8
+
+50889:  # CRP
+  name: "C-Reactive Protein"
+  unit: "mg/L"
+  ref_source: "Tietz 6th Ed Ch.19; Pepys & Hirschfield, J Clin Invest 2003"
+  ranges:
+    lower: 0
+    upper: 10   # Normal <10 mg/L; <3 mg/L considered low risk (AHA/CDC)
+  critical:
+    high: 100   # Severe inflammation/infection
+  medical_terms:
+    low: "Normal CRP"
+    high: "Elevated CRP (inflammation)"
+    critical_high: "Markedly Elevated CRP (severe inflammation/infection)"
+
+51652:  # Procalcitonin
+  name: "Procalcitonin"
+  unit: "ng/mL"
+  ref_source: "Schuetz et al, Cochrane 2017; ProCAlcitonin-guided Antibiotic Therapy"
+  ranges:
+    lower: 0
+    upper: 0.1  # Normal <0.1 ng/mL
+  critical:
+    high: 2.0   # High risk bacterial infection
+  medical_terms:
+    low: "Normal"
+    high: "Elevated Procalcitonin (bacterial infection likely, per Schuetz Cochrane 2017)"
+    critical_high: "Markedly Elevated Procalcitonin (severe bacterial infection/sepsis)"
+  note: |
+    <0.1: bacterial infection very unlikely
+    0.1-0.25: bacterial infection unlikely
+    0.25-0.5: bacterial infection possible
+    >0.5: bacterial infection likely
+    >2.0: severe bacterial infection/sepsis likely
+
+50893:  # ESR (if available in MIMIC)
+  name: "Erythrocyte Sedimentation Rate"
+  unit: "mm/hr"
+  ref_source: "Tietz 6th Ed Ch.19; Westergren method"
+  ranges:
+    lower: 0
+    upper: 20   # Male <50y; Female <50y: 0-20; Age-adjusted: age/2 (male), (age+10)/2 (female)
+  medical_terms:
+    low: "Normal"
+    high: "Elevated ESR (nonspecific inflammation)"
+
+# ─── CHEMISTRY ───
+# Ref: Tietz 6th Ed Ch.14-16; Harrison's 21st Appendix
+
+50862:  # Albumin
+  name: "Albumin"
+  unit: "g/dL"
+  ref_source: "Tietz 6th Ed Ch.16; Harrison's 21st Appendix"
+  ranges:
+    lower: 3.5
+    upper: 5.5
+  medical_terms:
+    low: "Hypoalbuminemia"
+    high: "Hyperalbuminemia"
+
+50882:  # Bicarbonate (Serum)
+  name: "Bicarbonate (Serum CO2)"
+  unit: "mEq/L"
+  ref_source: "Tietz 6th Ed Ch.14"
+  ranges:
+    lower: 22
+    upper: 29
+  medical_terms:
+    low: "Low Serum Bicarbonate"
+    high: "Elevated Serum Bicarbonate"
+
+50912:  # Creatinine
+  name: "Creatinine"
+  unit: "mg/dL"
+  ref_source: "Tietz 6th Ed Ch.15; KDIGO AKI Guidelines 2012"
+  ranges:
+    lower: 0.6
+    upper: 1.2  # Male; Female 0.5-1.1
+  medical_terms:
+    low: "Low Creatinine"
+    high: "Elevated Creatinine (renal impairment)"
+
+50902:  # Chloride
+  name: "Chloride"
+  unit: "mEq/L"
+  ref_source: "Tietz 6th Ed Ch.14"
+  ranges:
+    lower: 98
+    upper: 106
+  medical_terms:
+    low: "Hypochloremia"
+    high: "Hyperchloremia"
+
+50931:  # Glucose
+  name: "Glucose"
+  unit: "mg/dL"
+  ref_source: "Tietz 6th Ed Ch.14; ADA Standards of Medical Care 2024"
+  ranges:
+    lower: 70
+    upper: 100  # Fasting normal per ADA
+  critical:
+    low: 50    # Severe hypoglycemia (ADA)
+    high: 400  # DKA/HHS concern
+  medical_terms:
+    low: "Hypoglycemia"
+    high: "Hyperglycemia"
+    critical_low: "Severe Hypoglycemia (ADA threshold)"
+    critical_high: "Severe Hyperglycemia (DKA/HHS concern)"
+
+50960:  # Magnesium
+  name: "Magnesium"
+  unit: "mg/dL"
+  ref_source: "Tietz 6th Ed Ch.14"
+  ranges:
+    lower: 1.7
+    upper: 2.2
+  medical_terms:
+    low: "Hypomagnesemia"
+    high: "Hypermagnesemia"
+
+50971:  # Potassium
+  name: "Potassium"
+  unit: "mEq/L"
+  ref_source: "Tietz 6th Ed Ch.14; Harrison's 21st Appendix"
+  ranges:
+    lower: 3.5
+    upper: 5.0
+  critical:
+    low: 3.0
+    high: 6.0
+  medical_terms:
+    low: "Hypokalemia"
+    high: "Hyperkalemia"
+    critical_low: "Severe Hypokalemia (arrhythmia risk)"
+    critical_high: "Severe Hyperkalemia (cardiac arrest risk)"
+
+50983:  # Sodium
+  name: "Sodium"
+  unit: "mEq/L"
+  ref_source: "Tietz 6th Ed Ch.14; Harrison's 21st Appendix"
+  ranges:
+    lower: 136
+    upper: 145
+  critical:
+    low: 120
+    high: 155
+  medical_terms:
+    low: "Hyponatremia"
+    high: "Hypernatremia"
+    critical_low: "Severe Hyponatremia (seizure risk)"
+    critical_high: "Severe Hypernatremia"
+
+50915:  # Calcium (Total)
+  name: "Calcium (Total)"
+  unit: "mg/dL"
+  ref_source: "Tietz 6th Ed Ch.14"
+  ranges:
+    lower: 8.5
+    upper: 10.5
+  medical_terms:
+    low: "Hypocalcemia"
+    high: "Hypercalcemia"
+
+50924:  # Phosphate
+  name: "Phosphate"
+  unit: "mg/dL"
+  ref_source: "Tietz 6th Ed Ch.14"
+  ranges:
+    lower: 2.5
+    upper: 4.5
+  medical_terms:
+    low: "Hypophosphatemia"
+    high: "Hyperphosphatemia"
+
+50954:  # LDH
+  name: "Lactate Dehydrogenase"
+  unit: "IU/L"
+  ref_source: "Tietz 6th Ed Ch.16; Harrison's 21st Appendix"
+  ranges:
+    lower: 100
+    upper: 250
+  medical_terms:
+    low: "Normal"
+    high: "Elevated LDH (tissue damage/hemolysis)"
+
+50963:  # BNP
+  name: "BNP (B-type Natriuretic Peptide)"
+  unit: "pg/mL"
+  ref_source: "Maisel et al, NEJM 2002 (Breathing Not Properly study); ESC HF Guidelines 2021"
+  ranges:
+    lower: 0
+    upper: 100   # <100 pg/mL: HF unlikely per ESC
+  critical:
+    high: 500    # >500: HF very likely
+  medical_terms:
+    low: "Normal BNP"
+    high: "Elevated BNP (cardiac strain/fluid overload)"
+    critical_high: "Markedly Elevated BNP (heart failure likely per Breathing Not Properly study)"
+
+50911:  # NT-proBNP
+  name: "NT-proBNP"
+  unit: "pg/mL"
+  ref_source: "Januzzi et al, Eur Heart J 2006 (ProBNP study); ESC HF Guidelines 2021"
+  ranges:
+    lower: 0
+    upper: 300   # <300: HF unlikely per ESC (age-independent rule-out)
+  critical:
+    high: 900    # Age-dependent rule-in: <50y: >450, 50-75y: >900, >75y: >1800
+  medical_terms:
+    low: "Normal"
+    high: "Elevated NT-proBNP (heart failure possible)"
+    critical_high: "Markedly Elevated NT-proBNP (heart failure likely per ESC)"
+
+# ─── COAGULATION ───
+# Ref: Tietz 6th Ed Ch.32; Harrison's 21st Ch.115
+
+51214:  # PT (Prothrombin Time)
+  name: "Prothrombin Time (PT)"
+  unit: "sec"
+  ref_source: "Tietz 6th Ed Ch.32"
+  ranges:
+    lower: 11.0
+    upper: 13.5
+  medical_terms:
+    low: "Normal"
+    high: "Prolonged PT (coagulopathy)"
+
+51237:  # INR
+  name: "International Normalized Ratio (INR)"
+  unit: ""
+  ref_source: "Tietz 6th Ed Ch.32; WHO standardization"
+  ranges:
+    lower: 0.9
+    upper: 1.1
+  medical_terms:
+    low: "Normal"
+    high: "Elevated INR (coagulopathy/anticoagulation)"
+
+51196:  # D-Dimer
+  name: "D-Dimer"
+  unit: "ng/mL FEU"
+  ref_source: "Tietz 6th Ed Ch.32; Wells PE Algorithm (Ann Intern Med 2001)"
+  ranges:
+    lower: 0
+    upper: 500   # <500 ng/mL FEU = negative (age-adjusted: age x 10 for >50y)
+  medical_terms:
+    low: "Normal"
+    high: "Elevated D-dimer (thrombotic risk — PE/DVT, DIC, inflammation)"
+  note: "Per Wells criteria: D-dimer <500 with low clinical probability effectively rules out PE"
+
+51274:  # Fibrinogen
+  name: "Fibrinogen"
+  unit: "mg/dL"
+  ref_source: "Tietz 6th Ed Ch.32"
+  ranges:
+    lower: 200
+    upper: 400
+  medical_terms:
+    low: "Hypofibrinogenemia (DIC, liver failure)"
+    high: "Hyperfibrinogenemia (acute phase reactant)"
+
+# ─── CARDIAC MARKERS ───
+# Ref: Tietz 6th Ed Ch.17; Fourth Universal Definition of MI (ESC 2018)
+
+51003:  # Troponin T (High Sensitivity)
+  name: "Troponin T (hs-cTnT)"
+  unit: "ng/mL"
+  ref_source: "Fourth Universal Definition of MI, ESC 2018; Tietz 6th Ed Ch.17"
+  ranges:
+    lower: 0
+    upper: 0.014  # 99th percentile URL per ESC 2018 (assay-dependent)
+  critical:
+    high: 0.1
+  medical_terms:
+    low: "Normal"
+    high: "Elevated Troponin (myocardial injury per 4th Universal Definition of MI)"
+    critical_high: "Markedly Elevated Troponin (significant myocardial injury)"
+
+51002:  # Troponin I
+  name: "Troponin I (cTnI)"
+  unit: "ng/mL"
+  ref_source: "Fourth Universal Definition of MI, ESC 2018"
+  ranges:
+    lower: 0
+    upper: 0.04   # 99th percentile URL (assay-dependent)
+  medical_terms:
+    low: "Normal"
+    high: "Elevated Troponin I (myocardial injury)"
+
+51006:  # BUN
+  name: "Blood Urea Nitrogen"
+  unit: "mg/dL"
+  ref_source: "Tietz 6th Ed Ch.15"
+  ranges:
+    lower: 7
+    upper: 20
+  medical_terms:
+    low: "Low BUN"
+    high: "Elevated BUN (azotemia — renal, prerenal, or postrenal)"
+
+51288:  # Total Protein
+  name: "Total Protein"
+  unit: "g/dL"
+  ref_source: "Tietz 6th Ed Ch.16"
+  ranges:
+    lower: 6.0
+    upper: 8.3
+  medical_terms:
+    low: "Hypoproteinemia"
+    high: "Hyperproteinemia"
+
+# ─── MIMIC에 Reference 없는 항목 (교과서 기반 보충) ───
+
+50802:  # Base Excess (MIMIC ref 0%)
+  name: "Base Excess"
+  unit: "mEq/L"
+  ref_source: "Tietz 6th Ed Ch.28; Harrison's 21st Appendix"
+  ranges:
+    lower: -2
+    upper: 2
+  critical:
+    low: -10   # Severe metabolic acidosis
+    high: 10
+  medical_terms:
+    low: "Base Deficit (metabolic acidosis)"
+    high: "Base Excess (metabolic alkalosis)"
+    critical_low: "Severe Base Deficit (severe metabolic acidosis)"
+
+50826:  # Tidal Volume (Blood Gas, MIMIC ref 0%)
+  name: "Tidal Volume (Blood Gas)"
+  unit: "mL"
+  ref_source: "Harrison's 21st Ch.286; Normal 6-8 mL/kg IBW"
+  ranges:
+    lower: 300
+    upper: 700   # Adult average ~500mL (6-8 mL/kg for 70kg)
+  medical_terms:
+    low: "Low Tidal Volume"
+    high: "Elevated Tidal Volume"
+
+51652:  # High-Sensitivity CRP (MIMIC ref 0%)
+  name: "High-Sensitivity CRP"
+  unit: "mg/L"
+  ref_source: "Tietz 6th Ed Ch.19; AHA/CDC 2003 (Pearson et al, Circulation 2003)"
+  ranges:
+    lower: 0
+    upper: 3.0   # hs-CRP <1: low risk, 1-3: moderate, >3: high risk (AHA/CDC)
+  critical:
+    high: 10.0   # Suggests acute inflammation, not just cardiovascular risk
+  medical_terms:
+    low: "Normal (low cardiovascular risk per AHA/CDC)"
+    high: "Elevated hs-CRP (cardiovascular risk per AHA/CDC 2003)"
+    critical_high: "Markedly Elevated hs-CRP (acute inflammation)"
+
+50915:  # D-Dimer (Chemistry, alternate itemid — same reference as 51196)
+  name: "D-Dimer"
+  unit: "ng/mL FEU"
+  ref_source: "Tietz 6th Ed Ch.32; Wells PE Algorithm (Ann Intern Med 2001)"
+  ranges:
+    lower: 0
+    upper: 500
+  medical_terms:
+    low: "Normal"
+    high: "Elevated D-dimer (thrombotic risk — PE/DVT, DIC, inflammation)"
+
+50893:  # Calcium Total (Chemistry, uses same itemid as ESR in some sources — verify)
+  name: "Calcium, Total"
+  unit: "mg/dL"
+  ref_source: "Tietz 6th Ed Ch.14"
+  ranges:
+    lower: 8.5
+    upper: 10.5
+  medical_terms:
+    low: "Hypocalcemia"
+    high: "Hypercalcemia"

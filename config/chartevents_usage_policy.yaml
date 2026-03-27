@@ -1,0 +1,127 @@
+# ═══════════════════════════════════════════════════════════════════════
+# Chartevents 항목 사용 정책
+#
+# MIMIC-IV chartevents는 ICU 모니터링 데이터로,
+# 일반 외래 폐기능검사(PFT: spirometry, DLCO 등)와는 다릅니다.
+#
+# ICU 환경의 ventilator/monitor에서 기록된 값이므로:
+#   - 표준화된 검사 조건이 아님 (환자 협조 불가, 진정 상태 등)
+#   - 정상/비정상 판정 기준을 일반 PFT 기준으로 적용할 수 없음
+#   - 진단 확정이 아닌 "잠재적 위험 질병 식별(screening)" 용도로만 사용
+#
+# Reference:
+#   - ATS/ERS Standards for PFT (Eur Respir J 2005;26:319-338)
+#     → 표준 PFT는 환자의 최대 노력 호흡(FVC, FEV1)을 요구
+#     → ICU ventilator 데이터는 이 기준을 충족하지 못함
+#   - ARDS Berlin Definition (JAMA 2012;307:2526-2533)
+#     → P/F ratio, PEEP 기반 분류는 ICU 데이터에서 유효
+#
+# usage_level:
+#   diagnostic:   확정 진단에 사용 가능 (lab, 영상 등)
+#   screening:    잠재적 위험 식별 전용 (ICU 폐기능 지표)
+#   supportive:   보조 정보 (활력징후)
+# ═══════════════════════════════════════════════════════════════════════
+
+items:
+
+  # ─── 활력징후: supportive (보조 정보) ───
+  220045:
+    label: "Heart Rate"
+    usage_level: supportive
+    note: "빈맥/서맥 확인용 보조 지표"
+
+  220210:
+    label: "Respiratory Rate"
+    usage_level: supportive
+    note: "빈호흡 확인용 보조 지표. 단독으로 진단 근거 불가."
+
+  220277:
+    label: "O2 saturation pulseoxymetry"
+    usage_level: supportive
+    note: "저산소증 보조 확인. 동맥혈 가스분석(ABG)이 확정 검사."
+
+  220179:
+    label: "Non Invasive Blood Pressure systolic"
+    usage_level: supportive
+
+  220180:
+    label: "Non Invasive Blood Pressure diastolic"
+    usage_level: supportive
+
+  223761:
+    label: "Temperature Fahrenheit"
+    usage_level: supportive
+
+  223762:
+    label: "Temperature Celsius"
+    usage_level: supportive
+
+  # ─── ICU 폐기능 지표: screening only (잠재적 위험 식별) ───
+  # ATS/ERS PFT Standards 미충족 → 진단 확정 불가
+  223835:
+    label: "Inspired O2 Fraction (FiO2)"
+    usage_level: screening
+    note: "ARDS 분류(Berlin Definition)에서 P/F ratio 계산 시 사용. 단독 진단 불가."
+
+  220339:
+    label: "PEEP set"
+    usage_level: screening
+    note: "ARDS Berlin Definition 분류 기준 중 하나 (PEEP ≥5 cmH2O). 기계환기 의존도 평가."
+
+  224685:
+    label: "Tidal Volume (observed)"
+    usage_level: screening
+    note: "ICU ventilator 측정값. 표준 PFT의 Tidal Volume과 조건이 다름. 잠재적 ARDS/VILI 위험 식별용."
+
+  224684:
+    label: "Tidal Volume (set)"
+    usage_level: screening
+    note: "Ventilator 설정값. Lung protective ventilation (6-8 mL/kg IBW) 준수 여부 확인용."
+
+  224686:
+    label: "Tidal Volume (spontaneous)"
+    usage_level: screening
+    note: "자발호흡 Tidal Volume. Weaning 가능성 평가 보조. 표준 PFT와 다름."
+
+  224690:
+    label: "Respiratory Rate (Total)"
+    usage_level: screening
+    note: "Ventilator + 자발호흡 합산. 호흡 부전 악화 징후 식별용."
+
+  220235:
+    label: "Arterial CO2 Pressure"
+    usage_level: screening
+    note: "ICU monitor 측정. ABG pCO2와 병용하여 환기 상태 추세 확인. 단독 확정 불가."
+
+  224696:
+    label: "Plateau Pressure"
+    usage_level: screening
+    note: "Barotrauma/VILI 위험 평가 (>30 cmH2O 위험). 치료 관련 잠재적 위험 식별."
+
+  226873:
+    label: "Inspiratory Ratio"
+    usage_level: screening
+    note: "Ventilator 설정. Inverse ratio ventilation 확인용."
+
+  # ─── Lung Sounds: screening (청진 소견) ───
+  223986:
+    label: "RUL Lung Sounds"
+    usage_level: screening
+    note: "ICU 간호사 청진 기록. 표준화된 검사 아님. Wheezing/Diminished/Crackle 등 잠재적 위험 식별."
+
+  223987:
+    label: "RLL Lung Sounds"
+    usage_level: screening
+
+  223988:
+    label: "LUL Lung Sounds"
+    usage_level: screening
+
+  223989:
+    label: "LLL Lung Sounds"
+    usage_level: screening
+
+  226732:
+    label: "O2 Delivery Device(s)"
+    usage_level: screening
+    note: "산소 공급 장치 종류. 산소 요구량 간접 추정."

@@ -1,0 +1,589 @@
+# ===============================================================
+# Lung Disease Diagnostic Profiles
+# Maps diseases to symptoms, lab patterns, radiology findings,
+# and microbiology patterns with weighted scoring.
+#
+# Reference Sources:
+#   - Harrison's Principles of Internal Medicine, 21st Ed (2022)
+#   - Murray & Nadel's Textbook of Respiratory Medicine, 7th Ed (2022)
+#   - Mandell's Infectious Diseases, 9th Ed (2020)
+#   - UpToDate Clinical Decision Support (2025)
+#   - ATS/IDSA CAP Guidelines (2019)
+#   - GOLD Report 2024 (COPD)
+#   - GINA Report 2024 (Asthma)
+#   - ESC PE Guidelines (2019)
+#   - ESC/ERS PH Guidelines (2022)
+#   - Berlin Definition for ARDS (2012)
+#   - BTS Pleural Disease / Pneumothorax Guidelines (2023)
+#   - ATS/ERS IPF Guidelines (2022)
+#   - WHO ICD-10 Classification
+#
+# Weight Schema:
+#   Each category has a diagnostic weight reflecting its
+#   discriminatory value (0.0 - 1.0) for that particular disease.
+#   Higher weight = more specific / pathognomonic for the disease.
+# ===============================================================
+
+# ─── Community-Acquired Pneumonia (CAP) ───
+# Ref: Harrison's Ch.121, ATS/IDSA Guidelines 2019
+community_acquired_pneumonia:
+  icd10: [J13, J14, J15, J15.0, J15.1, J15.9, J18.0, J18.1, J18.9]
+  weights:
+    symptoms: 0.20
+    lab: 0.25
+    radiology: 0.35
+    micro: 0.20
+  symptoms:
+    - cough
+    - fever
+    - sputum production
+    - dyspnea
+    - pleuritic chest pain
+    - chills
+    - rigors
+    - fatigue
+    - myalgia
+    - tachypnea
+    - tachycardia
+  lab_patterns:
+    # Ref: Harrison's Ch.121 "Laboratory Findings"
+    - Leukocytosis           # WBC > 11 K/uL
+    - Neutrophilia           # Left shift, bands
+    - Elevated CRP (inflammation)
+    - Elevated Procalcitonin (bacterial infection likely)
+    - Elevated LDH           # Tissue damage marker
+    - Hypoxemia              # pO2 < 80 mmHg
+    - Hyperlactatemia        # If severe / sepsis
+  radiology_findings:
+    # Ref: Murray & Nadel Ch.33 "Radiographic patterns"
+    - consolidation
+    - infiltrate
+    - air bronchogram
+    - opacity
+    - airspace disease
+  micro_findings:
+    # Ref: Mandell's Ch.67 "Community-Acquired Pneumonia"
+    - Streptococcus pneumoniae
+    - Haemophilus influenzae
+    - Moraxella catarrhalis
+    - Staphylococcus aureus
+    - Mycoplasma pneumoniae
+    - Chlamydia pneumoniae
+    - Legionella pneumophila
+
+# ─── Hospital-Acquired Pneumonia (HAP) / VAP ───
+# Ref: ATS/IDSA HAP/VAP Guidelines 2016
+hospital_acquired_pneumonia:
+  icd10: [J15.0, J15.1, J15.5, J15.6, J95.851]
+  weights:
+    symptoms: 0.15
+    lab: 0.25
+    radiology: 0.30
+    micro: 0.30
+  symptoms:
+    - fever
+    - purulent sputum
+    - cough
+    - dyspnea
+    - hypoxia
+    - tachypnea
+    - altered mental status
+  lab_patterns:
+    - Leukocytosis
+    - Neutrophilia
+    - Elevated Procalcitonin (bacterial infection likely)
+    - Elevated CRP (inflammation)
+    - Hypoxemia
+  radiology_findings:
+    - consolidation
+    - infiltrate
+    - opacity
+    - airspace disease
+  micro_findings:
+    # Ref: Mandell's Ch.68 "Healthcare-Associated Pneumonia"
+    - Pseudomonas aeruginosa
+    - Staphylococcus aureus
+    - Klebsiella pneumoniae
+    - Acinetobacter baumannii
+    - Escherichia coli
+    - Enterobacter
+
+# ─── Aspiration Pneumonia ───
+# Ref: Harrison's Ch.121
+aspiration_pneumonia:
+  icd10: [J69.0]
+  weights:
+    symptoms: 0.20
+    lab: 0.20
+    radiology: 0.35
+    micro: 0.25
+  symptoms:
+    - cough
+    - fever
+    - dyspnea
+    - purulent sputum
+    - hypoxia
+  lab_patterns:
+    - Leukocytosis
+    - Elevated CRP (inflammation)
+    - Hypoxemia
+  radiology_findings:
+    - consolidation
+    - infiltrate
+    - opacity
+    - cavitation       # Late complication
+    - abscess          # If untreated
+  micro_findings:
+    # Ref: Mandell's Ch.69 "Aspiration and Anaerobic Lung Infections"
+    - Bacteroides fragilis
+    - Fusobacterium nucleatum
+    - Peptostreptococcus
+    - Streptococcus anginosus
+
+# ─── COPD Exacerbation ───
+# Ref: GOLD 2024, Harrison's Ch.293
+copd_exacerbation:
+  icd10: [J44.0, J44.1]
+  weights:
+    symptoms: 0.35
+    lab: 0.25
+    radiology: 0.25
+    micro: 0.15
+  symptoms:
+    - dyspnea
+    - cough
+    - sputum production
+    - wheezing
+    - chest tightness
+    - tachypnea
+    - fatigue
+    - fever
+  lab_patterns:
+    # Ref: Harrison's Ch.293 "Laboratory Findings in COPD"
+    - Hypercapnia         # CO2 retention
+    - Hypoxemia
+    - Acidemia            # Respiratory acidosis
+    - Polycythemia        # Chronic hypoxemia -> secondary
+    - Leukocytosis        # If infective trigger
+    - Elevated CRP (inflammation)
+  radiology_findings:
+    # Ref: Murray & Nadel Ch.44 "COPD Radiology"
+    - hyperinflation
+    - emphysema
+    - flattened diaphragm
+    - bullae
+    - hyperexpansion
+  micro_findings:
+    # Ref: GOLD 2024 "Bacterial triggers of exacerbation"
+    - Haemophilus influenzae
+    - Streptococcus pneumoniae
+    - Moraxella catarrhalis
+    - Pseudomonas aeruginosa
+
+# ─── Asthma Exacerbation ───
+# Ref: GINA 2024, Harrison's Ch.292
+asthma_exacerbation:
+  icd10: [J45.21, J45.31, J45.41, J45.51, J46]
+  weights:
+    symptoms: 0.40
+    lab: 0.20
+    radiology: 0.25
+    micro: 0.15
+  symptoms:
+    - wheezing
+    - dyspnea
+    - chest tightness
+    - cough
+    - tachypnea
+    - tachycardia
+  lab_patterns:
+    # Ref: Harrison's Ch.292
+    - Eosinophilia         # Allergic phenotype
+    - Hypoxemia
+    - Hypocapnia           # Early; Hypercapnia = severe
+    - Alkalemia            # Respiratory alkalosis initially
+  radiology_findings:
+    - hyperinflation
+  micro_findings: []
+
+# ─── Pulmonary Embolism ───
+# Ref: ESC PE Guidelines 2019, Harrison's Ch.279
+pulmonary_embolism:
+  icd10: [I26.0, I26.02, I26.09, I26.90, I26.92, I26.99]
+  weights:
+    symptoms: 0.25
+    lab: 0.35
+    radiology: 0.30
+    micro: 0.10
+  symptoms:
+    - dyspnea
+    - pleuritic chest pain
+    - cough
+    - tachypnea
+    - tachycardia
+    - hemoptysis
+    - syncope
+    - leg swelling
+    - fever
+  lab_patterns:
+    # Ref: Harrison's Ch.279 "Diagnostic workup"
+    - Elevated D-dimer (thrombotic risk)
+    - Elevated Troponin (myocardial injury)   # RV strain
+    - Elevated BNP (cardiac strain/fluid overload)  # RV strain
+    - Elevated NT-proBNP (heart failure)
+    - Hypoxemia
+    - Hypocapnia                                     # Hyperventilation
+    - Elevated A-a Gradient
+  radiology_findings:
+    # Ref: CT pulmonary angiography findings
+    - pulmonary embolism
+    - filling defect
+    - atelectasis
+    - pleural effusion
+  micro_findings: []
+
+# ─── Pulmonary Edema / CHF ───
+# Ref: Harrison's Ch.257, ESC HF Guidelines 2021
+pulmonary_edema:
+  icd10: [J81.0, J81.1, I50.1, I50.20, I50.21]
+  weights:
+    symptoms: 0.25
+    lab: 0.35
+    radiology: 0.30
+    micro: 0.10
+  symptoms:
+    - dyspnea
+    - orthopnea
+    - paroxysmal nocturnal dyspnea
+    - cough
+    - peripheral edema
+    - tachycardia
+    - fatigue
+    - weight loss
+  lab_patterns:
+    # Ref: Harrison's Ch.257 "Diagnosis of HF"
+    - Elevated BNP (cardiac strain/fluid overload)
+    - Elevated NT-proBNP (heart failure)
+    - Hyponatremia            # Dilutional
+    - Elevated Creatinine (renal impairment)  # Cardiorenal
+    - Elevated Troponin (myocardial injury)
+  radiology_findings:
+    # Ref: Murray & Nadel Ch.58 "Pulmonary Edema"
+    - pulmonary edema
+    - vascular congestion
+    - cephalization
+    - kerley
+    - pleural effusion
+    - cardiomegaly
+  micro_findings: []
+
+# ─── ARDS ───
+# Ref: Berlin Definition 2012, Harrison's Ch.301
+ards:
+  icd10: [J80]
+  weights:
+    symptoms: 0.15
+    lab: 0.30
+    radiology: 0.40
+    micro: 0.15
+  symptoms:
+    - dyspnea
+    - tachypnea
+    - hypoxia
+    - respiratory distress
+    - cyanosis
+  lab_patterns:
+    # Ref: Berlin Definition criteria
+    - Hypoxemia                # P/F ratio < 300
+    - Hyperlactatemia          # Tissue hypoperfusion
+    - Acidemia                 # Severe hypoxemia
+    - Leukocytosis             # Underlying trigger
+  radiology_findings:
+    # Ref: Berlin Definition "bilateral opacities"
+    - opacity
+    - ground glass
+    - consolidation
+    - infiltrate
+  micro_findings:
+    # Ref: Underlying triggers
+    - Staphylococcus aureus
+    - Pseudomonas aeruginosa
+    - Klebsiella pneumoniae
+
+# ─── Lung Cancer ───
+# Ref: Harrison's Ch.78, NCCN NSCLC Guidelines 2024
+lung_cancer:
+  icd10: [C34.0, C34.1, C34.2, C34.3, C34.8, C34.9]
+  weights:
+    symptoms: 0.25
+    lab: 0.20
+    radiology: 0.45
+    micro: 0.10
+  symptoms:
+    - cough
+    - hemoptysis
+    - dyspnea
+    - chest pain
+    - weight loss
+    - fatigue
+    - anorexia
+    - hoarseness
+    - clubbing
+  lab_patterns:
+    # Ref: Harrison's Ch.78 "Paraneoplastic syndromes"
+    - Elevated LDH
+    - Anemia
+    - Hyponatremia         # SIADH (small cell)
+    - Elevated CRP (inflammation)
+    - Thrombocytosis       # Reactive
+    - Hypoalbuminemia      # Cachexia
+  radiology_findings:
+    # Ref: Murray & Nadel Ch.52 "Radiologic patterns"
+    - mass
+    - nodule
+    - lesion
+    - tumor
+    - malignancy
+    - lymphadenopathy
+    - mediastinal widening
+    - atelectasis
+    - pleural effusion
+  micro_findings: []
+
+# ─── Tuberculosis ───
+# Ref: Harrison's Ch.179, WHO TB Guidelines 2022
+tuberculosis:
+  icd10: [A15.0, A15.3, A15.5, A15.6, A15.9]
+  weights:
+    symptoms: 0.25
+    lab: 0.15
+    radiology: 0.30
+    micro: 0.30
+  symptoms:
+    - cough
+    - fever
+    - night sweats
+    - weight loss
+    - hemoptysis
+    - fatigue
+    - anorexia
+    - chest pain
+  lab_patterns:
+    # Ref: Harrison's Ch.179 "Diagnosis"
+    - Anemia                 # Chronic disease
+    - Lymphopenia            # Or lymphocytosis
+    - Hypoalbuminemia
+    - Hyponatremia
+    - Elevated LDH
+  radiology_findings:
+    # Ref: Murray & Nadel Ch.35 "TB Radiology"
+    - cavitation
+    - cavity
+    - consolidation
+    - infiltrate
+    - opacity
+    - lymphadenopathy
+    - calcification
+    - fibrosis
+  micro_findings:
+    # Ref: Mandell's Ch.249 "Mycobacterium tuberculosis"
+    - Mycobacterium tuberculosis
+    - AFB positive
+    - acid-fast bacilli
+
+# ─── Pleural Effusion ───
+# Ref: Harrison's Ch.302, BTS Pleural Disease Guidelines 2023
+pleural_effusion:
+  icd10: [J90, J91.0, J91.8]
+  weights:
+    symptoms: 0.20
+    lab: 0.25
+    radiology: 0.45
+    micro: 0.10
+  symptoms:
+    - dyspnea
+    - pleuritic chest pain
+    - cough
+    - fever
+  lab_patterns:
+    # Ref: Light's criteria for exudative vs transudative
+    - Elevated LDH            # Exudative
+    - Hypoalbuminemia          # Transudative
+    - Elevated CRP (inflammation)
+  radiology_findings:
+    - pleural effusion
+    - effusion
+    - blunting
+    - meniscus sign
+    - opacity
+  micro_findings: []
+
+# ─── Pneumothorax ───
+# Ref: Harrison's Ch.302, BTS Pneumothorax Guidelines 2023
+pneumothorax:
+  icd10: [J93.0, J93.1, J93.11, J93.12, J93.9]
+  weights:
+    symptoms: 0.25
+    lab: 0.10
+    radiology: 0.60
+    micro: 0.05
+  symptoms:
+    - chest pain
+    - dyspnea
+    - tachycardia
+    - tachypnea
+  lab_patterns:
+    - Hypoxemia
+  radiology_findings:
+    - pneumothorax
+  micro_findings: []
+
+# ─── Interstitial Lung Disease / Pulmonary Fibrosis ───
+# Ref: Harrison's Ch.294, ATS/ERS IPF Guidelines 2022
+interstitial_lung_disease:
+  icd10: [J84.1, J84.10, J84.112, J84.17, J84.9]
+  weights:
+    symptoms: 0.20
+    lab: 0.15
+    radiology: 0.55
+    micro: 0.10
+  symptoms:
+    - dyspnea
+    - dry cough
+    - fatigue
+    - clubbing
+    - weight loss
+  lab_patterns:
+    # Ref: Harrison's Ch.294
+    - Elevated LDH
+    - Elevated CRP (inflammation)
+  radiology_findings:
+    # Ref: ATS/ERS IPF Guidelines "HRCT patterns"
+    - ground glass
+    - fibrosis
+    - honeycombing
+    - reticular
+    - septal thickening
+    - interstitial
+  micro_findings: []
+
+# ─── Sarcoidosis ───
+# Ref: Harrison's Ch.368, ATS/ERS/WASOG Statement 2024
+sarcoidosis:
+  icd10: [D86.0, D86.1, D86.2, D86.9]
+  weights:
+    symptoms: 0.20
+    lab: 0.20
+    radiology: 0.45
+    micro: 0.15
+  symptoms:
+    - cough
+    - dyspnea
+    - fatigue
+    - erythema nodosum
+    - joint pain
+    - fever
+    - weight loss
+    - chest pain
+  lab_patterns:
+    # Ref: Harrison's Ch.368 "Diagnosis"
+    - Elevated CRP (inflammation)
+    - Elevated LDH
+    - Lymphopenia
+  radiology_findings:
+    - lymphadenopathy
+    - interstitial
+    - ground glass
+    - fibrosis
+    - nodule
+  micro_findings: []
+
+# ─── Bronchiectasis ───
+# Ref: Harrison's Ch.291, ERS Bronchiectasis Guidelines 2017
+bronchiectasis:
+  icd10: [J47.0, J47.1, J47.9]
+  weights:
+    symptoms: 0.25
+    lab: 0.15
+    radiology: 0.40
+    micro: 0.20
+  symptoms:
+    - chronic cough
+    - sputum production
+    - hemoptysis
+    - dyspnea
+    - fever
+    - fatigue
+  lab_patterns:
+    - Leukocytosis         # During exacerbation
+    - Elevated CRP (inflammation)
+  radiology_findings:
+    # Ref: Murray & Nadel Ch.50 "HRCT findings"
+    - bronchiectasis
+  micro_findings:
+    # Ref: ERS Bronchiectasis Guidelines "Common colonisers"
+    - Pseudomonas aeruginosa
+    - Haemophilus influenzae
+    - Staphylococcus aureus
+
+# ─── Pulmonary Hypertension ───
+# Ref: ESC/ERS PH Guidelines 2022, Harrison's Ch.280
+pulmonary_hypertension:
+  icd10: [I27.0, I27.20, I27.21, I27.29]
+  weights:
+    symptoms: 0.30
+    lab: 0.30
+    radiology: 0.30
+    micro: 0.10
+  symptoms:
+    - dyspnea
+    - fatigue
+    - chest pain
+    - syncope
+    - peripheral edema
+    - palpitations
+  lab_patterns:
+    # Ref: ESC/ERS PH Guidelines "Biomarkers"
+    - Elevated BNP (cardiac strain/fluid overload)
+    - Elevated NT-proBNP (heart failure)
+    - Elevated Troponin (myocardial injury)
+  radiology_findings:
+    - cardiomegaly
+  micro_findings: []
+
+# ─── Lung Abscess ───
+# Ref: Harrison's Ch.121, Mandell's Ch.69
+lung_abscess:
+  icd10: [J85.1, J85.2]
+  weights:
+    symptoms: 0.20
+    lab: 0.20
+    radiology: 0.30
+    micro: 0.30
+  symptoms:
+    - fever
+    - cough
+    - purulent sputum
+    - weight loss
+    - night sweats
+    - hemoptysis
+    - chest pain
+  lab_patterns:
+    - Leukocytosis
+    - Anemia               # Chronic infection
+    - Elevated CRP (inflammation)
+    - Elevated LDH
+    - Hypoalbuminemia
+  radiology_findings:
+    - cavitation
+    - cavity
+    - abscess
+    - consolidation
+  micro_findings:
+    # Ref: Mandell's Ch.69 "Lung Abscess pathogens"
+    - Bacteroides fragilis
+    - Fusobacterium nucleatum
+    - Peptostreptococcus
+    - Streptococcus anginosus
+    - Klebsiella pneumoniae
+    - Staphylococcus aureus
