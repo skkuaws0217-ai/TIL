@@ -1,0 +1,94 @@
+{
+  "Comment": "PaperHub 논문 요약 + 알림 발송 파이프라인",
+  "StartAt": "SummarizePaper",
+  "States": {
+    "SummarizePaper": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "paperhub-summarizer-fn",
+        "Payload.$": "$"
+      },
+      "ResultPath": "$",
+      "ResultSelector": {
+        "pmid.$": "$.Payload.pmid",
+        "title.$": "$.Payload.title",
+        "authors.$": "$.Payload.authors",
+        "journal.$": "$.Payload.journal",
+        "year.$": "$.Payload.year",
+        "doi.$": "$.Payload.doi",
+        "summary_oneline.$": "$.Payload.summary_oneline",
+        "summary_full.$": "$.Payload.summary_full",
+        "pdf_s3_key.$": "$.Payload.pdf_s3_key",
+        "summary_pdf_s3_key.$": "$.Payload.summary_pdf_s3_key",
+        "alert_keyword.$": "$.Payload.alert_keyword"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed", "Lambda.ServiceException"],
+          "IntervalSeconds": 30,
+          "MaxAttempts": 2,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "SummarizeFailed",
+          "ResultPath": "$.error"
+        }
+      ],
+      "Next": "CheckAlertKeyword"
+    },
+    "CheckAlertKeyword": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "And": [
+            { "Variable": "$.alert_keyword", "IsPresent": true },
+            { "Not": { "Variable": "$.alert_keyword", "StringEquals": "" } }
+          ],
+          "Next": "SendAlertEmail"
+        }
+      ],
+      "Default": "Done"
+    },
+    "SendAlertEmail": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "paperhub-alert-sender",
+        "Payload.$": "$"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": ["States.TaskFailed"],
+          "IntervalSeconds": 10,
+          "MaxAttempts": 3,
+          "BackoffRate": 2.0
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": ["States.ALL"],
+          "Next": "AlertFailed",
+          "ResultPath": "$.error"
+        }
+      ],
+      "Next": "Done"
+    },
+    "Done": {
+      "Type": "Succeed"
+    },
+    "SummarizeFailed": {
+      "Type": "Fail",
+      "Cause": "Paper summarization failed",
+      "Error": "SummarizeError"
+    },
+    "AlertFailed": {
+      "Type": "Fail",
+      "Cause": "Alert email sending failed",
+      "Error": "AlertError"
+    }
+  }
+}

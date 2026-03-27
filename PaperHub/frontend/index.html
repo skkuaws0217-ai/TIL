@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PaperHub - AI Paper Discovery</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0b0f1a; --surface: #111827; --border: #1e293b;
+    --text: #e2e8f0; --muted: #94a3b8; --accent: #6ee7b7;
+    --accent2: #a78bfa; --danger: #f87171; --blue: #60a5fa;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  a { color: var(--accent); text-decoration: none; }
+
+  /* Layout */
+  .app { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
+
+  /* Header */
+  .header { text-align: center; padding: 48px 0 36px; }
+  .header h1 { font-size: 36px; font-weight: 800; letter-spacing: -0.02em; }
+  .header h1 span { background: linear-gradient(135deg, #6ee7b7, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header p { color: var(--muted); margin-top: 8px; font-size: 15px; }
+
+  /* Search */
+  .search-box { display: flex; gap: 10px; margin: 0 auto 32px; max-width: 640px; }
+  .search-box input {
+    flex: 1; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; color: var(--text); font-size: 15px; outline: none; transition: border 0.2s;
+  }
+  .search-box input:focus { border-color: var(--accent); }
+  .search-box input::placeholder { color: var(--muted); }
+  .search-box button {
+    padding: 14px 28px; background: var(--accent); color: #0f172a; font-weight: 700;
+    border: none; border-radius: 12px; cursor: pointer; font-size: 15px; transition: background 0.2s;
+  }
+  .search-box button:hover { background: #34d399; }
+  .search-box button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+  .tab {
+    padding: 10px 20px; font-size: 14px; font-weight: 600; color: var(--muted);
+    cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* Stats */
+  .stats { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .stat {
+    padding: 16px 20px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; flex: 1; min-width: 140px;
+  }
+  .stat-value { font-size: 24px; font-weight: 700; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Paper Card */
+  .paper-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 24px; margin-bottom: 14px; transition: border-color 0.2s;
+  }
+  .paper-card:hover { border-color: #334155; }
+  .paper-title { font-size: 16px; font-weight: 600; line-height: 1.5; margin-bottom: 8px; }
+  .paper-meta { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .paper-meta .journal { color: var(--blue); font-weight: 500; }
+  .paper-abstract { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 14px; }
+  .paper-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tag {
+    display: inline-block; padding: 3px 10px; font-size: 11px; font-weight: 600;
+    border-radius: 20px; border: 1px solid;
+  }
+  .tag-oa { color: var(--accent); border-color: rgba(110,231,183,0.3); background: rgba(110,231,183,0.08); }
+  .tag-pdf { color: var(--blue); border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.08); }
+  .tag-kw { color: var(--accent2); border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.08); }
+  .paper-actions { display: flex; gap: 8px; }
+  .btn-sm {
+    padding: 7px 14px; font-size: 12px; font-weight: 600; border-radius: 8px;
+    cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); transition: all 0.2s;
+  }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm.primary { background: var(--accent); color: #0f172a; border-color: var(--accent); }
+  .btn-sm.primary:hover { background: #34d399; }
+
+  /* Alert Section */
+  .alert-form { display: flex; gap: 10px; margin-bottom: 20px; }
+  .alert-form input {
+    flex: 1; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text); font-size: 14px; outline: none;
+  }
+  .alert-form input:focus { border-color: var(--accent2); }
+  .alert-form select {
+    padding: 12px 16px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text); font-size: 14px; outline: none;
+  }
+  .alert-form button {
+    padding: 12px 20px; background: var(--accent2); color: #0f172a; font-weight: 700;
+    border: none; border-radius: 10px; cursor: pointer; font-size: 14px;
+  }
+
+  .alert-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; margin-bottom: 10px;
+  }
+  .alert-keyword { font-weight: 600; font-size: 15px; }
+  .alert-info { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .alert-actions { display: flex; gap: 8px; align-items: center; }
+  .badge-active { padding: 3px 10px; font-size: 11px; font-weight: 600; border-radius: 20px; background: rgba(110,231,183,0.1); color: var(--accent); border: 1px solid rgba(110,231,183,0.3); }
+
+  /* Summary Modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 100; justify-content: center; align-items: center; padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    max-width: 680px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 32px;
+  }
+  .modal-close {
+    float: right; background: none; border: none; color: var(--muted); font-size: 24px;
+    cursor: pointer; padding: 4px;
+  }
+  .modal h2 { font-size: 18px; margin-bottom: 16px; padding-right: 32px; }
+  .summary-section { margin-bottom: 20px; }
+  .summary-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .summary-oneline { padding: 14px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; font-size: 14px; line-height: 1.7; }
+  .summary-full { padding: 14px; border-left: 3px solid var(--accent2); background: var(--bg); border-radius: 0 8px 8px 0; font-size: 13px; line-height: 1.8; white-space: pre-wrap; }
+
+  /* Pipeline Visualization */
+  .pipeline { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 20px; background: var(--surface); border-radius: 12px; margin-bottom: 24px; }
+  .pipe-node { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .pipe-arrow { color: var(--muted); font-size: 14px; }
+
+  /* Loading */
+  .loading { text-align: center; padding: 48px; color: var(--muted); }
+  .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Empty */
+  .empty { text-align: center; padding: 64px 20px; color: var(--muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; padding: 14px 20px;
+    background: var(--surface); border: 1px solid var(--accent); border-radius: 10px;
+    font-size: 14px; z-index: 200; transform: translateY(100px); opacity: 0; transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* Footer */
+  .footer { text-align: center; padding: 40px 0 20px; font-size: 12px; color: #475569; }
+
+  /* Filter Bar */
+  .filter-bar {
+    display: flex; gap: 10px; margin-bottom: 20px; align-items: center; flex-wrap: wrap;
+  }
+  .filter-bar select, .filter-bar label {
+    padding: 8px 14px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 13px; outline: none;
+  }
+  .filter-bar label { cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .filter-bar label input[type="checkbox"] { accent-color: var(--accent); }
+  .filter-bar .filter-label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Metric Badges */
+  .metrics { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .metric {
+    display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+    font-size: 11px; font-weight: 600; border-radius: 6px; border: 1px solid;
+  }
+  .metric-cite { color: #60a5fa; border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.08); }
+  .metric-pval { color: #6ee7b7; border-color: rgba(110,231,183,0.3); background: rgba(110,231,183,0.08); }
+  .metric-pval-weak { color: #f87171; border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.08); }
+  .metric-impact { color: #fbbf24; border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); }
+  .metric-sci { color: #c084fc; border-color: rgba(192,132,252,0.3); background: rgba(192,132,252,0.08); }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .header h1 { font-size: 28px; }
+    .search-box { flex-direction: column; }
+    .stats { flex-direction: column; }
+    .alert-form { flex-direction: column; }
+    .filter-bar { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Header -->
+  <div class="header">
+    <h1><span>PaperHub</span></h1>
+    <p>AI-Powered Academic Paper Discovery & Summarization</p>
+  </div>
+
+  <!-- Pipeline -->
+  <div class="pipeline">
+    <span class="pipe-node" style="background: rgba(251,191,36,0.12); color: #fbbf24;">EventBridge</span>
+    <span class="pipe-arrow">&rarr;</span>
+    <span class="pipe-node" style="background: rgba(96,165,250,0.12); color: #60a5fa;">Lambda</span>
+    <span class="pipe-arrow">&rarr;</span>
+    <span class="pipe-node" style="background: rgba(167,139,250,0.12); color: #a78bfa;">PubMed</span>
+    <span class="pipe-arrow">&rarr;</span>
+    <span class="pipe-node" style="background: rgba(244,114,182,0.12); color: #f472b6;">Bedrock Claude</span>
+    <span class="pipe-arrow">&rarr;</span>
+    <span class="pipe-node" style="background: rgba(110,231,183,0.12); color: #6ee7b7;">SES</span>
+  </div>
+
+  <!-- Search -->
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search papers... (e.g. CRISPR, Transformer, cancer immunotherapy)" />
+    <button id="searchBtn" onclick="searchPapers()">Search</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-tab="papers" onclick="switchTab('papers')">Papers</div>
+    <div class="tab" data-tab="alerts" onclick="switchTab('alerts')">Alerts</div>
+  </div>
+
+  <!-- Papers Tab -->
+  <div id="papers-tab">
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <span class="filter-label">Filter & Sort</span>
+      <label><input type="checkbox" id="sciOnly" onchange="searchPapers()"> SCIE Only</label>
+      <select id="sortBy" onchange="searchPapers()">
+        <option value="date">Latest (newest)</option>
+        <option value="citations">Citations (most cited)</option>
+        <option value="pvalue">p-value (most significant)</option>
+        <option value="impact">Impact (influential)</option>
+      </select>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value" id="totalPapers">0</div>
+        <div class="stat-label">Papers Found</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="pdfCount">0</div>
+        <div class="stat-label">PDFs Cached</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="oaCount">0</div>
+        <div class="stat-label">Open Access</div>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div id="results">
+      <div class="empty">
+        <div class="empty-icon">&#128218;</div>
+        <h3>Search for Papers</h3>
+        <p>Enter a keyword to discover recent papers from PubMed</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts Tab -->
+  <div id="alerts-tab" style="display:none;">
+    <div class="alert-form">
+      <input type="text" id="alertKeyword" placeholder="Keyword (e.g. CRISPR)" />
+      <input type="email" id="alertEmail" placeholder="Email" />
+      <select id="alertFreq">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+      </select>
+      <button onclick="createAlert()">Create Alert</button>
+    </div>
+    <div id="alertsList">
+      <div class="empty">
+        <div class="empty-icon">&#128276;</div>
+        <h3>No Alerts Yet</h3>
+        <p>Create a keyword alert to receive new paper notifications via email</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    PaperHub &mdash; Powered by AWS Bedrock Claude &middot; Lambda &middot; DynamoDB &middot; Step Functions
+  </div>
+</div>
+
+<!-- Summary Modal -->
+<div class="modal-overlay" id="summaryModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h2 id="modalTitle"></h2>
+    <div class="summary-section">
+      <div class="summary-label" style="color: var(--accent);">AI One-Line Summary</div>
+      <div class="summary-oneline" id="modalOneline">Generating summary with Bedrock Claude...</div>
+    </div>
+    <div class="summary-section">
+      <div class="summary-label" style="color: var(--accent2);">AI Full Summary (1-Page)</div>
+      <div class="summary-full" id="modalFull">Generating full summary...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Related Modal -->
+<div class="modal-overlay" id="relatedModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeRelated()">&times;</button>
+    <h2 id="relatedTitle">Related Papers</h2>
+    <div class="summary-section">
+      <div class="summary-label" style="color: var(--accent2);">Extracted Keywords</div>
+      <div id="relatedKeywords" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;"></div>
+    </div>
+    <div id="relatedList"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE = 'https://wn8iz057v7.execute-api.us-east-1.amazonaws.com/prod';
+let papers = [];
+let alerts = [];
+
+// Tab switching
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('papers-tab').style.display = tab === 'papers' ? 'block' : 'none';
+  document.getElementById('alerts-tab').style.display = tab === 'alerts' ? 'block' : 'none';
+  if (tab === 'alerts') loadAlerts();
+}
+
+// Search papers
+async function searchPapers() {
+  const keyword = document.getElementById('searchInput').value.trim();
+  if (!keyword) return;
+
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  btn.textContent = 'Searching...';
+  document.getElementById('results').innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top:12px">Searching PubMed for "' + keyword + '"...</p></div>';
+
+  try {
+    const resp = await fetch(API_BASE + '/papers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        keyword,
+        max_results: 20,
+        sci_only: document.getElementById('sciOnly').checked,
+        sort_by: document.getElementById('sortBy').value,
+      }),
+    });
+    const data = await resp.json();
+    papers = data.papers || [];
+    renderPapers();
+    showToast(papers.length + ' papers found');
+  } catch (err) {
+    document.getElementById('results').innerHTML =
+      '<div class="empty"><div class="empty-icon">&#9888;&#65039;</div><h3>Search Error</h3><p>' + err.message + '</p></div>';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Search';
+  }
+}
+
+// Render papers
+function renderPapers() {
+  const pdfCount = papers.filter(p => p.has_pdf).length;
+  const oaCount = papers.filter(p => p.is_open_access).length;
+  document.getElementById('totalPapers').textContent = papers.length;
+  document.getElementById('pdfCount').textContent = pdfCount;
+  document.getElementById('oaCount').textContent = oaCount;
+
+  if (!papers.length) {
+    document.getElementById('results').innerHTML = '<div class="empty"><div class="empty-icon">&#128269;</div><h3>No Papers Found</h3><p>Try a different keyword</p></div>';
+    return;
+  }
+
+  let html = '';
+  papers.forEach((p, i) => {
+    const authors = (p.authors || []).slice(0, 3).join(', ') + (p.authors && p.authors.length > 3 ? ' et al.' : '');
+    const abstract = (p.abstract || '').substring(0, 250) + ((p.abstract || '').length > 250 ? '...' : '');
+    const keywords = (p.keywords || []).slice(0, 4);
+
+    html += '<div class="paper-card">';
+    html += '  <div class="paper-title">' + escHtml(p.title) + '</div>';
+    html += '  <div class="paper-meta"><span class="journal">' + escHtml(p.journal) + '</span> &middot; ' + escHtml(p.year) + ' &middot; ' + escHtml(authors) + '</div>';
+    if (abstract) html += '  <div class="paper-abstract">' + escHtml(abstract) + '</div>';
+
+    // Metrics
+    html += '  <div class="metrics">';
+    if (p.citation_count > 0) html += '<span class="metric metric-cite">Cited: ' + p.citation_count + '</span>';
+    if (p.influential_citations > 0) html += '<span class="metric metric-impact">Influential: ' + p.influential_citations + '</span>';
+    if (p.citescore) html += '<a href="' + escHtml(p.scopus_url || 'https://www.scopus.com/sources') + '" target="_blank" class="metric" style="color:#e77c2a;border-color:rgba(231,124,42,0.3);background:rgba(231,124,42,0.08);text-decoration:none;" title="Scopus CiteScore (Elsevier 학술 데이터베이스)">CiteScore: ' + p.citescore + '</a>';
+    if (p.pvalues && p.pvalues.length > 0) {
+      const pv = p.pvalues[0];
+      const cls = (pv.numeric !== null && pv.numeric < 0.05) ? 'metric-pval' : 'metric-pval-weak';
+      html += '<span class="metric ' + cls + '">' + escHtml(pv.raw) + ' — ' + escHtml(pv.significance) + '</span>';
+    }
+    html += '  </div>';
+
+    html += '  <div class="paper-tags">';
+    if (p.is_scie === true) html += '<span class="metric metric-sci" style="font-size:12px;font-weight:700;" title="Web of Science - Science Citation Index Expanded">SCIE</span>';
+    else if (p.wos_collections && p.wos_collections.includes('ESCI')) html += '<span class="metric" style="color:#fb923c;border-color:rgba(251,146,60,0.3);background:rgba(251,146,60,0.08);font-size:11px;" title="Emerging Sources Citation Index (SCI 등재 전 단계)">ESCI</span>';
+    if (p.wos_collections && p.wos_collections.includes('SSCI')) html += '<span class="metric metric-sci" style="font-size:11px;" title="Social Sciences Citation Index">SSCI</span>';
+    if (p.wos_collections && p.wos_collections.includes('AHCI')) html += '<span class="metric metric-sci" style="font-size:11px;" title="Arts & Humanities Citation Index">AHCI</span>';
+    if (p.is_open_access) html += '<span class="tag tag-oa">Open Access</span>';
+    if (p.has_pdf) html += '<span class="tag tag-pdf">PDF</span>';
+    keywords.forEach(kw => { html += '<span class="tag tag-kw">' + escHtml(kw) + '</span>'; });
+    if (p.mjl_url) html += '<a href="' + escHtml(p.mjl_url) + '" target="_blank" class="tag" style="color:var(--muted);border-color:var(--border);font-size:10px;text-decoration:none;">MJL Check</a>';
+    html += '  </div>';
+
+    html += '  <div class="paper-actions">';
+    html += '    <button class="btn-sm primary" onclick="requestSummary(' + i + ')">AI Summary</button>';
+    html += '    <button class="btn-sm" onclick="findRelated(\'' + escHtml(p.pmid) + '\')" style="border-color:var(--accent2);color:var(--accent2);">Related</button>';
+    if (p.doi) html += '    <button class="btn-sm" onclick="window.open(\'https://www.sci-hub.in/' + escHtml(p.doi) + '\')" style="border-color:#f59e0b;color:#f59e0b;">Sci-Hub</button>';
+    if (p.doi) html += '    <button class="btn-sm" onclick="window.open(\'https://sci-hub.kr/' + escHtml(p.doi) + '\')" style="border-color:#f59e0b;color:#f59e0b;">Sci-Hub KR</button>';
+    if (p.doi) html += '    <button class="btn-sm" onclick="window.open(\'https://doi.org/' + escHtml(p.doi) + '\')">DOI</button>';
+    html += '    <button class="btn-sm" onclick="window.open(\'https://pubmed.ncbi.nlm.nih.gov/' + escHtml(p.pmid) + '\')">PubMed</button>';
+    html += '  </div>';
+    html += '</div>';
+  });
+
+  document.getElementById('results').innerHTML = html;
+}
+
+// Request AI summary
+function requestSummary(idx) {
+  const p = papers[idx];
+  document.getElementById('modalTitle').textContent = p.title;
+  document.getElementById('modalOneline').textContent = 'Generating summary with Bedrock Claude...';
+  document.getElementById('modalFull').textContent = 'Analyzing paper and generating structured summary...';
+  document.getElementById('summaryModal').classList.add('show');
+
+  // Simulate - in production, this calls the Step Functions workflow
+  fetch(API_BASE + '/papers/' + p.pmid + '/summary', { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.summary_oneline) document.getElementById('modalOneline').textContent = data.summary_oneline;
+      if (data.summary_full) document.getElementById('modalFull').textContent = data.summary_full;
+    })
+    .catch(() => {
+      document.getElementById('modalOneline').textContent = 'Summary will be generated via the Step Functions pipeline. Check back in a few minutes.';
+      document.getElementById('modalFull').textContent = 'The paper has been queued for summarization by Bedrock Claude. You will receive an email notification when the summary is ready (if you have an active alert for this keyword).';
+    });
+}
+
+function closeModal() { document.getElementById('summaryModal').classList.remove('show'); }
+
+// Alerts
+async function loadAlerts() {
+  try {
+    const resp = await fetch(API_BASE + '/alerts');
+    const data = await resp.json();
+    alerts = data.alerts || [];
+    renderAlerts();
+  } catch {
+    renderAlerts();
+  }
+}
+
+function renderAlerts() {
+  if (!alerts.length) {
+    document.getElementById('alertsList').innerHTML = '<div class="empty"><div class="empty-icon">&#128276;</div><h3>No Alerts Yet</h3><p>Create a keyword alert to receive new paper notifications via email</p></div>';
+    return;
+  }
+  let html = '';
+  alerts.forEach(a => {
+    const isActive = a.active !== false;
+    const badgeCls = isActive ? 'badge-active' : '';
+    const badgeStyle = isActive ? '' : 'style="background:rgba(248,113,113,0.1);color:#f87171;border-color:rgba(248,113,113,0.3);"';
+    const badgeText = isActive ? 'Active' : 'Paused';
+    const toggleText = isActive ? 'Pause' : 'Resume';
+    const toggleColor = isActive ? 'color:#f59e0b;border-color:#f59e0b;' : 'color:var(--accent);border-color:var(--accent);';
+
+    html += '<div class="alert-item">';
+    html += '  <div><div class="alert-keyword">' + escHtml(a.keyword) + '</div>';
+    html += '  <div class="alert-info">' + escHtml(a.email) + ' &middot; ' + escHtml(a.frequency || 'daily') + '</div></div>';
+    html += '  <div class="alert-actions">';
+    html += '    <span class="' + badgeCls + '" ' + badgeStyle + '>' + badgeText + '</span>';
+    html += '    <button class="btn-sm" style="' + toggleColor + '" onclick="toggleAlert(\'' + escHtml(a.alert_id) + '\',' + !isActive + ')">' + toggleText + '</button>';
+    html += '    <button class="btn-sm" style="color:#60a5fa;border-color:#60a5fa;" onclick="editAlert(\'' + escHtml(a.alert_id) + '\',\'' + escHtml(a.frequency || 'daily') + '\')">Edit</button>';
+    html += '    <button class="btn-sm" style="color:#f87171;border-color:#f87171;" onclick="deleteAlert(\'' + escHtml(a.alert_id) + '\',\'' + escHtml(a.keyword) + '\')">Delete</button>';
+    html += '  </div>';
+    html += '</div>';
+  });
+  document.getElementById('alertsList').innerHTML = html;
+}
+
+async function toggleAlert(alertId, active) {
+  try {
+    await fetch(API_BASE + '/alerts/' + alertId, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ active }),
+    });
+    showToast(active ? 'Alert resumed' : 'Alert paused');
+    loadAlerts();
+  } catch (err) { showToast('Error: ' + err.message); }
+}
+
+async function editAlert(alertId, currentFreq) {
+  const newFreq = currentFreq === 'daily' ? 'weekly' : 'daily';
+  if (!confirm('Frequency를 "' + newFreq + '"로 변경하시겠습니까?')) return;
+  try {
+    await fetch(API_BASE + '/alerts/' + alertId, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ frequency: newFreq }),
+    });
+    showToast('Frequency changed to ' + newFreq);
+    loadAlerts();
+  } catch (err) { showToast('Error: ' + err.message); }
+}
+
+async function deleteAlert(alertId, keyword) {
+  if (!confirm('"' + keyword + '" 알림을 삭제하시겠습니까?')) return;
+  try {
+    await fetch(API_BASE + '/alerts/' + alertId, { method: 'DELETE' });
+    showToast('Alert deleted: ' + keyword);
+    loadAlerts();
+  } catch (err) { showToast('Error: ' + err.message); }
+}
+
+async function createAlert() {
+  const keyword = document.getElementById('alertKeyword').value.trim();
+  const email = document.getElementById('alertEmail').value.trim();
+  const frequency = document.getElementById('alertFreq').value;
+  if (!keyword || !email) { showToast('Please fill in keyword and email'); return; }
+
+  try {
+    await fetch(API_BASE + '/alerts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ keyword, email, frequency, active: true }),
+    });
+    showToast('Alert created: ' + keyword);
+    document.getElementById('alertKeyword').value = '';
+    document.getElementById('alertEmail').value = '';
+    loadAlerts();
+  } catch (err) {
+    showToast('Error: ' + err.message);
+  }
+}
+
+// Related papers
+async function findRelated(pmid) {
+  document.getElementById('relatedTitle').textContent = 'Finding related papers...';
+  document.getElementById('relatedKeywords').innerHTML = '<div class="spinner"></div>';
+  document.getElementById('relatedList').innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top:12px">Extracting keywords & searching...</p></div>';
+  document.getElementById('relatedModal').classList.add('show');
+
+  try {
+    const resp = await fetch(API_BASE + '/papers/' + pmid + '/related');
+    const data = await resp.json();
+
+    document.getElementById('relatedTitle').textContent = 'Related Papers (' + (data.total || 0) + ')';
+
+    // Keywords
+    let kwHtml = '';
+    (data.extracted_keywords || []).forEach(kw => { kwHtml += '<span class="tag tag-kw" style="border-color:var(--accent2);color:var(--accent2);">' + escHtml(kw) + '</span>'; });
+    (data.existing_keywords || []).forEach(kw => { kwHtml += '<span class="tag tag-kw">' + escHtml(kw) + '</span>'; });
+    document.getElementById('relatedKeywords').innerHTML = kwHtml || '<span style="color:var(--muted)">No keywords</span>';
+
+    // Papers
+    const rp = data.related_papers || [];
+    if (!rp.length) {
+      document.getElementById('relatedList').innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px;">No related papers found</p>';
+      return;
+    }
+    let html = '';
+    rp.forEach(p => {
+      const authors = (p.authors || []).slice(0, 2).join(', ') + (p.authors && p.authors.length > 2 ? ' et al.' : '');
+      const matched = (p.matched_keywords || []).map(k => '<span class="tag tag-kw" style="font-size:10px;">' + escHtml(k) + '</span>').join(' ');
+      html += '<div class="paper-card" style="padding:16px;margin-bottom:10px;">';
+      html += '  <div style="display:flex;justify-content:space-between;align-items:start;">';
+      html += '    <div class="paper-title" style="font-size:14px;">' + escHtml(p.title) + '</div>';
+      html += '    <span class="metric metric-impact" style="white-space:nowrap;margin-left:8px;">Score: ' + p.relevance_score + '</span>';
+      html += '  </div>';
+      html += '  <div class="paper-meta" style="font-size:12px;"><span class="journal">' + escHtml(p.journal) + '</span> &middot; ' + escHtml(p.year) + ' &middot; ' + escHtml(authors) + '</div>';
+      if (matched) html += '  <div style="margin:8px 0;">' + matched + '</div>';
+      html += '  <div class="paper-actions" style="margin-top:8px;">';
+      if (p.doi) html += '    <button class="btn-sm" onclick="window.open(\'https://www.sci-hub.in/' + escHtml(p.doi) + '\')" style="border-color:#f59e0b;color:#f59e0b;font-size:11px;">Sci-Hub</button>';
+      html += '    <button class="btn-sm" onclick="window.open(\'https://pubmed.ncbi.nlm.nih.gov/' + escHtml(p.pmid) + '\')" style="font-size:11px;">PubMed</button>';
+      html += '  </div>';
+      html += '</div>';
+    });
+    document.getElementById('relatedList').innerHTML = html;
+  } catch (err) {
+    document.getElementById('relatedList').innerHTML = '<p style="color:var(--danger);">Error: ' + err.message + '</p>';
+  }
+}
+function closeRelated() { document.getElementById('relatedModal').classList.remove('show'); }
+document.getElementById('relatedModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeRelated(); });
+
+// Utilities
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Enter key search
+document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') searchPapers(); });
+
+// Click outside modal to close
+document.getElementById('summaryModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+</script>
+</body>
+</html>
