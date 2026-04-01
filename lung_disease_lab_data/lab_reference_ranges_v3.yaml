@@ -1,0 +1,2519 @@
+# ═══════════════════════════════════════════════════════════════
+# Lab Reference Ranges v3 — MIMIC-IV labevents + 외부검사 통합
+# 폐 질환 진단 보조 도구용 검사실 레퍼런스
+#
+# v3 변경사항 (vs v2):
+#   - ItemID 오류 수정: 50924 Phosphate→Ferritin, 51288 Total Protein→ESR
+#   - 41개 신규 항목 추가
+#   - 전 항목 disease_associations pattern 채움
+#   - critical/thresholds 보충
+#   - unit/loinc 누락 항목: NA 표기 + 사유 각주
+#
+# 카테고리 분류 (Tietz 7th / LOINC / Harrison's 21st):
+#   A. Blood Gas Analysis (Tietz Ch.28)
+#   B. CBC / Hematology (Tietz Ch.31)
+#   C. Chemistry / Electrolytes (Tietz Ch.14-16)
+#   D. Inflammatory Markers (Tietz Ch.19)
+#   E. Coagulation (Tietz Ch.32)
+#   F. Cardiac Markers (Tietz Ch.17)
+#   G. Immunology / Autoantibodies (Tietz Ch.23)
+#   H. ILD Biomarkers (ATS/ERS)
+#   I. Tumor Markers (Tietz Ch.20)
+#   J. Infection / Microbiology (CLSI; ATS/IDSA)
+#   K. Pleural Fluid Analysis (Light NEJM 2002)
+#   L. Molecular / Genetics (CAP/IASLC/AMP)
+#   M. Specialty Tests (ATS/ERS)
+#
+# ID: 숫자=MIMIC-IV itemid, EXT_A~EXT_AG=외부검사
+#
+# 기준: ranges→초과/미만, thresholds→가이드라인 원문 연산자
+# ═══════════════════════════════════════════════════════════════
+
+50821:
+  name: pO2 (Partial Pressure of Oxygen)
+  unit: mmHg
+  ref_source: Tietz 6th Ed Ch.28; Harrison's 21st Appendix
+  ranges:
+    lower: 80
+    upper: 100
+  critical:
+    low: 60
+    high: 500
+  medical_terms:
+    low: Hypoxemia
+    high: Hyperoxemia
+    critical_low: Severe Hypoxemia (respiratory failure threshold)
+  loinc: 2703-7
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: &id005
+    - J13
+    - J14
+    - J15
+    - J18
+    pattern: ↓ (중증 시 PaO2 <60mmHg; P/F ratio로 ARDS 중복 평가)
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: &id008
+    - J15.0
+    - J15.1
+    - J15.5
+    - J15.6
+    pattern: ↓ (기저 폐질환 동반 시 더욱 현저)
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: &id002
+    - J80
+    pattern: ↓↓ (P/F ≤300=mild, ≤200=moderate, ≤100=severe; Berlin Definition)
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: &id004
+    - I26.0
+    - I26.09
+    - I26.90
+    - I26.99
+    pattern: ↓ (V/Q mismatch; A-a gradient 동반 상승)
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: &id001
+    - J44.0
+    - J44.1
+    pattern: '↓ (만성: ≤55mmHg → LTOT 적응; 급성 악화 시 추가 저하)'
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main: &id003
+    - J45
+    - J46
+    pattern: ↓ (중증 악화 시; PaO2 정상화가 피로/호흡부전 조기 징후일 수 있음)
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: &id006
+    - J84.1
+    - J84.9
+    pattern: ↓ (운동 시 desaturation 초기 징후; 진행 시 안정 시에도 저하)
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: &id007
+    - J81.0
+    - J81.1
+    - I50.1
+    pattern: ↓ (폐포 부종에 의한 확산 장애)
+  category: A_Blood_Gas_Analysis
+  mimic_iv_itemid: 50821
+50818:
+  name: pCO2 (Partial Pressure of Carbon Dioxide)
+  unit: mmHg
+  ref_source: Tietz 6th Ed Ch.28; Harrison's 21st Appendix
+  ranges:
+    lower: 35
+    upper: 45
+  critical:
+    low: 20
+    high: 60
+  medical_terms:
+    low: Hypocapnia (respiratory alkalosis)
+    high: Hypercapnia (respiratory acidosis)
+    critical_high: Severe Hypercapnia (ventilatory failure)
+  loinc: 2019-8
+  disease_associations:
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (Type 2 호흡부전; 만성 축적 시 HCO3 보상성 상승 동반)
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: 가변적 (초기 ↓ 과환기 → 진행 시 ↑ 환기부전)
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main: *id003
+    pattern: 초기 ↓ (과환기) → 정상화 = 피로 징후 → ↑ = 임박 호흡부전 [GINA 2024]
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id004
+    pattern: ↓ (과환기에 의한 호흡성 알칼리증)
+  category: A_Blood_Gas_Analysis
+  mimic_iv_itemid: 50818
+50820:
+  name: pH (Blood)
+  unit: 단위 없음
+  ref_source: Tietz 6th Ed Ch.28; Harrison's 21st Appendix
+  ranges:
+    lower: 7.35
+    upper: 7.45
+  critical:
+    low: 7.2
+    high: 7.55
+  medical_terms:
+    low: Acidemia
+    high: Alkalemia
+    critical_low: Severe Acidemia
+    critical_high: Severe Alkalemia
+  loinc: 2744-1
+  disease_associations:
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↓ (급성 호흡성 산증 pH <7.35; 만성 보상 시 정상 근접)
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: '↓ (혼합 산증: 호흡성 + 젖산 대사성)'
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id004
+    pattern: ↑ (급성 호흡성 알칼리증; 과환기 반응)
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main: *id003
+    pattern: ↑ (초기 과환기 → 알칼리증) → ↓ (피로 시 산증 = 위험 징후) [GINA 2024]
+  category: A_Blood_Gas_Analysis
+  mimic_iv_itemid: 50820
+50803:
+  name: Bicarbonate (HCO3, calculated)
+  unit: mEq/L
+  ref_source: Tietz 6th Ed Ch.28
+  ranges:
+    lower: 22
+    upper: 28
+  medical_terms:
+    low: Metabolic Acidosis (low HCO3)
+    high: Metabolic Alkalosis (high HCO3)
+  loinc: 1963-8
+  category: A_Blood_Gas_Analysis
+  mimic_iv_itemid: 50803
+  disease_associations:
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (만성 CO2 축적에 대한 신장 보상; HCO3 >28 → 만성 호흡성 산증 시사) [Harrison's 21st]
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↓ (동반 젖산 산증에 의한 대사성 산증) [Surviving Sepsis 2021]
+50802:
+  name: Base Excess
+  unit: mEq/L
+  ref_source: Tietz 6th Ed Ch.28; Harrison's 21st Appendix
+  ranges:
+    lower: -2
+    upper: 2
+  critical:
+    low: -10
+    high: 10
+  medical_terms:
+    low: Base Deficit (metabolic acidosis)
+    high: Base Excess (metabolic alkalosis)
+    critical_low: Severe Base Deficit (severe metabolic acidosis)
+  loinc: 11555-0
+  category: A_Blood_Gas_Analysis
+  mimic_iv_itemid: 50802
+  disease_associations:
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (만성 보상; BE >2 → 만성 호흡성 산증의 대사 보상) [Tietz 7th Ch.28]
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↓ (BE <-2 → 대사성 산증; 조직 저관류/젖산 축적) [Surviving Sepsis 2021]
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↓ (패혈성 쇼크 동반 시 중증 대사성 산증)
+50813:
+  name: Lactate
+  unit: mmol/L
+  ref_source: Tietz 6th Ed Ch.14; Surviving Sepsis Campaign 2021
+  ranges:
+    lower: 0.5
+    upper: 2.0
+  critical:
+    high: 4.0
+  medical_terms:
+    low: Normal Lactate
+    high: Hyperlactatemia
+    critical_high: Severe Hyperlactatemia (tissue hypoperfusion)
+  loinc: 2524-7
+  disease_associations:
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main:
+    - J80
+    pattern: ↑ (조직 저관류/저산소; >2mmol/L → 조직 저관류 시사, >4mmol/L → 패혈성 쇼크 기준) [Surviving Sepsis 2021; Berlin Definition]
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main:
+    - J13
+    - J14
+    - J15
+    - J18
+    pattern: ↑ (패혈증 동반 중증 폐렴; lactate >2 → sepsis, >4 → septic shock 기준) [Surviving Sepsis 2021; qSOFA]
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main:
+    - I26.0
+    - I26.09
+    - I26.90
+    - I26.99
+    pattern: ↑ (대량 PE에서 심박출량 저하 → 조직 저관류) [ESC PE 2022]
+  category: A_Blood_Gas_Analysis
+  mimic_iv_itemid: 50813
+50801:
+  name: Alveolar-arterial Gradient
+  unit: mmHg
+  ref_source: Harrison's 21st Ch.286; Normal = age/4 + 4 (young adult <20)
+  ranges:
+    lower: 0
+    upper: 20
+  medical_terms:
+    low: Normal
+    high: Elevated A-a Gradient (V/Q mismatch, diffusion impairment, or shunt)
+  loinc: 11556-8
+  category: A_Blood_Gas_Analysis
+  mimic_iv_itemid: 50801
+  disease_associations:
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id004
+    pattern: ↑ (V/Q mismatch; A-a gradient 상승 + 정상 PaCO2 → PE 의심) [Harrison's 21st Ch.273]
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↑ (폐실질 침범에 비례하여 상승)
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↑↑ (현저한 shunt → A-a gradient 매우 증가) [Berlin Definition]
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (V/Q mismatch; 기저 상승 있는 경우 급성 악화 시 추가 상승)
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: ↑ (확산 장애; 운동 시 더욱 증가) [ATS/ERS IPF 2022]
+  thresholds:
+  - name: normal_young
+    criterion: <15
+    source: Harrison's 21st Ch.286
+  - name: age_adjusted
+    criterion: Age/4 + 4
+    source: Harrison's 21st Ch.286
+  - name: significant_elevation
+    criterion: '>30'
+    source: Harrison's 21st Ch.286
+    note: 유의한 가스교환 장애
+50825:
+  name: Temperature (Blood Gas)
+  unit: °C
+  ref_source: Harrison's 21st Ed Ch.17; Normal core body temperature
+  ranges:
+    lower: 36.1
+    upper: 37.2
+  critical:
+    low: 35.0
+    high: 40.0
+  medical_terms:
+    low: Hypothermia
+    high: Hyperthermia (Fever)
+    critical_low: Severe Hypothermia
+    critical_high: Hyperpyrexia
+  loinc: 8310-5
+  category: A_Blood_Gas_Analysis
+  mimic_iv_itemid: 50825
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↑ (발열 시 혈액가스 온도 반영; 체온 보정 필요 여부 논쟁) [Tietz 7th Ch.28]
+50882:
+  name: Bicarbonate (Serum CO2)
+  unit: mEq/L
+  ref_source: Tietz 6th Ed Ch.14
+  ranges:
+    lower: 22
+    upper: 29
+  medical_terms:
+    low: Low Serum Bicarbonate (metabolic acidosis or compensated respiratory alkalosis)
+    high: Elevated Serum Bicarbonate (metabolic alkalosis or compensated respiratory acidosis)
+  loinc: 14627-4
+  category: A_Blood_Gas_Analysis
+  mimic_iv_itemid: 50882
+  disease_associations:
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (만성 호흡성 산증 보상; serum CO2 >29 → 만성 과탄산혈증 시사) [GOLD 2024]
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id007
+    pattern: ↓ 또는 정상 (이뇨제 사용 시 대사성 알칼리증으로 ↑ 가능)
+50954:
+  name: Lactate Dehydrogenase
+  unit: IU/L
+  ref_source: Tietz 6th Ed Ch.16; Harrison's 21st Appendix
+  ranges:
+    lower: 100
+    upper: 250
+  medical_terms:
+    low: Normal
+    high: Elevated LDH (tissue damage/hemolysis)
+  loinc: 2532-0
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↑ (폐 조직 손상 반영; 중증 폐렴에서 상승) [Harrison's 21st]
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: &id012
+    - A15.0
+    - A15.3
+    - A15.9
+    pattern: ↑ (활동성 결핵에서 상승; 치료 반응 모니터링 가능) [Harrison's 21st Ch.173]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: &id013
+    - C34.0
+    - C34.1
+    - C34.9
+    pattern: ↑ (특히 SCLC에서 현저; 종양 부하/예후 반영) [NCCN 2024]
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: ↑ (폐포 상피 손상 반영; ILD 활성도 보조 지표) [ATS/ERS IPF 2022]
+  - disease_key: pleural_effusion
+    disease_kr: 흉수
+    icd10_main: &id016
+    - J90
+    - J91.0
+    - J91.8
+    pattern: '↑ (Light Criteria 구성: 흉수 LDH >200 또는 흉수/혈청 비 >0.6 → 삼출) [Light, NEJM 2002]'
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: &id009
+    - J85.1
+    - J85.2
+    pattern: ↑ (조직 괴사/파괴 반영)
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: &id010
+    - J12
+    - J12.9
+    pattern: ↑ (COVID-19 중증도 지표; PCP에서도 현저한 상승) [Lancet Respir Med 2020]
+  category: A_Blood_Gas_Analysis
+  mimic_iv_itemid: 50954
+  critical:
+    high: 500
+50826:
+  name: Tidal Volume (Blood Gas)
+  unit: mL
+  ref_source: Harrison's 21st Ch.286; Normal 6-8 mL/kg IBW
+  ranges:
+    lower: 300
+    upper: 700
+  medical_terms:
+    low: Low Tidal Volume
+    high: Elevated Tidal Volume
+  loinc: NA
+  category: A_Blood_Gas_Analysis
+  mimic_iv_itemid: 50826
+  note: 'LOINC 코드 미할당: 혈액가스 분석기에서 보조적으로 기록하는 환기 파라미터로, 표준 lab LOINC 체계에 독립 코드 없음. 인공호흡기 chartevents의 Vt(224684/224685)가 주
+    기록원.'
+  disease_associations:
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: 'ARDSNet 폐보호 환기: ≤6 mL/kg IBW 목표 [NEJM 2000]'
+51301:
+  name: White Blood Cell Count
+  unit: K/uL
+  ref_source: Tietz 6th Ed Ch.31; Harrison's 21st Appendix
+  ranges:
+    lower: 4.5
+    upper: 11.0
+  critical:
+    low: 2.0
+    high: 30.0
+  medical_terms:
+    low: Leukopenia
+    high: Leukocytosis
+    critical_low: Severe Leukopenia (infection risk)
+    critical_high: Marked Leukocytosis (leukemoid reaction)
+  loinc: 6690-2
+  disease_associations: &id011
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: '↑ (>12,000: 세균 감염 시사; 좌방이동 동반 → 급성 세균 감염) [ATS/IDSA 2019]'
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: *id008
+    pattern: ↑ (HAP/VAP에서 새로운 WBC 상승 → 감염 트리거) [ATS/IDSA 2016]
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id009
+    pattern: ↑ (현저한 백혈구 증가; >20,000 가능) [Harrison's 21st]
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (세균 감염 동반 악화 시; 바이러스 악화 시 정상/↓) [GOLD 2024]
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: &id017
+    - J47.0
+    - J47.1
+    - J47.9
+    pattern: ↑ (감염 악화 시) [ERS Bronchiectasis 2017]
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id010
+    pattern: 정상 또는 ↓ (림프구 감소 동반; COVID-19에서 WBC 정상이나 lymphopenia 특징) [Lancet 2020]
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↑ (감염성 원인 시) 또는 ↓ (패혈증 진행 시 → 불량 예후)
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: &id015
+    - J86
+    pattern: ↑↑ (현저한 백혈구 증가 + 좌방이동)
+  category: B_CBC_Hematology
+  mimic_iv_itemid: 51301
+51300:
+  name: White Blood Cell Count
+  unit: K/uL
+  ref_source: Tietz 6th Ed Ch.31
+  ranges:
+    lower: 4.5
+    upper: 11.0
+  medical_terms:
+    low: Leukopenia
+    high: Leukocytosis
+  loinc: 6690-2
+  category: B_CBC_Hematology
+  mimic_iv_itemid: 51300
+  disease_associations: *id011
+51222:
+  name: Hemoglobin
+  unit: g/dL
+  ref_source: WHO 2011 Hb concentrations; Tietz 6th Ed Ch.31
+  ranges:
+    lower: 12.0
+    upper: 17.5
+  critical:
+    low: 7.0
+  medical_terms:
+    low: Anemia
+    high: Polycythemia
+    critical_low: Severe Anemia (transfusion threshold per AABB 2016)
+  loinc: 718-7
+  disease_associations:
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: ↓ (만성 질환 빈혈; 영양 불량 동반) [Harrison's 21st Ch.173]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↓ (악성 종양 빈혈; 폐출혈 동반 시 급성 저하) [NCCN 2024]
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id009
+    pattern: ↓ (만성 감염에 의한 빈혈) [Harrison's 21st]
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (만성 저산소 → 이차성 적혈구증가증; Hb >17 가능) [GOLD 2024]
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: ↓ (만성 질환 빈혈 가능; CTD-ILD에서 자가면역 빈혈 동반)
+  category: B_CBC_Hematology
+  mimic_iv_itemid: 51222
+51265:
+  name: Platelet Count
+  unit: K/uL
+  ref_source: Tietz 6th Ed Ch.31; Harrison's 21st Appendix
+  ranges:
+    lower: 150
+    upper: 400
+  critical:
+    low: 50
+    high: 1000
+  medical_terms:
+    low: Thrombocytopenia
+    high: Thrombocytosis
+    critical_low: Severe Thrombocytopenia (bleeding risk)
+  loinc: 777-3
+  category: B_CBC_Hematology
+  mimic_iv_itemid: 51265
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↑ (반응성 혈소판 증가; 감염/염증 반응) [Harrison's 21st]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↑ (반응성 혈소판 증가 — 폐암 예후 인자; 부종양 증후군) [NCCN 2024]
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↓ (DIC/소비성 혈소판 감소; 패혈증 동반 시) [Surviving Sepsis 2021]
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id004
+    pattern: ↓ (헤파린 사용 시 HIT 모니터링 필요) [ESC PE 2022]
+51256:
+  name: Neutrophils (%)
+  unit: '%'
+  ref_source: Tietz 6th Ed Ch.31
+  ranges:
+    lower: 40
+    upper: 70
+  medical_terms:
+    low: Neutropenia (relative)
+    high: Neutrophilia
+  loinc: 770-8
+  category: B_CBC_Hematology
+  mimic_iv_itemid: 51256
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: '↑ (>70%: 세균 감염 시사; bands ↑ = 좌방이동) [ATS/IDSA 2019]'
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: *id008
+    pattern: ↑ (세균성 HAP/VAP) [ATS/IDSA 2016]
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id009
+    pattern: ↑ (현저한 호중구 증가)
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (세균 감염 동반 악화 시)
+51200:
+  name: Eosinophils (%)
+  unit: '%'
+  ref_source: Tietz 6th Ed Ch.31; Harrison's 21st Ch.62
+  ranges:
+    lower: 0
+    upper: 5
+  medical_terms:
+    low: Normal
+    high: Eosinophilia
+  note: '>5% or >500/uL absolute = Eosinophilia per Harrison''s'
+  loinc: 713-8
+  disease_associations:
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main: *id003
+    pattern: '↑ (>5% 또는 >300/μL: 호산구성 천식 표현형; ICS 반응 예측) [GINA 2024]'
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: '↑ (≥300/μL: ICS 추가 고려 기준; 호산구 표현형 COPD) [GOLD 2024]'
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: &id014
+    - D86.0
+    - D86.1
+    - D86.9
+    pattern: ↑ (Löfgren 증후군 시 말초 호산구 증가 가능) [Harrison's 21st Ch.360]
+  - disease_key: pulmonary_eosinophilia
+    disease_kr: 폐 호산구증가증
+    icd10_main: &id021
+    - J82
+    pattern: ↑↑ (현저한 호산구 증가 >1,500/μL; 급성/만성 호산구성 폐렴) [Harrison's 21st Ch.287]
+  - disease_key: abpa
+    disease_kr: 알레르기성 기관지폐 아스페르길루스증
+    icd10_main: &id020
+    - B44.81
+    pattern: ↑ (>500/μL; ABPA 진단 기준 중 하나) [ISHAM 2013]
+  category: B_CBC_Hematology
+  mimic_iv_itemid: 51200
+51244:
+  name: Lymphocytes (%)
+  unit: '%'
+  ref_source: Tietz 6th Ed Ch.31
+  ranges:
+    lower: 20
+    upper: 40
+  medical_terms:
+    low: Lymphopenia
+    high: Lymphocytosis
+  loinc: 736-9
+  category: B_CBC_Hematology
+  mimic_iv_itemid: 51244
+  disease_associations:
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id010
+    pattern: ↓ (lymphopenia; COVID-19에서 <1,000/μL → 중증 지표) [Lancet 2020]
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: ↓ (활동성 TB에서 림프구 감소 가능; 반대로 만성 TB에서 상대적 림프구 증가) [Harrison's 21st Ch.173]
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id014
+    pattern: ↓ (말초 림프구 감소 + BAL 림프구 증가 패턴; CD4/CD8 >3.5) [ATS/ERS/WASOG 2020]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↓ (면역 억제 상태; NLR 상승과 함께 예후 인자) [NCCN 2024]
+51146:
+  name: Basophils (%)
+  unit: '%'
+  ref_source: Tietz 6th Ed Ch.31
+  ranges:
+    lower: 0
+    upper: 1
+  medical_terms:
+    low: Normal
+    high: Basophilia
+  loinc: NA
+  category: B_CBC_Hematology
+  mimic_iv_itemid: 51146
+  note: 'LOINC 미할당: MIMIC-IV d_labitems에 basophils% LOINC 코드 기록 없음. 표준 LOINC 706-2(Basophils/100 leukocytes)가 통상 사용되나 본 ItemID에
+    미매핑.'
+  disease_associations:
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main: *id003
+    pattern: 경미 ↑ (아토피 반응 동반 시; 임상적 의의 제한적) [Tietz 7th Ch.31]
+51279:
+  name: Red Blood Cell Count
+  unit: M/uL
+  ref_source: Tietz 6th Ed Ch.31
+  ranges:
+    lower: 4.2
+    upper: 5.9
+  medical_terms:
+    low: Anemia (low RBC count)
+    high: Erythrocytosis
+  loinc: 789-8
+  category: B_CBC_Hematology
+  mimic_iv_itemid: 51279
+  disease_associations:
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (이차성 적혈구증가증; 만성 저산소) [GOLD 2024]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↓ (만성 질환 빈혈)
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: ↓ (만성 질환 빈혈)
+51221:
+  name: Hematocrit (Hct)
+  unit: '%'
+  ref_source: Tietz 7th Ed; WHO 2011; Harrison's 21st Appendix
+  ranges:
+    lower_male: 38.3
+    upper_male: 48.6
+    lower_female: 35.5
+    upper_female: 44.9
+  critical:
+    low: 25
+    high: 60
+  medical_terms:
+    low: Anemia (low Hct)
+    high: Polycythemia/Erythrocytosis
+    critical_low: Severe Anemia (transfusion threshold)
+  loinc: 4544-3
+  disease_associations:
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (만성 저산소 → 이차성 적혈구증가증; Hct >55% → 혈전 위험 증가) [GOLD 2024]
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: ↓ (만성 질환 빈혈)
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↓ (악성 종양 빈혈; 화학요법 후 골수억제)
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id009
+    pattern: ↓ (만성 감염 빈혈)
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↓ (희석성; 대량 수액 투여 후)
+  category: B_CBC_Hematology
+  mimic_iv_itemid: 51221
+51288:
+  name: ESR (Erythrocyte Sedimentation Rate)
+  unit: mm/hr
+  ref_source: Tietz 7th Ed; Harrison's 21st Appendix; Brigden ML, Am Fam Physician 1999
+  ranges:
+    lower: 0
+    upper_male: 22
+    upper_female: 29
+  note: 'Westergren method. 연령 보정: 남성 Age/2, 여성 (Age+10)/2'
+  medical_terms:
+    low: Normal
+    high: Elevated ESR (nonspecific inflammation/infection)
+  loinc: 4537-7
+  disease_associations:
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: ↑ (활동성 TB에서 현저히 상승; >50mm/hr 흔함; 치료 반응 모니터링) [WHO TB 2022]
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: ↑ (CTD-ILD에서 상승; IPF에서는 경미) [ATS/ERS ILD 2013]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↑ (비특이적 상승; 병기/예후와 상관) [Harrison's 21st Ch.74]
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id014
+    pattern: ↑ (활동성 사르코이드증에서 상승) [ATS/ERS/WASOG 2020]
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id009
+    pattern: ↑ (만성 감염에서 현저히 상승) [Harrison's 21st]
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id015
+    pattern: ↑ (감염 + 염증에 의한 상승)
+  category: B_CBC_Hematology
+  mimic_iv_itemid: 51288
+51277:
+  name: Red Cell Distribution Width
+  unit: '%'
+  ref_source: Tietz 6th Ed Ch.31
+  ranges:
+    lower: 11.5
+    upper: 14.5
+  medical_terms:
+    low: Normal
+    high: Anisocytosis (elevated RDW)
+  loinc: NA
+  category: C_Chemistry_Electrolytes
+  mimic_iv_itemid: 51277
+  note: 'LOINC 미할당: MIMIC-IV d_labitems에 RDW LOINC 코드 기록 없음. 표준 LOINC 788-0(RDW)이 통상 사용되나 본 ItemID에 미매핑.'
+  disease_associations:
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id004
+    pattern: ↑ (독립적 예후 인자; RDW >14.5% → 사망률 증가) [Zorlu et al. Thromb Res 2012]
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↑ (중증 폐렴 예후 인자) [Lee et al. Medicine 2016]
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (만성 염증/영양 불균형 반영; 사망률 예측 인자) [Seyhan et al. Int J Clin Pract 2013]
+50893:
+  name: Calcium, Total
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.14
+  ranges:
+    lower: 8.5
+    upper: 10.5
+  medical_terms:
+    low: Hypocalcemia
+    high: Hypercalcemia
+  loinc: 30341-2
+  category: C_Chemistry_Electrolytes
+  mimic_iv_itemid: 50893
+  disease_associations:
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↑ (부종양 고칼슘혈증 — 편평세포암에서 PTHrP 분비; 골전이) [NCCN 2024; Harrison's 21st Ch.74]
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id014
+    pattern: ↑ (육아종에서 1,25-dihydroxyvitamin D 과잉 생산) [ATS/ERS/WASOG 2020]
+50862:
+  name: Albumin
+  unit: g/dL
+  ref_source: Tietz 6th Ed Ch.16; Harrison's 21st Appendix
+  ranges:
+    lower: 3.5
+    upper: 5.5
+  medical_terms:
+    low: Hypoalbuminemia
+    high: Hyperalbuminemia
+  loinc: 1751-7
+  disease_associations:
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: ↓ (만성 소모/영양 불량; 저알부민 → 불량 예후) [WHO TB 2022]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↓ (악액질; 저알부민 = 수술/항암 불량 예후 인자) [NCCN 2024]
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id009
+    pattern: ↓ (만성 감염 소모) [Harrison's 21st]
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id007
+    pattern: ↓ (간 합성 저하/체액 희석; Light Criteria에서 serum albumin으로 여출/삼출 재분류) [Light, NEJM 2002]
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↓ (중증 폐렴 예후 인자; <3.0 → 불량 예후) [ATS/IDSA 2019]
+  category: C_Chemistry_Electrolytes
+  mimic_iv_itemid: 50862
+50912:
+  name: Creatinine
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.15; KDIGO AKI Guidelines 2012
+  ranges:
+    lower: 0.6
+    upper: 1.2
+  medical_terms:
+    low: Low Creatinine
+    high: Elevated Creatinine (renal impairment)
+  loinc: 2160-0
+  category: C_Chemistry_Electrolytes
+  mimic_iv_itemid: 50912
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↑ (패혈증 동반 시 급성 신손상; CTPA 전 신기능 평가 필수) [Surviving Sepsis 2021]
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id004
+    pattern: CTPA 조영제 사용 전 eGFR 확인 필수 [ESC PE 2022]
+50902:
+  name: Chloride
+  unit: mEq/L
+  ref_source: Tietz 6th Ed Ch.14
+  ranges:
+    lower: 98
+    upper: 106
+  medical_terms:
+    low: Hypochloremia
+    high: Hyperchloremia
+  loinc: 2075-0
+  category: C_Chemistry_Electrolytes
+  mimic_iv_itemid: 50902
+  disease_associations:
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: 가변적 (이뇨제 사용 시 저염소혈증 → 대사성 알칼리증 악화) [Harrison's 21st]
+50931:
+  name: Glucose
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.14; ADA Standards of Medical Care 2024
+  ranges:
+    lower: 70
+    upper: 100
+  critical:
+    low: 50
+    high: 400
+  medical_terms:
+    low: Hypoglycemia
+    high: Hyperglycemia
+    critical_low: Severe Hypoglycemia (ADA threshold)
+    critical_high: Severe Hyperglycemia (DKA/HHS concern)
+  loinc: 2345-7
+  category: C_Chemistry_Electrolytes
+  mimic_iv_itemid: 50931
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↑ (스트레스 고혈당; 당뇨 동반 시 폐렴 예후 악화) [ADA 2024]
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (스테로이드 사용 시 혈당 상승 모니터링 필요) [GOLD 2024]
+50960:
+  name: Magnesium
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.14
+  ranges:
+    lower: 1.7
+    upper: 2.2
+  medical_terms:
+    low: Hypomagnesemia
+    high: Hypermagnesemia
+  loinc: 19123-9
+  category: C_Chemistry_Electrolytes
+  mimic_iv_itemid: 50960
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↓ (중증 감염에서 저마그네슘혈증; 기관지 수축 악화 가능) [Harrison's 21st]
+50971:
+  name: Potassium
+  unit: mEq/L
+  ref_source: Tietz 6th Ed Ch.14; Harrison's 21st Appendix
+  ranges:
+    lower: 3.5
+    upper: 5.0
+  critical:
+    low: 3.0
+    high: 6.0
+  medical_terms:
+    low: Hypokalemia
+    high: Hyperkalemia
+    critical_low: Severe Hypokalemia (arrhythmia risk)
+    critical_high: Severe Hyperkalemia (cardiac arrest risk)
+  loinc: 2823-3
+  category: C_Chemistry_Electrolytes
+  mimic_iv_itemid: 50971
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: 가변적 (신기능 변화/약물에 의한 전해질 이상) [Surviving Sepsis 2021]
+50983:
+  name: Sodium
+  unit: mEq/L
+  ref_source: Tietz 6th Ed Ch.14; Harrison's 21st Appendix
+  ranges:
+    lower: 136
+    upper: 145
+  critical:
+    low: 120
+    high: 155
+  medical_terms:
+    low: Hyponatremia
+    high: Hypernatremia
+    critical_low: Severe Hyponatremia (seizure risk)
+    critical_high: Severe Hypernatremia
+  loinc: 2951-2
+  disease_associations:
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↓ (SIADH에 의한 저나트륨혈증 — 특히 SCLC; 부종양 증후군) [NCCN 2024; Harrison's 21st]
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: ↓ (SIADH 또는 부신 부전에 의한 저나트륨혈증) [Harrison's 21st Ch.173]
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↓ (SIADH 동반 가능; Legionella 폐렴에서 특히 흔함) [ATS/IDSA 2019]
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id007
+    pattern: ↓ (희석성 저나트륨혈증; 체액 과부하) [ESC HF 2021]
+  category: C_Chemistry_Electrolytes
+  mimic_iv_itemid: 50983
+51006:
+  name: Blood Urea Nitrogen
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.15
+  ranges:
+    lower: 7
+    upper: 20
+  medical_terms:
+    low: Low BUN
+    high: Elevated BUN (azotemia — renal, prerenal, or postrenal)
+  loinc: 3094-0
+  category: C_Chemistry_Electrolytes
+  mimic_iv_itemid: 51006
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↑ (BUN ≥20mg/dL = 7mmol/L → CURB-65 1점; 중증 폐렴 지표) [BTS CAP; CURB-65]
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id007
+    pattern: ↑ (심신증후군; 전부하 감소에 의한 신관류 저하)
+  thresholds:
+  - name: curb65_criterion
+    criterion: ≥20 mg/dL (≥7 mmol/L)
+    source: Lim et al. Thorax 2003 (CURB-65)
+50970:
+  name: Phosphate
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.14
+  ranges:
+    lower: 2.5
+    upper: 4.5
+  medical_terms:
+    low: Hypophosphatemia
+    high: Hyperphosphatemia
+  loinc: 2777-1
+  category: C_Chemistry_Electrolytes
+  mimic_iv_itemid: 50970
+  disease_associations:
+  - disease_key: acute_respiratory_failure
+    disease_kr: 급성 호흡부전
+    icd10_main:
+    - J96.0
+    pattern: ↓ (중환자에서 저인산혈증; 인공호흡기 이탈 실패 원인) [Harrison's 21st Ch.294]
+51059:
+  name: Pleural Fluid Total Protein
+  unit: g/dL
+  ref_source: Light RW. NEJM 2002 (Light's Criteria); BTS Pleural Disease 2023
+  thresholds:
+  - name: light_criteria_exudate
+    criterion: 흉수/혈청 ratio >0.5
+    source: Light, NEJM 2002
+  - name: exudate_absolute
+    criterion: '>3.0'
+    source: Light, NEJM 2002
+  medical_terms:
+    high: Exudative effusion (infection, malignancy, inflammation)
+  loinc: 2880-3
+  disease_associations:
+  - disease_key: pleural_effusion
+    disease_kr: 흉수
+    icd10_main: *id016
+    pattern: '↑ (Light Criteria: 흉수/혈청 비 >0.5 또는 >3.0g/dL → 삼출) [Light, NEJM 2002]'
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id015
+    pattern: ↑ (삼출; 흉수 protein 높음)
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: ↑ (결핵성 흉수 = 삼출; protein 보통 >4.0) [BTS 2023]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↑ (악성 흉수 = 삼출)
+  category: C_Chemistry_Electrolytes
+  mimic_iv_itemid: 51059
+50889:
+  name: C-Reactive Protein
+  unit: mg/L
+  ref_source: Tietz 6th Ed Ch.19; Pepys & Hirschfield, J Clin Invest 2003
+  ranges:
+    lower: 0
+    upper: 10
+  critical:
+    high: 100
+  medical_terms:
+    low: Normal CRP
+    high: Elevated CRP (inflammation)
+    critical_high: Markedly Elevated CRP (severe inflammation/infection)
+  loinc: 1988-5
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: '↑ (≥40mg/L: 세균 폐렴 시사, sensitivity ~70%, specificity ~90%) [Flanders et al. J Gen Intern Med 2004]'
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: *id008
+    pattern: ↑ (HAP 발생 시 CRP 재상승 → 새로운 감염 시사) [ATS/IDSA 2016]
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: ↑ (CTD-ILD, 급성 악화 시 상승; IPF에서는 경미) [ATS/ERS ILD 2013]
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id014
+    pattern: ↑ (활동성 시 상승; Löfgren 증후군에서 현저) [ATS/ERS/WASOG 2020]
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (세균 감염 악화 시 상승; 안정기 CRP 상승은 전신 염증 반영) [GOLD 2024; ECLIPSE study]
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: ↑ (활동성 결핵; 치료 반응 모니터링) [WHO TB 2022]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↑ (비특이적; 염증/종양 괴사 반영) [Harrison's 21st]
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: *id017
+    pattern: ↑ (감염 악화 시 상승) [ERS Bronchiectasis 2017]
+  category: D_Inflammatory_Markers
+  mimic_iv_itemid: 50889
+51652:
+  name: High-Sensitivity CRP
+  unit: mg/L
+  ref_source: Tietz 6th Ed Ch.19; AHA/CDC 2003 (Pearson et al, Circulation 2003)
+  ranges:
+    lower: 0
+    upper: 3.0
+  critical:
+    high: 10.0
+  medical_terms:
+    low: Normal (low cardiovascular risk per AHA/CDC)
+    high: Elevated hs-CRP (cardiovascular risk per AHA/CDC 2003)
+    critical_high: Markedly Elevated hs-CRP (acute inflammation)
+  loinc: 75241-0
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↑ (세균 폐렴에서 CRP와 유사한 패턴) [Flanders et al. 2004]
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: *id008
+    pattern: ↑ (감염 지표)
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (안정기에도 기저 상승 → 전신 염증/심혈관 위험 반영) [ECLIPSE study]
+  category: D_Inflammatory_Markers
+  mimic_iv_itemid: 51652
+EXT_U:
+  name: Procalcitonin (PCT)
+  unit: ng/mL
+  mimic_iv_available: false
+  ref_source: Schuetz et al. Cochrane 2017; ATS/IDSA CAP 2019; GOLD 2024
+  ranges:
+    lower: 0
+    upper: 0.1
+  thresholds:
+  - name: bacterial_unlikely
+    criterion: <0.25
+    source: Schuetz et al. Cochrane 2017
+  - name: bacterial_likely
+    criterion: ≥0.25
+    source: Schuetz et al. Cochrane 2017
+  - name: bacterial_highly_likely
+    criterion: ≥0.50
+    source: Schuetz et al. Cochrane 2017
+  - name: severe_sepsis
+    criterion: ≥2.0
+    source: Surviving Sepsis Campaign 2021
+  - name: antibiotic_stop_consider
+    criterion: <0.25 or ≥80% drop from peak
+    source: Schuetz et al. Cochrane 2017
+  medical_terms:
+    low: Normal (bacterial infection unlikely)
+    high: Elevated PCT (bacterial infection likely)
+    critical_high: Markedly Elevated PCT (severe sepsis/septic shock)
+  loinc: 75241-0
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: '↑ (≥0.25: 세균 감염 시사 → 항생제 시작; <0.25: 세균 가능성 낮음 → 항생제 보류 고려) [Schuetz et al. Cochrane 2017]'
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: *id008
+    pattern: ↑ (HAP/VAP 세균 감염 확인 및 항생제 중단 가이드) [ATS/IDSA 2016]
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: &id023
+    - J69.0
+    pattern: ↑ (2차 세균 감염 동반 시; 화학적 폐렴 단독은 정상)
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: '↑ (PCT 기반 항생제 가이드: ≥0.25 → 항생제 시작; <0.25 또는 peak에서 ≥80% 감소 → 중단 고려) [GOLD 2024]'
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id009
+    pattern: ↑ (중증 세균 감염; ≥2.0 → 패혈증 의심) [Surviving Sepsis 2021]
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id015
+    pattern: ↑ (세균 감염 + 패혈증 동반 시 현저)
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id010
+    pattern: '정상 또는 경미 ↑ (<0.25: 바이러스 감별에 유용) [Schuetz et al. 2017]'
+  category: D_Inflammatory_Markers
+  mimic_iv_itemid: null
+50924:
+  name: Ferritin
+  unit: ng/mL
+  ref_source: Tietz 7th Ed; Harrison's 21st Appendix; WHO Iron Deficiency 2011
+  ranges:
+    lower_male: 24
+    upper_male: 336
+    lower_female: 11
+    upper_female: 307
+  critical:
+    high: 1000
+  medical_terms:
+    low: Iron Deficiency
+    high: Hyperferritinemia (inflammation, iron overload, malignancy)
+    critical_high: Markedly Elevated Ferritin (hemochromatosis, HLH, cytokine storm)
+  loinc: 2276-4
+  disease_associations:
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id010
+    pattern: '↑↑ (COVID-19: >500 → 중증, >1000 → cytokine storm/HLH 의심) [Lancet Respir Med 2020]'
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↑ (패혈증/cytokine storm 동반 시 현저) [Surviving Sepsis 2021]
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id014
+    pattern: ↑ (육아종 활성; macrophage activation) [ATS/ERS/WASOG 2020]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↑ (악성 종양 비특이적 상승; 간전이 시 현저)
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: ↑ (만성 염증; 급성기 반응 단백질)
+  category: D_Inflammatory_Markers
+  mimic_iv_itemid: 50924
+EXT_P:
+  name: Interleukin-6 (IL-6)
+  unit: pg/mL
+  mimic_iv_available: false
+  ref_source: Tanaka et al. Cold Spring Harb Perspect Biol 2014; Harrison's 21st Ch.295
+  ranges:
+    lower: 0
+    upper: 7.0
+  medical_terms:
+    low: Normal
+    high: Elevated IL-6 (systemic inflammation, cytokine storm)
+  loinc: 26881-3
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↑ (중증 폐렴에서 상승; 패혈증 예측 인자) [Harrison's 21st Ch.295]
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: *id008
+    pattern: ↑ (중증 HAP/VAP)
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↑↑ (cytokine storm 핵심 매개체; tocilizumab 치료 타겟) [REMAP-CAP trial]
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id010
+    pattern: ↑↑ (COVID-19 중증도 지표; >100pg/mL → cytokine storm) [Lancet Respir Med 2020]
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (전신 염증 반영; ECLIPSE study에서 안정기 IL-6 상승 확인) [ECLIPSE, AJRCCM 2010]
+  category: D_Inflammatory_Markers
+  mimic_iv_itemid: null
+51054:
+  name: Pleural Fluid LDH
+  unit: U/L
+  ref_source: Light RW. NEJM 2002 (Light's Criteria); BTS Pleural Disease 2023
+  thresholds:
+  - name: light_criteria_exudate
+    criterion: 흉수/혈청 ratio >0.6 or >200 U/L
+    source: Light, NEJM 2002
+  - name: complicated_parapneumonic
+    criterion: '>1000'
+    source: BTS Pleural Disease 2023
+  medical_terms:
+    high: Elevated Pleural LDH (exudate; >1000 → complicated parapneumonic/empyema)
+  loinc: 2529-6
+  disease_associations:
+  - disease_key: pleural_effusion
+    disease_kr: 흉수
+    icd10_main: *id016
+    pattern: '↑ (Light Criteria: >200 U/L 또는 흉수/혈청 비 >0.6 → 삼출) [Light, NEJM 2002]'
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id015
+    pattern: ↑↑ (>1000 U/L → 복잡 부폐렴 흉수/농흉 → 배액 적응) [BTS Pleural Disease 2023]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↑ (악성 흉수; 진단 후 예후 반영)
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: ↑ (결핵성 흉수에서 상승)
+  category: D_Inflammatory_Markers
+  mimic_iv_itemid: 51054
+50915:
+  name: D-Dimer
+  unit: ng/mL FEU
+  ref_source: Tietz 6th Ed Ch.32; Wells PE Algorithm (Ann Intern Med 2001)
+  ranges:
+    lower: 0
+    upper: 500
+  medical_terms:
+    low: Normal
+    high: Elevated D-dimer (thrombotic risk — PE/DVT, DIC, inflammation)
+  loinc: 17861-6
+  category: E_Coagulation
+  mimic_iv_itemid: 50915
+  disease_associations:
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id004
+    pattern: ↑ (<500ng/mL + low clinical probability → PE 배제; Wells Score 연계) [ESC PE 2022; Wells 2001]
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↑ (비특이적; 감염/염증에서도 상승 → PE 감별 어려움)
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↑ (악성 종양에 의한 과응고 상태)
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↑ (DIC 동반 시)
+  thresholds: &id018
+  - name: pe_rule_out
+    criterion: <500
+    source: ESC PE Guidelines 2022
+    note: 'age-adjusted: >50세에서 age×10'
+  - name: dic_suggestive
+    criterion: '>5000'
+    source: ISTH DIC Criteria
+51214:
+  name: Prothrombin Time (PT)
+  unit: sec
+  ref_source: Tietz 6th Ed Ch.32
+  ranges:
+    lower: 11.0
+    upper: 13.5
+  medical_terms:
+    low: Normal
+    high: Prolonged PT (coagulopathy)
+  loinc: 5902-2
+  category: E_Coagulation
+  mimic_iv_itemid: 51214
+  disease_associations:
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id009
+    pattern: ↑ (중증 감염/DIC 시 응고 장애) [Harrison's 21st]
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↑ (패혈증 동반 DIC; ISTH DIC score 구성) [ISTH DIC 2017]
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id007
+    pattern: 모니터링 (항응고 치료 환자; warfarin INR 관리)
+51237:
+  name: International Normalized Ratio (INR)
+  unit: 단위 없음
+  ref_source: Tietz 6th Ed Ch.32; WHO standardization
+  ranges:
+    lower: 0.9
+    upper: 1.1
+  medical_terms:
+    low: Normal
+    high: Elevated INR (coagulopathy/anticoagulation)
+  loinc: 34714-6
+  category: E_Coagulation
+  mimic_iv_itemid: 51237
+  note: 무차원 비율값 (환자 PT / 정상 PT)^ISI. WHO 국제 표준화.
+  disease_associations:
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id004
+    pattern: 모니터링 (warfarin 항응고 치료 시 목표 INR 2.0–3.0) [ESC PE 2022]
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↑ (DIC 동반 시 INR 상승; ISTH DIC score 구성) [ISTH DIC 2017]
+51196:
+  name: D-Dimer
+  unit: ng/mL FEU
+  ref_source: Tietz 6th Ed Ch.32; Wells PE Algorithm (Ann Intern Med 2001)
+  ranges:
+    lower: 0
+    upper: 500
+  medical_terms:
+    low: Normal
+    high: Elevated D-dimer (thrombotic risk — PE/DVT, DIC, inflammation)
+  note: 'Per Wells criteria: D-dimer <500 with low clinical probability effectively rules out PE'
+  loinc: 48066-5
+  disease_associations:
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id004
+    pattern: ↑ (Wells Score + D-dimer 음성 → PE 배제) [ESC PE 2022]
+  category: E_Coagulation
+  mimic_iv_itemid: 51196
+  thresholds: *id018
+51274:
+  name: Fibrinogen
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.32
+  ranges:
+    lower: 200
+    upper: 400
+  medical_terms:
+    low: Hypofibrinogenemia (DIC, liver failure)
+    high: Hyperfibrinogenemia (acute phase reactant)
+  loinc: 3255-7
+  category: E_Coagulation
+  mimic_iv_itemid: 51274
+  disease_associations:
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (급성기 반응; ECLIPSE study에서 COPD 악화 예측 바이오마커; FDA qualified) [ECLIPSE; FDA 2015]
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id004
+    pattern: ↑ (응고 활성화) 또는 ↓ (DIC 소비 시)
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↑ (급성기 반응 단백질; 감염에서 상승)
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↓ (DIC 소비성 응고장애 시 감소)
+50963:
+  name: BNP (B-type Natriuretic Peptide)
+  unit: pg/mL
+  ref_source: Maisel et al, NEJM 2002 (Breathing Not Properly study); ESC HF Guidelines 2021
+  ranges:
+    lower: 0
+    upper: 100
+  critical:
+    high: 500
+  medical_terms:
+    low: Normal BNP
+    high: Elevated BNP (cardiac strain/fluid overload)
+    critical_high: Markedly Elevated BNP (heart failure likely per Breathing Not Properly study)
+  loinc: 42637-9
+  disease_associations:
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id007
+    pattern: ↑ (>400pg/mL → 심부전 가능성 높음; <100 → 심부전 배제) [ACC/AHA HF 2022; Maisel, NEJM 2002]
+  - disease_key: pulmonary_hypertension
+    disease_kr: 폐동맥 고혈압
+    icd10_main: &id019
+    - I27.0
+    - I27.20
+    pattern: ↑ (우심 부전/우심실 부하; 예후 인자) [ESC PH 2022]
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id004
+    pattern: ↑ (급성 우심 부하; submassive PE에서 상승 → 예후 불량) [ESC PE 2022]
+  category: F_Cardiac_Markers
+  mimic_iv_itemid: 50963
+50911:
+  name: NT-proBNP
+  unit: pg/mL
+  ref_source: Januzzi et al, Eur Heart J 2006 (ProBNP study); ESC HF Guidelines 2021
+  ranges:
+    lower: 0
+    upper: 300
+  critical:
+    high: 900
+  medical_terms:
+    low: Normal
+    high: Elevated NT-proBNP (heart failure possible)
+    critical_high: Markedly Elevated NT-proBNP (heart failure likely per ESC)
+  loinc: 33762-6
+  disease_associations:
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id007
+    pattern: '↑ (>300 배제 기준; age-adjusted: <50세 >450, 50-75세 >900, >75세 >1800) [ESC HF 2021]'
+  - disease_key: pulmonary_hypertension
+    disease_kr: 폐동맥 고혈압
+    icd10_main: *id019
+    pattern: ↑ (우심 부전 반영; 치료 반응 모니터링) [ESC PH 2022]
+  category: F_Cardiac_Markers
+  mimic_iv_itemid: 50911
+51003:
+  name: Troponin T (hs-cTnT)
+  unit: ng/mL
+  ref_source: Fourth Universal Definition of MI, ESC 2018; Tietz 6th Ed Ch.17
+  ranges:
+    lower: 0
+    upper: 0.014
+  critical:
+    high: 0.1
+  medical_terms:
+    low: Normal
+    high: Elevated Troponin (myocardial injury per 4th Universal Definition of MI)
+    critical_high: Markedly Elevated Troponin (significant myocardial injury)
+  loinc: 6598-7
+  disease_associations:
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id004
+    pattern: ↑ (우심실 과부하; hs-cTnT >0.014 → 심근 손상; ESC risk stratification) [ESC PE 2022]
+  - disease_key: pulmonary_hypertension
+    disease_kr: 폐동맥 고혈압
+    icd10_main: *id019
+    pattern: ↑ (만성 우심 부전; 예후 인자) [ESC PH 2022]
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↑ (패혈성 심근병증; 중증 저산소에 의한 demand ischemia)
+  category: F_Cardiac_Markers
+  mimic_iv_itemid: 51003
+51002:
+  name: Troponin I (cTnI)
+  unit: ng/mL
+  ref_source: Fourth Universal Definition of MI, ESC 2018
+  ranges:
+    lower: 0
+    upper: 0.04
+  medical_terms:
+    low: Normal
+    high: Elevated Troponin I (myocardial injury)
+  loinc: 10839-9
+  category: F_Cardiac_Markers
+  mimic_iv_itemid: 51002
+  disease_associations:
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id004
+    pattern: ↑ (우심실 과부하/심근 손상; submassive PE 예후 인자) [ESC PE 2022]
+  - disease_key: pulmonary_hypertension
+    disease_kr: 폐동맥 고혈압
+    icd10_main: *id019
+    pattern: ↑ (만성 우심 부전에 의한 심근 손상) [ESC PH 2022]
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: ↑ (중증 폐렴 시 심근 손상; 심근염 동반) [Harrison's 21st]
+EXT_D:
+  name: ANA (Antinuclear Antibody)
+  unit: Titer
+  mimic_iv_available: false
+  ref_source: ACR/EULAR SLE 2019; ATS/ERS ILD 2013; Harrison's 21st Ch.349
+  ranges:
+    lower: 0
+    upper: 0
+  interpretation: Negative (<1:40). ≥1:80 → 양성으로 간주
+  medical_terms:
+    high: Positive ANA (connective tissue disease screening)
+  loinc: 8061-4
+  disease_associations:
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: '양성 (≥1:80) → CTD-ILD 선별: SLE(ds-DNA), SSc(Scl-70), DM/PM(Jo-1) 추가 검사 필요 [ACR/EULAR 2019; ATS/ERS ILD 2013]'
+  category: G_Immunology_Autoantibodies
+  mimic_iv_itemid: null
+50980:
+  name: Rheumatoid Factor (RF)
+  unit: IU/mL
+  ref_source: ACR/EULAR RA 2010; Harrison's 21st Ch.351
+  ranges:
+    lower: 0
+    upper: 14
+  medical_terms:
+    low: Normal
+    high: Elevated RF (RA, Sjögren, cryoglobulinemia)
+  loinc: 11572-5
+  disease_associations:
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: ↑ (>14 IU/mL → RA 의심; RA-ILD은 RA 환자의 ~10%에서 발생; UIP 패턴 흔함) [ACR/EULAR RA 2010; Bongartz et al. Arthritis Rheum
+      2010]
+  category: G_Immunology_Autoantibodies
+  mimic_iv_itemid: 50980
+EXT_E:
+  name: Anti-CCP (Anti-Cyclic Citrullinated Peptide)
+  unit: U/mL
+  mimic_iv_available: false
+  ref_source: ACR/EULAR RA 2010; Nishimura et al. Chest 2007; Harrison's 21st Ch.351
+  ranges:
+    lower: 0
+    upper: 20
+  medical_terms:
+    low: Normal
+    high: Positive Anti-CCP (RA-ILD, specificity >95% for RA)
+  loinc: 53027-9
+  disease_associations:
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: 양성 (>20 U/mL → RA 확진 보조; RF보다 특이도 높음 >95%; RA-ILD 선별에 유용) [ACR/EULAR RA 2010; Nishimura et al. Chest 2007]
+  category: G_Immunology_Autoantibodies
+  mimic_iv_itemid: null
+EXT_F:
+  name: Anti-Jo-1 Antibody (Anti-Histidyl-tRNA Synthetase)
+  unit: Qualitative
+  mimic_iv_available: false
+  ref_source: Connors et al. Medicine 2010; ATS/ERS ILD 2013; Harrison's 21st Ch.358
+  interpretation: Negative = normal. Positive → antisynthetase syndrome (ILD + myositis + mechanic's hands + arthritis)
+  medical_terms:
+    high: Positive Anti-Jo-1 (antisynthetase syndrome-associated ILD)
+  loinc: 31161-5
+  disease_associations:
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: 양성 → antisynthetase syndrome 관련 ILD (ILD + 근염 + mechanic's hands + 관절염; ILD가 첫 증상인 경우 많음) [Connors et al. Medicine
+      2010; ATS/ERS IIP 2013]
+  category: G_Immunology_Autoantibodies
+  mimic_iv_itemid: null
+EXT_G:
+  name: Anti-Scl-70 (Anti-Topoisomerase I)
+  unit: Qualitative
+  mimic_iv_available: false
+  ref_source: ACR/EULAR Systemic Sclerosis 2013; Tashkin et al. NEJM 2006; Harrison's 21st Ch.353
+  interpretation: Negative = normal. Positive → diffuse cutaneous SSc with high ILD risk (sensitivity ~40%, specificity >95%)
+  medical_terms:
+    high: Positive Anti-Scl-70 (SSc-ILD risk marker)
+  loinc: 4484-2
+  disease_associations:
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: 양성 → SSc-ILD (전신경피증 ILD; sensitivity ~40%, specificity >95%; diffuse cutaneous SSc에서 ILD 위험 높음) [Tashkin et al.
+      NEJM 2006; ACR/EULAR SSc 2013]
+  category: G_Immunology_Autoantibodies
+  mimic_iv_itemid: null
+51674:
+  name: Total IgE (Immunoglobulin E)
+  unit: IU/mL
+  ref_source: GINA 2024; Agarwal et al. Clin Exp Allergy 2013 (ABPA criteria); Harrison's 21st Ch.282
+  ranges:
+    lower: 0
+    upper: 100
+  thresholds:
+  - name: elevated
+    criterion: '>100'
+    source: Harrison's 21st
+  - name: abpa_suggestive
+    criterion: '>1000'
+    source: ISHAM ABPA Working Group 2013
+  medical_terms:
+    low: Normal
+    high: Elevated IgE (atopy, parasites, ABPA)
+    critical_high: 'Markedly Elevated (>1000: ABPA highly suggestive)'
+  loinc: 19113-0
+  disease_associations:
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main: *id003
+    pattern: ↑ (아토피성 천식; IgE-mediated inflammation; omalizumab 적응 평가) [GINA 2024]
+  - disease_key: abpa
+    disease_kr: 알레르기성 기관지폐 아스페르길루스증
+    icd10_main: *id020
+    pattern: ↑↑ (>1,000 IU/mL → ABPA 강력 시사; ISHAM 진단 기준 필수) [Agarwal et al. Clin Exp Allergy 2013]
+  - disease_key: pulmonary_eosinophilia
+    disease_kr: 폐 호산구증가증
+    icd10_main: *id021
+    pattern: ↑ (기생충 관련 폐 호산구증가증에서 동반 상승)
+  - disease_key: hypersensitivity_pneumonitis
+    disease_kr: 과민성 폐렴
+    icd10_main: &id022
+    - J67
+    pattern: ↑ (일부 환자에서 경미 상승; 진단적 가치 제한적)
+  category: G_Immunology_Autoantibodies
+  mimic_iv_itemid: 51674
+50900:
+  name: CEA (Carcinoembryonic Antigen)
+  unit: ng/mL
+  ref_source: Tietz 7th Ed; NCCN NSCLC 2024; Molina et al. Tumor Biol 2012
+  ranges:
+    lower: 0
+    upper_nonsmoker: 5.0
+    upper_smoker: 10.0
+  medical_terms:
+    low: Normal
+    high: Elevated CEA (adenocarcinoma, colitis, hepatitis, smoking)
+  loinc: 2039-6
+  disease_associations:
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↑ (폐선암에서 상승; >5.0 비흡연/<10.0 흡연 기준; 치료 반응/재발 모니터링에 유용) [Molina et al. Tumor Biol 2012; NCCN 2024]
+  category: G_Immunology_Autoantibodies
+  mimic_iv_itemid: 50900
+EXT_AB:
+  name: SCC Antigen (Squamous Cell Carcinoma Antigen)
+  unit: ng/mL
+  mimic_iv_available: false
+  ref_source: Molina et al. Tumor Biol 2012; NCCN NSCLC 2024
+  ranges:
+    lower: 0
+    upper: 1.5
+  medical_terms:
+    low: Normal
+    high: Elevated SCC Ag (lung squamous cell carcinoma)
+  loinc: 31163-1
+  disease_associations:
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↑ (폐 편평세포암; >1.5 → 양성; 편평세포암 sensitivity ~50-60%) [Molina et al. 2012]
+  category: G_Immunology_Autoantibodies
+  mimic_iv_itemid: null
+EXT_R:
+  name: Legionella Urinary Antigen
+  unit: Positive/Negative
+  mimic_iv_available: false
+  ref_source: ATS/IDSA CAP 2019; Shimada et al. J Clin Microbiol 2009
+  interpretation: Negative = normal. L. pneumophila serogroup 1만 검출 (전체 Legionella 폐렴의 ~80%). 민감도 70-80%, 특이도 >99%
+  medical_terms:
+    high: Positive (Legionella pneumophila serogroup 1 infection)
+  loinc: 32781-7
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: 양성 → L.pneumophila serogroup 1 확진; sensitivity 70-80%, specificity >99%; serogroup 1만 검출 (전체 Legionella 폐렴의 ~80%)
+      [ATS/IDSA 2019; Shimada et al. JCM 2009]
+  category: G_Immunology_Autoantibodies
+  mimic_iv_itemid: null
+EXT_Z:
+  name: Pneumococcal Urinary Antigen
+  unit: Positive/Negative
+  mimic_iv_available: false
+  ref_source: ATS/IDSA CAP 2019; Andreo et al. Thorax 2006
+  interpretation: Negative = normal. 민감도 65-80%, 특이도 >90%. 항생제 투여 후에도 수일간 양성 유지
+  medical_terms:
+    high: Positive (Streptococcus pneumoniae infection)
+  loinc: 24027-4
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: 양성 → S.pneumoniae 폐렴 확진; sensitivity 65-80%, specificity >90%; 항생제 투여 후에도 수일간 양성 유지 [ATS/IDSA 2019; Andreo et
+      al. Thorax 2006]
+  category: G_Immunology_Autoantibodies
+  mimic_iv_itemid: null
+EXT_Q:
+  name: KL-6 (Krebs von den Lungen-6)
+  unit: U/mL
+  mimic_iv_available: false
+  ref_source: Ishikawa et al. Chest 2012; Yokoyama et al. Respirology 2006; ATS/ERS IPF 2022
+  ranges:
+    lower: 0
+    upper: 500
+  medical_terms:
+    low: Normal
+    high: Elevated KL-6 (ILD activity, type II pneumocyte damage)
+  loinc: 33929-1
+  disease_associations:
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: ↑ (>500 U/mL → ILD 활성; IPF, NSIP, COP에서 상승; 치료 반응/질병 진행 모니터링) [Ishikawa et al. Chest 2012; Yokoyama et al. Respirology
+      2006]
+  - disease_key: hypersensitivity_pneumonitis
+    disease_kr: 과민성 폐렴
+    icd10_main: *id022
+    pattern: ↑ (급성/아급성 HP에서 상승; 항원 회피 후 감소) [ATS/JRS/ALAT HP 2020]
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id014
+    pattern: ↑ (폐 침범 시 상승; Stage III-IV에서 더 현저) [ATS/ERS/WASOG 2020]
+  category: H_ILD_Biomarkers
+  mimic_iv_itemid: null
+EXT_AD:
+  name: Surfactant Protein-D (SP-D)
+  unit: ng/mL
+  mimic_iv_available: false
+  ref_source: Greene et al. Eur Respir J 2002; Takahashi et al. Am J Respir Crit Care Med 2000
+  ranges:
+    lower: 0
+    upper: 43.8
+  medical_terms:
+    low: Normal
+    high: Elevated SP-D (alveolar epithelial damage — ILD, ARDS, COPD)
+  loinc: 48049-1
+  disease_associations:
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: ↑ (폐포 상피 손상 반영; IPF에서 상승; 급성 악화 시 추가 상승) [Greene et al. Eur Respir J 2002]
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↑ (폐포 손상 정도와 상관; 예후 인자) [Takahashi et al. AJRCCM 2000]
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (폐포 파괴 반영; COPDGene study에서 확인) [COPDGene]
+  category: H_ILD_Biomarkers
+  mimic_iv_itemid: null
+EXT_AC:
+  name: Surfactant Protein-A (SP-A)
+  unit: ng/mL
+  mimic_iv_available: false
+  ref_source: Kuroki et al. J Clin Invest 1993; Greene et al. Eur Respir J 2002
+  ranges:
+    lower: 0
+    upper: 43.8
+  medical_terms:
+    low: Normal
+    high: Elevated SP-A (alveolar epithelial damage)
+  loinc: 48058-2
+  disease_associations:
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: ↑ (폐포 손상; SP-D와 유사하나 연구 근거 상대적으로 적음) [Kuroki et al. J Clin Invest 1993]
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+    pattern: ↑ (폐포 상피 손상 반영)
+  category: H_ILD_Biomarkers
+  mimic_iv_itemid: null
+EXT_S:
+  name: MMP-7 (Matrix Metalloproteinase-7)
+  unit: ng/mL
+  mimic_iv_available: false
+  ref_source: Rosas et al. PLoS Med 2008; Richards et al. Am J Respir Crit Care Med 2012
+  interpretation: Assay-dependent. IPF에서 상승은 진단 보조 및 예후 불량 예측 인자.
+  medical_terms:
+    high: Elevated MMP-7 (IPF biomarker — epithelial injury/fibrosis)
+  loinc: 53963-5
+  disease_associations:
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: ↑ (IPF 진단 보조 + 예후 예측; 혈청 MMP-7 상승은 사망률 증가와 독립적 연관) [Rosas et al. PLoS Med 2008; Richards et al. AJRCCM 2012]
+  category: H_ILD_Biomarkers
+  mimic_iv_itemid: null
+EXT_AG:
+  name: Telomere / Surfactant Gene Panel
+  unit: Variants
+  mimic_iv_available: false
+  ref_source: Armanios et al. NEJM 2007; Kropski et al. Am J Respir Crit Care Med 2015
+  interpretation: No pathogenic variants = normal. TERT, TERC, RTEL1, PARN (telomere), SFTPC, SFTPA2, ABCA3 (surfactant) 검사
+  medical_terms:
+    high: Pathogenic variant detected (familial pulmonary fibrosis)
+  loinc: NA
+  disease_associations:
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id006
+    pattern: '변이 확인 → 가족성 폐섬유증 (TERT/TERC: telomere 단축, SFTPC/SFTPA2/ABCA3: surfactant 이상; 50세 미만 IPF 또는 가족력 시 검사 권고) [Armanios,
+      NEJM 2007; Kropski, AJRCCM 2015]'
+  category: H_ILD_Biomarkers
+  mimic_iv_itemid: null
+  note: 'LOINC 미할당: 다중 유전자 패널 검사로 단일 LOINC 코드에 대응하지 않음. 개별 유전자(TERT: 62354-4, SFTPC: 99717-4 등)에 각각 LOINC 코드가 있으나 패널 통합 코드는
+    없음.'
+EXT_K:
+  name: CYFRA 21-1 (Cytokeratin 19 Fragment)
+  unit: ng/mL
+  mimic_iv_available: false
+  ref_source: Molina et al. Tumor Biol 2012; NCCN NSCLC 2024
+  ranges:
+    lower: 0
+    upper: 3.3
+  medical_terms:
+    low: Normal
+    high: Elevated CYFRA 21-1 (NSCLC, especially squamous cell ca)
+  loinc: 48049-1
+  disease_associations:
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↑ (NSCLC, 특히 편평세포암에서 가장 민감; >3.3 → 양성; NSCLC 전체 sensitivity ~60%) [Molina et al. Tumor Biol 2012]
+  category: I_Tumor_Markers
+  mimic_iv_itemid: null
+EXT_T:
+  name: NSE (Neuron-Specific Enolase)
+  unit: ng/mL
+  mimic_iv_available: false
+  ref_source: Molina et al. Tumor Biol 2012; NCCN SCLC 2024
+  ranges:
+    lower: 0
+    upper: 16.3
+  medical_terms:
+    low: Normal
+    high: Elevated NSE (SCLC, neuroendocrine tumors)
+  loinc: 2326-7
+  disease_associations:
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↑ (SCLC 진단/모니터링 핵심; >16.3 → 양성; SCLC sensitivity ~80%; 용혈 시 위양성 주의) [NCCN SCLC 2024; Molina 2012]
+  category: I_Tumor_Markers
+  mimic_iv_itemid: null
+EXT_AA:
+  name: ProGRP (Pro-Gastrin-Releasing Peptide)
+  unit: pg/mL
+  mimic_iv_available: false
+  ref_source: Stieber et al. Clin Chem 1999; Molina et al. Tumor Biol 2012
+  ranges:
+    lower: 0
+    upper: 46.0
+  medical_terms:
+    low: Normal
+    high: Elevated ProGRP (SCLC — more specific than NSE)
+  loinc: 53964-3
+  disease_associations:
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: ↑ (SCLC에서 NSE보다 높은 특이도 ~95%; >46.0 → 양성; 치료 반응/재발 모니터링) [Stieber et al. Clin Chem 1999]
+  category: I_Tumor_Markers
+  mimic_iv_itemid: null
+EXT_V:
+  name: PD-L1 Expression (TPS)
+  unit: TPS %
+  mimic_iv_available: false
+  ref_source: NCCN NSCLC 2024; Reck et al. NEJM 2016 (KEYNOTE-024)
+  thresholds:
+  - name: low
+    criterion: <1%
+    source: NCCN NSCLC 2024
+  - name: intermediate
+    criterion: 1–49%
+    source: NCCN NSCLC 2024
+  - name: high
+    criterion: ≥50%
+    source: NCCN NSCLC 2024; KEYNOTE-024
+  interpretation: TPS ≥50% → pembrolizumab 1차 단독 적응. 1-49% → 복합 면역항암 고려. <1% → 면역단독 비적응
+  medical_terms:
+    low: 'Low/Negative PD-L1 Expression (TPS <1%: IO monotherapy not indicated)'
+    intermediate: 'Intermediate PD-L1 Expression (TPS 1-49%: combination IO consideration)'
+    high: 'High PD-L1 Expression (TPS ≥50%: immune checkpoint inhibitor monotherapy candidate)'
+  loinc: 85147-7
+  disease_associations:
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: TPS ≥50% → pembrolizumab 1차 단독 [KEYNOTE-024, NEJM 2016]; 1-49% → chemo-IO 복합; <1% → IO 단독 비적응 [NCCN NSCLC 2024]
+  category: I_Tumor_Markers
+  mimic_iv_itemid: null
+EXT_I:
+  name: Blood Culture
+  unit: Positive/Negative
+  mimic_iv_available: microbiologyevents table (not labevents)
+  ref_source: ATS/IDSA CAP 2019; Surviving Sepsis Campaign 2021; CLSI M47-A2
+  interpretation: Negative (No growth at 5 days) = normal
+  medical_terms:
+    high: Positive Blood Culture (bacteremia/fungemia)
+  loinc: 600-7
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: 양성 → 세균혈증 확인 (ICU 입원 폐렴에서 필수; 2세트 이상 채혈 권고) [ATS/IDSA 2019]
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: *id008
+    pattern: 양성 → 원인균 동정 + 항생제 감수성 확인 [ATS/IDSA 2016]
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id009
+    pattern: 양성 → 혈행성 파급 확인
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id015
+    pattern: 양성 → 패혈증 동반 확인; 흉수 배양과 병행 [BTS 2023]
+  category: J_Infection_Microbiology
+  mimic_iv_itemid: null
+EXT_AE:
+  name: Sputum Culture / Gram Stain
+  unit: Pathogen ID
+  mimic_iv_available: microbiologyevents table (not labevents)
+  ref_source: ATS/IDSA CAP 2019; Murray & Washington sputum quality criteria
+  interpretation: 'Normal flora = normal. 적절한 검체: WBC >25/LPF, Epithelial <10/LPF (Murray & Washington criteria)'
+  medical_terms:
+    high: Pathogen isolated (directed antibiotic therapy)
+  loinc: 625-4
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id005
+    pattern: 양성 → 원인균 동정; 그람양성 쌍구균 → S.pneumoniae, 그람음성 간균 → H.influenzae/Klebsiella [ATS/IDSA 2019]
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: *id008
+    pattern: 양성 → MDR 병원균 확인; 정량 배양(≥10^5 CFU/mL) 권고 [ATS/IDSA 2016]
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id023
+    pattern: 양성 → 혐기균 포함 다균 감염 흔함 [Harrison's 21st Ch.257]
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id009
+    pattern: 양성 → 혐기균 + 호기균 혼합감염 흔함
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: *id017
+    pattern: 양성 → 만성 colonization균 확인 (Pseudomonas 정착 시 예후 불량) [ERS 2017]
+  category: J_Infection_Microbiology
+  mimic_iv_itemid: null
+EXT_B:
+  name: AFB Smear / Culture (Acid-Fast Bacilli)
+  unit: Positive/Negative
+  mimic_iv_available: microbiologyevents table (not labevents)
+  ref_source: WHO TB Diagnosis 2022; ATS/IDSA/CDC TB Treatment 2016
+  interpretation: Negative = normal. 도말 민감도 ~50-80%, 배양(gold standard) 2-8주 소요
+  medical_terms:
+    high: AFB Positive (active tuberculosis or NTM)
+  loinc: 543-9
+  disease_associations:
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: 양성(도말+/배양+) → 활동성 폐결핵 확진; 도말 sensitivity ~50-80%, 배양(gold standard) 2-8주; NTM 감별 [WHO TB 2022; ATS/IDSA/CDC TB
+      2016]
+  category: J_Infection_Microbiology
+  mimic_iv_itemid: null
+EXT_AF:
+  name: TB-PCR (Xpert MTB/RIF)
+  unit: Detected/Not detected
+  mimic_iv_available: false
+  ref_source: WHO Xpert MTB/RIF 2013; Steingart et al. Cochrane 2014
+  interpretation: Not detected = normal. 민감도 89%(도말양성), 67%(도말음성). 리팜피신 내성 동시 확인
+  medical_terms:
+    high: MTB Detected (active tuberculosis)
+  loinc: 85362-2
+  disease_associations:
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: Detected → TB 확진 (2시간 내 결과; sensitivity 89% 도말양성/67% 도말음성; 리팜피신 내성 동시 확인) [WHO Xpert MTB/RIF 2013; Steingart,
+      Cochrane 2014]
+  category: J_Infection_Microbiology
+  mimic_iv_itemid: null
+EXT_O:
+  name: IGRA (QFT-GIT / T-SPOT.TB)
+  unit: Positive/Negative
+  mimic_iv_available: false
+  ref_source: Pai et al. NEJM 2016; WHO LTBI Guidelines 2018; CDC/ATS IGRA 2017
+  interpretation: Negative = normal. BCG 접종에 영향 안 받음. 잠복 결핵 선별 + 활동성 TB 보조 진단
+  medical_terms:
+    high: Positive IGRA (TB infection — latent or active)
+  loinc: 64083-2
+  disease_associations:
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: 양성 → TB 감염(잠복 또는 활동성); BCG 영향 없음; 활동성/잠복 구별 불가 → 임상/영상 종합 판단 [Pai et al. NEJM 2016; CDC IGRA 2017]
+  category: J_Infection_Microbiology
+  mimic_iv_itemid: null
+EXT_N:
+  name: Aspergillus Galactomannan (GM)
+  unit: Index
+  mimic_iv_available: false
+  ref_source: Patterson et al. IDSA Aspergillosis 2016; Maertens et al. Clin Infect Dis 2009
+  ranges:
+    lower: 0
+  thresholds:
+  - name: serum_positive
+    criterion: ≥0.5
+    source: IDSA Aspergillosis 2016
+  - name: bal_positive
+    criterion: ≥1.0
+    source: IDSA Aspergillosis 2016
+  medical_terms:
+    high: Positive GM (invasive pulmonary aspergillosis)
+  loinc: 2054-4
+  disease_associations:
+  - disease_key: abpa
+    disease_kr: 알레르기성 기관지폐 아스페르길루스증
+    icd10_main: *id020
+    pattern: ↑ (serum GM ≥0.5 또는 BAL GM ≥1.0 → 양성; 면역억제 환자에서 침습성 폐 아스페르길루스증 진단) [Patterson et al. IDSA Aspergillosis 2016]
+  category: J_Infection_Microbiology
+  mimic_iv_itemid: null
+EXT_H:
+  name: Beta-D-Glucan (BDG)
+  unit: pg/mL
+  mimic_iv_available: false
+  ref_source: Pappas et al. IDSA Candidiasis 2016; Tasaka et al. Chest 2007 (PCP)
+  ranges:
+    lower: 0
+    upper: 60
+  thresholds:
+  - name: positive
+    criterion: ≥80
+    source: Fungitell assay; Associates of Cape Cod
+  - name: pcp_suggestive
+    criterion: '>300'
+    source: Tasaka et al. Chest 2007
+  medical_terms:
+    low: Normal
+    high: Elevated BDG (invasive fungal infection — PCP, Candida, Aspergillus)
+  loinc: 31006-2
+  disease_associations:
+  - disease_key: pneumocystis_pneumonia
+    disease_kr: 주폐포자충 폐렴
+    icd10_main:
+    - B59
+    pattern: ↑ (>80pg/mL → 양성; PCP 진단 sensitivity ~95%; Aspergillus/Candida에서도 상승; 비특이적) [Tasaka et al. Chest 2007; IDSA PCP
+      2016]
+  category: J_Infection_Microbiology
+  mimic_iv_itemid: null
+EXT_X:
+  name: Pleural Fluid Cell Count & Differential
+  unit: cells/μL
+  mimic_iv_available: Pleural hematology items (51455 Polys, 51446 Lymphocytes, etc.)
+  ref_source: Light RW. NEJM 2002; BTS Pleural Disease 2023; Harrison's 21st Ch.289
+  ranges:
+    upper_normal_wbc: 1000
+  interpretation: 호중구 우위 → 세균감염/급성; 림프구 우위 → TB, 악성, 림프종; 호산구 >10% → 기생충, 약물, 공기/혈액 유입 후
+  medical_terms:
+    high: Elevated pleural WBC (infection, inflammation, malignancy)
+  loinc: 26464-8
+  disease_associations:
+  - disease_key: pleural_effusion
+    disease_kr: 흉수
+    icd10_main: *id016
+    pattern: 호중구 우위(>50%) → 급성 세균감염; 림프구 우위(>80%) → TB, 악성, 림프종 [Light, NEJM 2002; Harrison's 21st Ch.289]
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id015
+    pattern: 호중구 현저 우위 + WBC >50,000/μL → 농흉 [BTS 2023]
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: 림프구 우위(>80%) (초기 호중구 → 빠르게 림프구로 전환) [BTS 2023]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: 림프구 우위; 비정형 세포 존재 시 → cytology 의뢰 [Harrison's 21st]
+  category: K_Pleural_Fluid_Analysis
+  mimic_iv_itemid: null
+EXT_W:
+  name: Pleural Fluid ADA (Adenosine Deaminase)
+  unit: U/L
+  mimic_iv_available: false
+  ref_source: Liang et al. Respir Med 2008 (meta-analysis); BTS Pleural Disease 2023
+  ranges:
+    lower: 0
+    upper: 40
+  thresholds:
+  - name: tb_pleurisy_positive
+    criterion: ≥40
+    source: Liang et al. Respir Med 2008
+  medical_terms:
+    low: Normal (TB pleurisy unlikely)
+    high: Elevated ADA ≥40 (TB pleurisy — sensitivity 92%, specificity 90%)
+  loinc: 1785-5
+  disease_associations:
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id012
+    pattern: ↑ (ADA ≥40 U/L → 결핵성 흉수; sensitivity 92%, specificity 90%; TB 유병률 높은 지역에서 진단 가치 높음) [Liang et al. Respir Med
+      2008; BTS 2023]
+  - disease_key: pleural_effusion
+    disease_kr: 흉수
+    icd10_main: *id016
+    pattern: ↑ (ADA 상승은 삼출성; TB 외에 empyema, RA에서도 상승 가능)
+  category: K_Pleural_Fluid_Analysis
+  mimic_iv_itemid: null
+EXT_Y:
+  name: Pleural Fluid Cytology
+  unit: Positive/Negative
+  mimic_iv_available: false
+  ref_source: Porcel et al. Chest 2014; BTS Pleural Disease 2023
+  interpretation: Negative for malignant cells = normal. 1회 민감도 ~60%, 3회 반복 시 ~90%. 면역조직화학 추가 시 진단율 향상
+  medical_terms:
+    high: Positive for malignant cells (malignant pleural effusion)
+  loinc: 8087-9
+  disease_associations:
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: 양성 → 악성 흉수 확진 (1회 sensitivity ~60%, 3회 반복 ~90%; 면역조직화학 추가 시 향상) [Porcel et al. Chest 2014; BTS 2023]
+  - disease_key: pleural_effusion
+    disease_kr: 흉수
+    icd10_main: *id016
+    pattern: 음성이라도 악성 배제 불가 → 반복 검사 또는 흉막 생검 고려
+  category: K_Pleural_Fluid_Analysis
+  mimic_iv_itemid: null
+EXT_L:
+  name: EGFR Mutation Analysis
+  unit: Detected/Not detected
+  mimic_iv_available: false
+  ref_source: NCCN NSCLC 2024; Lindeman et al. J Mol Diagn 2018 (CAP/IASLC/AMP guideline)
+  interpretation: Not detected = normal. Exon 19 del, L858R (sensitizing) → TKI 적응. T790M → 3세대 TKI (osimertinib)
+  medical_terms:
+    high: EGFR Mutation Detected (TKI therapy indication)
+  loinc: 50999-8
+  disease_associations:
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: Detected → EGFR TKI 적응 (exon 19 del, L858R = sensitizing mutation → gefitinib/erlotinib/osimertinib; T790M →
+      3세대 TKI) [NCCN NSCLC 2024; Lindeman et al. J Mol Diagn 2018]
+  category: L_Molecular_Genetics
+  mimic_iv_itemid: null
+EXT_C:
+  name: ALK Rearrangement
+  unit: Positive/Negative
+  mimic_iv_available: false
+  ref_source: NCCN NSCLC 2024; Lindeman et al. J Mol Diagn 2018
+  interpretation: Negative = normal. FISH break-apart, IHC(D5F3), NGS로 검출. 양성 → ALK TKI (crizotinib, alectinib, lorlatinib)
+  medical_terms:
+    high: ALK Positive (ALK TKI therapy indication)
+  loinc: 85337-4
+  disease_associations:
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id013
+    pattern: Positive → ALK TKI 적응 (crizotinib/alectinib/lorlatinib; FISH/IHC/NGS로 검출; 비흡연 젊은 선암에서 호발) [NCCN NSCLC 2024]
+  category: L_Molecular_Genetics
+  mimic_iv_itemid: null
+EXT_J:
+  name: CFTR Gene Mutation Analysis
+  unit: Mutation ID
+  mimic_iv_available: false
+  ref_source: CFF/ECFS CFTR2 Database; Farrell et al. J Pediatr 2017; ACMG Panel
+  interpretation: No pathogenic variants = normal. F508del이 가장 흔한 변이 (~70%). CFTR modulator 치료 대상 선정
+  medical_terms:
+    high: Pathogenic CFTR variant detected (cystic fibrosis diagnosis)
+  loinc: 55231-5
+  disease_associations:
+  - disease_key: cystic_fibrosis
+    disease_kr: 낭성섬유증
+    icd10_main:
+    - E84
+    pattern: '변이 확인 → CF 확진 (F508del 가장 흔함 ~70%; CFTR modulator 치료 대상 선정: ivacaftor, lumacaftor 등) [CFF 2024; Farrell et al.
+      J Pediatr 2017]'
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: *id017
+    pattern: 변이 확인 → CF 관련 기관지확장증 감별 (반복 폐감염의 원인 규명)
+  category: L_Molecular_Genetics
+  mimic_iv_itemid: null
+EXT_M:
+  name: FeNO (Fractional Exhaled Nitric Oxide)
+  unit: ppb
+  mimic_iv_available: false
+  ref_source: ATS/ERS FeNO Interpretation 2011; GINA 2024; Dweik et al. Am J Respir Crit Care Med 2011
+  ranges:
+    lower: 0
+    upper: 25
+  thresholds:
+  - name: normal
+    criterion: <25
+    source: ATS/ERS 2011
+  - name: intermediate
+    criterion: 25–50
+    source: ATS/ERS 2011
+  - name: high
+    criterion: '>50'
+    source: ATS/ERS 2011
+  medical_terms:
+    low: Normal (eosinophilic inflammation unlikely)
+    high: Elevated FeNO (eosinophilic airway inflammation — ICS responsive)
+  loinc: 34622-1
+  disease_associations:
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main: *id003
+    pattern: ↑ (>50ppb → 호산구성 기도 염증; ICS 반응 예측; <25ppb에서 ICS 감량 가능) [ATS/ERS 2011; GINA 2024]
+  - disease_key: pulmonary_eosinophilia
+    disease_kr: 폐 호산구증가증
+    icd10_main: *id021
+    pattern: ↑ (호산구성 폐질환에서 상승)
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+    pattern: ↑ (호산구 표현형 COPD에서 상승; ICS 반응 예측 보조) [GOLD 2024]
+  category: M_Specialty_Tests
+  mimic_iv_itemid: null
+EXT_A:
+  name: ACE (Angiotensin Converting Enzyme)
+  unit: U/L
+  mimic_iv_available: false
+  ref_source: Ungprasert et al. Sarcoidosis Vasc Diffuse Lung Dis 2012; ATS/ERS/WASOG Sarcoidosis 2020
+  ranges:
+    lower: 8
+    upper: 52
+  medical_terms:
+    low: Normal
+    high: Elevated ACE (sarcoidosis activity marker — sensitivity ~60%, specificity ~70%)
+  loinc: 2500-7
+  disease_associations:
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id014
+    pattern: ↑ (>52 U/L → 사르코이드증 활성 시사; sensitivity ~60%, specificity ~70%; 단독으로 진단 불가, 활성도 모니터링에 유용) [Ungprasert et al. 2012;
+      ATS/ERS/WASOG 2020]
+  category: M_Specialty_Tests
+  mimic_iv_itemid: null
+53185:
+  name: SARS-CoV-2 RT-PCR (COVID-19 PCR)
+  unit: Detected/Not detected
+  category: J_Infection_Microbiology
+  ref_source: WHO COVID-19 Diagnostic Testing 2020; CDC 2019-nCoV RT-PCR Panel; Corman et al. Euro Surveill 2020
+  mimic_iv_itemid: 53185
+  interpretation: Not detected = 음성. Detected = SARS-CoV-2 감염 확진. Gold standard 진단법. NP swab 권장, sensitivity ~70-95% (검체 질/시기
+    의존). Ct value <25 → 높은 바이러스 부하, >30 → 낮은 바이러스 부하/회복기
+  medical_terms:
+    high: Detected (SARS-CoV-2 감염 확진 — COVID-19)
+  loinc: 94500-6
+  note: WHO/CDC gold standard. NP swab sensitivity 최적 (증상 발현 후 1-3일). 타액/전비공 검체는 sensitivity 다소 낮음. Ct value는 표준화되지 않아 기관
+    간 비교 제한적 [Woloshin et al. NEJM 2020].
+  disease_associations:
+  - disease_key: covid_19
+    disease_kr: COVID-19 (SARS-CoV-2 감염)
+    icd10_main: &id024
+    - U07.1
+    - U07.2
+    pattern: Detected → COVID-19 확진; 증상 발현 후 1-3일에 sensitivity 최고 (~95%); 무증상 감염에서도 양성 가능 [WHO 2020; Corman et al. Euro Surveill
+      2020]
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main:
+    - J12
+    - J12.9
+    pattern: COVID-19 감별진단의 핵심; 다른 호흡기 바이러스(인플루엔자, RSV)와 multiplex PCR로 동시 감별 [CDC 2020]
+53186:
+  name: Rapid SARS-CoV-2 PCR (COVID-19 Rapid PCR)
+  unit: Detected/Not detected
+  category: J_Infection_Microbiology
+  ref_source: FDA EUA; Cepheid Xpert Xpress; Abbott ID NOW; WHO 2021
+  mimic_iv_itemid: 53186
+  interpretation: 'Not detected = 음성. Detected = SARS-CoV-2 양성. 신속 NAAT (결과 15분-1시간). Point-of-care 사용 가능. Standard RT-PCR
+    대비 sensitivity 다소 낮을 수 있음 (Abbott ID NOW: ~93-95%)'
+  medical_terms:
+    high: Detected (SARS-CoV-2 양성)
+  loinc: 95409-9
+  disease_associations:
+  - disease_key: covid_19
+    disease_kr: COVID-19 (SARS-CoV-2 감염)
+    icd10_main: *id024
+    pattern: Detected → COVID-19 양성; 응급 상황에서 신속 진단; 음성이나 임상적 의심 높으면 standard RT-PCR 재검 권고 [FDA EUA; WHO 2021]
+51560:
+  name: Anti-SARS-CoV-2 IgA Antibody
+  unit: Index (S/CO ratio)
+  category: G_Immunology_Autoantibodies
+  ref_source: WHO COVID-19 Serology 2020; Deeks et al. Cochrane 2020
+  mimic_iv_itemid: 51560
+  ranges:
+    lower: 0
+  thresholds:
+  - name: positive
+    criterion: ≥1.0 (S/CO)
+    source: Assay-dependent (Euroimmun 등)
+    note: 양성 판정 기준은 제조사별 상이
+  interpretation: 음성 (<1.0) = 항체 미검출. 양성 (≥1.0) = SARS-CoV-2 감염 후 또는 백신 접종 후 면역 반응. IgA는 점막 면역 반영; IgG보다 조기 출현 (증상 후 ~5-7일).
+    급성 진단 목적으로는 부적합 (seroconversion에 시간 필요)
+  medical_terms:
+    high: Anti-SARS-CoV-2 IgA Positive (과거 감염 또는 백신 면역 반응)
+  loinc: 96118-5
+  note: 혈청학적 검사는 급성 진단이 아닌 역학조사/면역 상태 확인 목적. IgM(초기)/IgG(후기)/IgA(점막)는 각각 출현 시점과 지속 기간이 다름. 백신 접종자에서도 양성 → 감염 vs 백신 구별에 nucleocapsid(N)
+    vs spike(S) 항체 구분 필요 [Deeks et al. Cochrane 2020].
+  disease_associations:
+  - disease_key: covid_19
+    disease_kr: COVID-19 (SARS-CoV-2 감염)
+    icd10_main: *id024
+    pattern: 양성 → 과거 SARS-CoV-2 감염 또는 백신 면역; 급성 진단에는 RT-PCR 우선; seroconversion 확인(급성기+회복기 쌍혈청)으로 후향적 진단 가능 [WHO 2020; Deeks,
+      Cochrane 2020]
+EXT_AH:
+  name: SARS-CoV-2 Rapid Antigen Test
+  unit: Positive/Negative
+  category: J_Infection_Microbiology
+  mimic_iv_available: false
+  ref_source: WHO Interim Guidance on Ag-RDTs 2021; Dinnes et al. Cochrane 2021
+  interpretation: 'Negative = 항원 미검출. Positive = SARS-CoV-2 항원 검출. Sensitivity: 증상 첫 주 ~80-90%, 무증상 ~50-70%. Specificity >99%.
+    위음성 가능 → 임상 의심 시 RT-PCR 확인 필요'
+  medical_terms:
+    high: Positive (SARS-CoV-2 항원 검출)
+  loinc: 97099-6
+  note: Point-of-care 신속 진단 (15-30분). 바이러스 부하 높은 시기(증상 발현 전후)에 sensitivity 최고. Omicron 변이에서 일부 키트 sensitivity 저하 보고. WHO는
+    RT-PCR 접근 어려운 상황 또는 선별검사에 권고 [WHO 2021; Dinnes et al. Cochrane 2021].
+  disease_associations:
+  - disease_key: covid_19
+    disease_kr: COVID-19 (SARS-CoV-2 감염)
+    icd10_main: *id024
+    pattern: Positive → COVID-19 추정 진단; 증상 첫 5-7일 내 sensitivity 최고 (~80-90%); 음성이라도 임상적 의심 시 RT-PCR 확인 [WHO Ag-RDT Guidance
+      2021; Dinnes, Cochrane 2021]
+EXT_AI:
+  name: SARS-CoV-2 IgG/IgM Antibody
+  unit: Positive/Negative or Index
+  category: G_Immunology_Autoantibodies
+  mimic_iv_available: false
+  ref_source: WHO COVID-19 Serology 2020; Deeks et al. Cochrane 2020; Guo et al. Clin Infect Dis 2020
+  interpretation: 'IgM: 증상 후 ~3-7일 출현, 2-3주 peak, 이후 감소. IgG: 증상 후 ~10-14일 출현, 수개월 지속. 급성 진단에 부적합 (window period). 과거 감염 확인/역학조사에
+    사용. Anti-N(nucleocapsid) → 자연감염, Anti-S(spike) → 감염 또는 백신'
+  medical_terms:
+    high: Positive (SARS-CoV-2 면역 반응 — 과거 감염 또는 백신)
+  loinc: 94762-2
+  note: 'Sensitivity: 증상 후 1주 <30%, 2주 ~70%, 3주 >90% [Deeks, Cochrane 2020]. 교차반응: 다른 코로나바이러스(HCoV-OC43 등)와 가능. 백신 접종 보편화로
+    해석 복잡 → Anti-N vs Anti-S 구분 필수.'
+  disease_associations:
+  - disease_key: covid_19_infection
+    disease_kr: COVID-19 감염 (SARS-CoV-2 감염)
+    icd10_main: *id024
+    pattern: 양성(IgG) → 과거 감염 또는 백신; 쌍혈청(acute + convalescent)에서 IgG 4배 이상 상승 → 후향적 진단 가능; seroprevalence 조사에 핵심 [WHO 2020;
+      Guo et al. CID 2020]
+EXT_AJ:
+  name: NLR (Neutrophil-to-Lymphocyte Ratio)
+  unit: Ratio (계산값)
+  category: B_CBC_Hematology
+  mimic_iv_available: 계산값 — 51256 Neutrophils(%) / 51244 Lymphocytes(%)로 산출
+  ref_source: Liu et al. J Transl Med 2020 (COVID-19); Cedrés et al. Lung Cancer 2012 (NSCLC); Forget et al. BMC Res Notes
+    2017 (정상 범위)
+  ranges:
+    lower: 1.0
+    upper: 3.0
+  thresholds:
+  - name: covid_severe
+    criterion: ≥3.13
+    source: Liu et al. J Transl Med 2020
+    note: COVID-19 중증 진행 예측 (sensitivity 87.5%)
+  - name: covid_critical
+    criterion: ≥5.0
+    source: Yang et al. Int J Infect Dis 2020
+    note: COVID-19 ICU 입원/사망 위험 증가
+  - name: nsclc_poor_prognosis
+    criterion: ≥5.0
+    source: Cedrés et al. Lung Cancer 2012
+    note: NSCLC 불량 예후 cut-off
+  - name: sepsis_indicator
+    criterion: ≥10
+    source: Zahorec R. Bratisl Lek Listy 2001
+    note: 중증 패혈증/패혈성 쇼크 시사
+  medical_terms:
+    low: Normal (정상 면역 균형)
+    high: Elevated NLR (전신 염증/면역 억제/불량 예후 지표)
+    critical_high: Markedly Elevated NLR ≥10 (중증 패혈증/전신 염증)
+  loinc: 770-8 / 736-9 (구성요소)
+  note: NLR = Absolute Neutrophil Count / Absolute Lymphocyte Count (또는 %비율). 단순하지만 강력한 예후 인자. COVID-19, NSCLC, 패혈증 등에서 독립적
+    예후 예측력 입증. MIMIC-IV에서 CBC differential로부터 산출 가능.
+  disease_associations:
+  - disease_key: covid_19
+    disease_kr: COVID-19 (SARS-CoV-2 감염)
+    icd10_main: *id024
+    pattern: ↑ (NLR ≥3.13 → 중증 진행 예측 sensitivity 87.5%; ≥5 → ICU/사망 위험 증가; 입원 시 NLR은 독립적 예후 인자) [Liu et al. J Transl Med 2020;
+      Yang et al. Int J Infect Dis 2020]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main:
+    - C34.0
+    - C34.1
+    - C34.9
+    pattern: ↑ (NLR ≥5 → NSCLC 불량 예후; 전체 생존/무진행 생존과 역상관; 면역항암제 반응 예측 보조) [Cedrés et al. Lung Cancer 2012; Mezquita et al.
+      JAMA Oncol 2018]
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main:
+    - J13
+    - J14
+    - J15
+    - J18
+    pattern: ↑ (중증 폐렴에서 상승; 패혈증 동반 시 NLR ≥10) [de Jager et al. Crit Care 2010]
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main:
+    - J80
+    pattern: ↑ (전신 염증 반영; 높을수록 사망률 증가)
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main:
+    - J44.0
+    - J44.1
+    pattern: ↑ (급성 악화 시 상승; 안정기 NLR 상승은 빈번한 악화 예측) [Lee et al. Int J COPD 2016]

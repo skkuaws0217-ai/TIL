@@ -1,0 +1,795 @@
+# ═══════════════════════════════════════════════════════════════
+# Lab Reference Ranges v2 — LOINC 코드 + 질환 연관성 추가
+# Original: Tietz 6th Ed, Harrison's 21st, WHO/IFCC, CLSI C28-A3
+# v2 additions: loinc, disease_associations (disease_key, disease_kr, icd10)
+# ═══════════════════════════════════════════════════════════════
+
+50821:
+  name: pO2 (Partial Pressure of Oxygen)
+  unit: mmHg
+  ref_source: Tietz 6th Ed Ch.28; Harrison's 21st Appendix
+  ranges:
+    lower: 80
+    upper: 100
+  critical:
+    low: 60
+    high: 500
+  medical_terms:
+    low: Hypoxemia
+    high: Hyperoxemia
+    critical_low: Severe Hypoxemia (respiratory failure threshold)
+  loinc: 2703-7
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: &id003
+    - J13
+    - J14
+    - J15
+    - J18.0
+    - J18.1
+    - J18.9
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: &id004
+    - J15.0
+    - J15.1
+    - J15.5
+    - J15.6
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: &id002
+    - J80
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: &id013
+    - I26.0
+    - I26.09
+    - I26.90
+    - I26.99
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: &id001
+    - J44.0
+    - J44.1
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main: &id006
+    - J45.21
+    - J45.31
+    - J45.41
+    - J45.51
+    - J46
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: &id007
+    - J84.1
+    - J84.10
+    - J84.112
+    - J84.17
+    - J84.9
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: &id012
+    - J81.0
+    - J81.1
+    - I50.1
+50818:
+  name: pCO2 (Partial Pressure of Carbon Dioxide)
+  unit: mmHg
+  ref_source: Tietz 6th Ed Ch.28; Harrison's 21st Appendix
+  ranges:
+    lower: 35
+    upper: 45
+  critical:
+    low: 20
+    high: 60
+  medical_terms:
+    low: Hypocapnia (respiratory alkalosis)
+    high: Hypercapnia (respiratory acidosis)
+    critical_high: Severe Hypercapnia (ventilatory failure)
+  loinc: 2019-8
+  disease_associations:
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+50820:
+  name: pH (Blood)
+  unit: ''
+  ref_source: Tietz 6th Ed Ch.28; Harrison's 21st Appendix
+  ranges:
+    lower: 7.35
+    upper: 7.45
+  critical:
+    low: 7.2
+    high: 7.55
+  medical_terms:
+    low: Acidemia
+    high: Alkalemia
+    critical_low: Severe Acidemia
+    critical_high: Severe Alkalemia
+  loinc: 2744-1
+  disease_associations:
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+50803:
+  name: Bicarbonate (HCO3, calculated)
+  unit: mEq/L
+  ref_source: Tietz 6th Ed Ch.28
+  ranges:
+    lower: 22
+    upper: 28
+  medical_terms:
+    low: Metabolic Acidosis (low HCO3)
+    high: Metabolic Alkalosis (high HCO3)
+  loinc: 1963-8
+50802:
+  name: Base Excess
+  unit: mEq/L
+  ref_source: Tietz 6th Ed Ch.28; Harrison's 21st Appendix
+  ranges:
+    lower: -2
+    upper: 2
+  critical:
+    low: -10
+    high: 10
+  medical_terms:
+    low: Base Deficit (metabolic acidosis)
+    high: Base Excess (metabolic alkalosis)
+    critical_low: Severe Base Deficit (severe metabolic acidosis)
+  loinc: 11555-0
+50813:
+  name: Lactate
+  unit: mmol/L
+  ref_source: Tietz 6th Ed Ch.14; Surviving Sepsis Campaign 2021
+  ranges:
+    lower: 0.5
+    upper: 2.0
+  critical:
+    high: 4.0
+  medical_terms:
+    low: Normal Lactate
+    high: Hyperlactatemia
+    critical_high: Severe Hyperlactatemia (tissue hypoperfusion)
+  loinc: 2524-7
+  disease_associations:
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id003
+50801:
+  name: Alveolar-arterial Gradient
+  unit: mmHg
+  ref_source: Harrison's 21st Ch.286; Normal = age/4 + 4 (young adult <20)
+  ranges:
+    lower: 0
+    upper: 20
+  medical_terms:
+    low: Normal
+    high: Elevated A-a Gradient (V/Q mismatch, diffusion impairment, or shunt)
+  loinc: 11556-8
+50825:
+  name: Temperature (Blood Gas)
+  unit: °C
+  ref_source: Harrison's 21st Ed Ch.17; Normal core body temperature
+  ranges:
+    lower: 36.1
+    upper: 37.2
+  critical:
+    low: 35.0
+    high: 40.0
+  medical_terms:
+    low: Hypothermia
+    high: Hyperthermia (Fever)
+    critical_low: Severe Hypothermia
+    critical_high: Hyperpyrexia
+  loinc: 8310-5
+51301:
+  name: White Blood Cell Count
+  unit: K/uL
+  ref_source: Tietz 6th Ed Ch.31; Harrison's 21st Appendix
+  ranges:
+    lower: 4.5
+    upper: 11.0
+  critical:
+    low: 2.0
+    high: 30.0
+  medical_terms:
+    low: Leukopenia
+    high: Leukocytosis
+    critical_low: Severe Leukopenia (infection risk)
+    critical_high: Marked Leukocytosis (leukemoid reaction)
+  loinc: 6690-2
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id003
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: *id004
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: &id005
+    - J85.1
+    - J85.2
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: &id011
+    - J47.0
+    - J47.1
+    - J47.9
+51300:
+  name: White Blood Cell Count
+  unit: K/uL
+  ref_source: Tietz 6th Ed Ch.31
+  ranges:
+    lower: 4.5
+    upper: 11.0
+  medical_terms:
+    low: Leukopenia
+    high: Leukocytosis
+  loinc: 6690-2
+51222:
+  name: Hemoglobin
+  unit: g/dL
+  ref_source: WHO 2011 Hb concentrations; Tietz 6th Ed Ch.31
+  ranges:
+    lower: 12.0
+    upper: 17.5
+  critical:
+    low: 7.0
+  medical_terms:
+    low: Anemia
+    high: Polycythemia
+    critical_low: Severe Anemia (transfusion threshold per AABB 2016)
+  loinc: 718-7
+  disease_associations:
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: &id009
+    - A15.0
+    - A15.3
+    - A15.5
+    - A15.6
+    - A15.9
+  - disease_key: lung_cancer
+    disease_kr: 폐암 (기관지 및 폐의 악성 신생물)
+    icd10_main: &id010
+    - C34.0
+    - C34.1
+    - C34.2
+    - C34.3
+    - C34.8
+    - C34.9
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id005
+51265:
+  name: Platelet Count
+  unit: K/uL
+  ref_source: Tietz 6th Ed Ch.31; Harrison's 21st Appendix
+  ranges:
+    lower: 150
+    upper: 400
+  critical:
+    low: 50
+    high: 1000
+  medical_terms:
+    low: Thrombocytopenia
+    high: Thrombocytosis
+    critical_low: Severe Thrombocytopenia (bleeding risk)
+  loinc: 777-3
+51256:
+  name: Neutrophils (%)
+  unit: '%'
+  ref_source: Tietz 6th Ed Ch.31
+  ranges:
+    lower: 40
+    upper: 70
+  medical_terms:
+    low: Neutropenia (relative)
+    high: Neutrophilia
+  loinc: 770-8
+51200:
+  name: Eosinophils (%)
+  unit: '%'
+  ref_source: Tietz 6th Ed Ch.31; Harrison's 21st Ch.62
+  ranges:
+    lower: 0
+    upper: 5
+  medical_terms:
+    low: Normal
+    high: Eosinophilia
+  note: '>5% or >500/uL absolute = Eosinophilia per Harrison''s'
+  loinc: 713-8
+  disease_associations:
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main: *id006
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: &id008
+    - D86.0
+    - D86.1
+    - D86.2
+    - D86.9
+51244:
+  name: Lymphocytes (%)
+  unit: '%'
+  ref_source: Tietz 6th Ed Ch.31
+  ranges:
+    lower: 20
+    upper: 40
+  medical_terms:
+    low: Lymphopenia
+    high: Lymphocytosis
+  loinc: 736-9
+51146:
+  name: Basophils (%)
+  unit: '%'
+  ref_source: Tietz 6th Ed Ch.31
+  ranges:
+    lower: 0
+    upper: 1
+  medical_terms:
+    low: Normal
+    high: Basophilia
+  loinc: ''
+51279:
+  name: Red Blood Cell Count
+  unit: M/uL
+  ref_source: Tietz 6th Ed Ch.31
+  ranges:
+    lower: 4.2
+    upper: 5.9
+  medical_terms:
+    low: Erythrocytopenia
+    high: Erythrocytosis
+  loinc: 789-8
+51277:
+  name: Red Cell Distribution Width
+  unit: '%'
+  ref_source: Tietz 6th Ed Ch.31
+  ranges:
+    lower: 11.5
+    upper: 14.5
+  medical_terms:
+    low: Normal
+    high: Anisocytosis (elevated RDW)
+  loinc: ''
+50889:
+  name: C-Reactive Protein
+  unit: mg/L
+  ref_source: Tietz 6th Ed Ch.19; Pepys & Hirschfield, J Clin Invest 2003
+  ranges:
+    lower: 0
+    upper: 10
+  critical:
+    high: 100
+  medical_terms:
+    low: Normal CRP
+    high: Elevated CRP (inflammation)
+    critical_high: Markedly Elevated CRP (severe inflammation/infection)
+  loinc: 1988-5
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id003
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: *id004
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id007
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id008
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id001
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id009
+  - disease_key: lung_cancer
+    disease_kr: 폐암 (기관지 및 폐의 악성 신생물)
+    icd10_main: *id010
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: *id011
+51652:
+  name: High-Sensitivity CRP
+  unit: mg/L
+  ref_source: Tietz 6th Ed Ch.19; AHA/CDC 2003 (Pearson et al, Circulation 2003)
+  ranges:
+    lower: 0
+    upper: 3.0
+  critical:
+    high: 10.0
+  medical_terms:
+    low: Normal (low cardiovascular risk per AHA/CDC)
+    high: Elevated hs-CRP (cardiovascular risk per AHA/CDC 2003)
+    critical_high: Markedly Elevated hs-CRP (acute inflammation)
+  loinc: 75241-0
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id003
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: *id004
+50893:
+  name: Calcium, Total
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.14
+  ranges:
+    lower: 8.5
+    upper: 10.5
+  medical_terms:
+    low: Hypocalcemia
+    high: Hypercalcemia
+  loinc: 30341-2
+50862:
+  name: Albumin
+  unit: g/dL
+  ref_source: Tietz 6th Ed Ch.16; Harrison's 21st Appendix
+  ranges:
+    lower: 3.5
+    upper: 5.5
+  medical_terms:
+    low: Hypoalbuminemia
+    high: Hyperalbuminemia
+  loinc: 1751-7
+  disease_associations:
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id009
+  - disease_key: lung_cancer
+    disease_kr: 폐암 (기관지 및 폐의 악성 신생물)
+    icd10_main: *id010
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id005
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id012
+50882:
+  name: Bicarbonate (Serum CO2)
+  unit: mEq/L
+  ref_source: Tietz 6th Ed Ch.14
+  ranges:
+    lower: 22
+    upper: 29
+  medical_terms:
+    low: Low Serum Bicarbonate
+    high: Elevated Serum Bicarbonate
+  loinc: 14627-4
+50912:
+  name: Creatinine
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.15; KDIGO AKI Guidelines 2012
+  ranges:
+    lower: 0.6
+    upper: 1.2
+  medical_terms:
+    low: Low Creatinine
+    high: Elevated Creatinine (renal impairment)
+  loinc: 2160-0
+50902:
+  name: Chloride
+  unit: mEq/L
+  ref_source: Tietz 6th Ed Ch.14
+  ranges:
+    lower: 98
+    upper: 106
+  medical_terms:
+    low: Hypochloremia
+    high: Hyperchloremia
+  loinc: 2075-0
+50931:
+  name: Glucose
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.14; ADA Standards of Medical Care 2024
+  ranges:
+    lower: 70
+    upper: 100
+  critical:
+    low: 50
+    high: 400
+  medical_terms:
+    low: Hypoglycemia
+    high: Hyperglycemia
+    critical_low: Severe Hypoglycemia (ADA threshold)
+    critical_high: Severe Hyperglycemia (DKA/HHS concern)
+  loinc: 2345-7
+50960:
+  name: Magnesium
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.14
+  ranges:
+    lower: 1.7
+    upper: 2.2
+  medical_terms:
+    low: Hypomagnesemia
+    high: Hypermagnesemia
+  loinc: 19123-9
+50971:
+  name: Potassium
+  unit: mEq/L
+  ref_source: Tietz 6th Ed Ch.14; Harrison's 21st Appendix
+  ranges:
+    lower: 3.5
+    upper: 5.0
+  critical:
+    low: 3.0
+    high: 6.0
+  medical_terms:
+    low: Hypokalemia
+    high: Hyperkalemia
+    critical_low: Severe Hypokalemia (arrhythmia risk)
+    critical_high: Severe Hyperkalemia (cardiac arrest risk)
+  loinc: 2823-3
+50983:
+  name: Sodium
+  unit: mEq/L
+  ref_source: Tietz 6th Ed Ch.14; Harrison's 21st Appendix
+  ranges:
+    lower: 136
+    upper: 145
+  critical:
+    low: 120
+    high: 155
+  medical_terms:
+    low: Hyponatremia
+    high: Hypernatremia
+    critical_low: Severe Hyponatremia (seizure risk)
+    critical_high: Severe Hypernatremia
+  loinc: 2951-2
+  disease_associations:
+  - disease_key: lung_cancer
+    disease_kr: 폐암 (기관지 및 폐의 악성 신생물)
+    icd10_main: *id010
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id009
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id003
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id012
+50915:
+  name: D-Dimer
+  unit: ng/mL FEU
+  ref_source: Tietz 6th Ed Ch.32; Wells PE Algorithm (Ann Intern Med 2001)
+  ranges:
+    lower: 0
+    upper: 500
+  medical_terms:
+    low: Normal
+    high: Elevated D-dimer (thrombotic risk — PE/DVT, DIC, inflammation)
+  loinc: 17861-6
+50924:
+  name: Phosphate
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.14
+  ranges:
+    lower: 2.5
+    upper: 4.5
+  medical_terms:
+    low: Hypophosphatemia
+    high: Hyperphosphatemia
+  loinc: 2777-1
+50954:
+  name: Lactate Dehydrogenase
+  unit: IU/L
+  ref_source: Tietz 6th Ed Ch.16; Harrison's 21st Appendix
+  ranges:
+    lower: 100
+    upper: 250
+  medical_terms:
+    low: Normal
+    high: Elevated LDH (tissue damage/hemolysis)
+  loinc: 2532-0
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id003
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id009
+  - disease_key: lung_cancer
+    disease_kr: 폐암 (기관지 및 폐의 악성 신생물)
+    icd10_main: *id010
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id007
+  - disease_key: pleural_effusion
+    disease_kr: 흉수
+    icd10_main:
+    - J90
+    - J91.0
+    - J91.8
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id005
+50963:
+  name: BNP (B-type Natriuretic Peptide)
+  unit: pg/mL
+  ref_source: Maisel et al, NEJM 2002 (Breathing Not Properly study); ESC HF Guidelines
+    2021
+  ranges:
+    lower: 0
+    upper: 100
+  critical:
+    high: 500
+  medical_terms:
+    low: Normal BNP
+    high: Elevated BNP (cardiac strain/fluid overload)
+    critical_high: Markedly Elevated BNP (heart failure likely per Breathing Not Properly
+      study)
+  loinc: 42637-9
+  disease_associations:
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id012
+  - disease_key: pulmonary_hypertension
+    disease_kr: 폐동맥 고혈압
+    icd10_main: &id014
+    - I27.0
+    - I27.20
+    - I27.21
+    - I27.29
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id013
+50911:
+  name: NT-proBNP
+  unit: pg/mL
+  ref_source: Januzzi et al, Eur Heart J 2006 (ProBNP study); ESC HF Guidelines 2021
+  ranges:
+    lower: 0
+    upper: 300
+  critical:
+    high: 900
+  medical_terms:
+    low: Normal
+    high: Elevated NT-proBNP (heart failure possible)
+    critical_high: Markedly Elevated NT-proBNP (heart failure likely per ESC)
+  loinc: 33762-6
+  disease_associations:
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id012
+  - disease_key: pulmonary_hypertension
+    disease_kr: 폐동맥 고혈압
+    icd10_main: *id014
+51214:
+  name: Prothrombin Time (PT)
+  unit: sec
+  ref_source: Tietz 6th Ed Ch.32
+  ranges:
+    lower: 11.0
+    upper: 13.5
+  medical_terms:
+    low: Normal
+    high: Prolonged PT (coagulopathy)
+  loinc: 5902-2
+51237:
+  name: International Normalized Ratio (INR)
+  unit: ''
+  ref_source: Tietz 6th Ed Ch.32; WHO standardization
+  ranges:
+    lower: 0.9
+    upper: 1.1
+  medical_terms:
+    low: Normal
+    high: Elevated INR (coagulopathy/anticoagulation)
+  loinc: 34714-6
+51196:
+  name: D-Dimer
+  unit: ng/mL FEU
+  ref_source: Tietz 6th Ed Ch.32; Wells PE Algorithm (Ann Intern Med 2001)
+  ranges:
+    lower: 0
+    upper: 500
+  medical_terms:
+    low: Normal
+    high: Elevated D-dimer (thrombotic risk — PE/DVT, DIC, inflammation)
+  note: 'Per Wells criteria: D-dimer <500 with low clinical probability effectively
+    rules out PE'
+  loinc: 48066-5
+  disease_associations:
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id013
+51274:
+  name: Fibrinogen
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.32
+  ranges:
+    lower: 200
+    upper: 400
+  medical_terms:
+    low: Hypofibrinogenemia (DIC, liver failure)
+    high: Hyperfibrinogenemia (acute phase reactant)
+  loinc: 3255-7
+51003:
+  name: Troponin T (hs-cTnT)
+  unit: ng/mL
+  ref_source: Fourth Universal Definition of MI, ESC 2018; Tietz 6th Ed Ch.17
+  ranges:
+    lower: 0
+    upper: 0.014
+  critical:
+    high: 0.1
+  medical_terms:
+    low: Normal
+    high: Elevated Troponin (myocardial injury per 4th Universal Definition of MI)
+    critical_high: Markedly Elevated Troponin (significant myocardial injury)
+  loinc: 6598-7
+  disease_associations:
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id013
+  - disease_key: pulmonary_hypertension
+    disease_kr: 폐동맥 고혈압
+    icd10_main: *id014
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id002
+51002:
+  name: Troponin I (cTnI)
+  unit: ng/mL
+  ref_source: Fourth Universal Definition of MI, ESC 2018
+  ranges:
+    lower: 0
+    upper: 0.04
+  medical_terms:
+    low: Normal
+    high: Elevated Troponin I (myocardial injury)
+  loinc: 10839-9
+51006:
+  name: Blood Urea Nitrogen
+  unit: mg/dL
+  ref_source: Tietz 6th Ed Ch.15
+  ranges:
+    lower: 7
+    upper: 20
+  medical_terms:
+    low: Low BUN
+    high: Elevated BUN (azotemia — renal, prerenal, or postrenal)
+  loinc: 3094-0
+51288:
+  name: Total Protein
+  unit: g/dL
+  ref_source: Tietz 6th Ed Ch.16
+  ranges:
+    lower: 6.0
+    upper: 8.3
+  medical_terms:
+    low: Hypoproteinemia
+    high: Hyperproteinemia
+  loinc: 2885-2
+50826:
+  name: Tidal Volume (Blood Gas)
+  unit: mL
+  ref_source: Harrison's 21st Ch.286; Normal 6-8 mL/kg IBW
+  ranges:
+    lower: 300
+    upper: 700
+  medical_terms:
+    low: Low Tidal Volume
+    high: Elevated Tidal Volume
+  loinc: ''

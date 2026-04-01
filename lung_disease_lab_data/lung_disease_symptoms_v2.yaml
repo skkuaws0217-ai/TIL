@@ -1,0 +1,651 @@
+# ═══════════════════════════════════════════════════════════════
+# 폐 질환별 증상 프로파일 v2 — ICD-11·ICD-9·HPO 코드 추가
+# Original: Harrison's 21st Ed, Murray & Nadel 7th Ed, UpToDate 2025
+# v2 additions: ICD-11, ICD-9, HPO code per symptom, Korean disease name
+# ═══════════════════════════════════════════════════════════════
+
+community_acquired_pneumonia:
+  disease_kr: 지역사회획득 폐렴 (CAP)
+  icd10:
+  - J13
+  - J14
+  - J15
+  - J15.0
+  - J15.1
+  - J15.9
+  - J18.0
+  - J18.1
+  - J18.9
+  icd11: CA22.Z
+  icd9: '486'
+  symptoms:
+  - name: cough
+    frequency: common
+    hpo_id: HP:0012735
+    hpo_kr: 기침
+  - name: fever
+    frequency: common
+    hpo_id: HP:0001945
+    hpo_kr: 발열
+  - name: sputum production
+    frequency: common
+    hpo_id: HP:0033336
+    hpo_kr: 객담
+  - name: dyspnea
+    frequency: frequent
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: pleuritic chest pain
+    frequency: frequent
+    hpo_id: HP:0033193
+    hpo_kr: 흉막성 흉통
+  - name: chills
+    frequency: frequent
+    hpo_id: HP:0025143
+    hpo_kr: 오한
+  - name: rigors
+    frequency: occasional
+    hpo_id: HP:0025143
+    hpo_kr: 오한
+  - name: fatigue
+    frequency: common
+    hpo_id: HP:0012378
+    hpo_kr: 피로감
+  - name: myalgia
+    frequency: frequent
+    hpo_id: HP:0003326
+    hpo_kr: 근육통
+  - name: tachypnea
+    frequency: common
+    hpo_id: HP:0002789
+    hpo_kr: 호흡 빠름
+  - name: tachycardia
+    frequency: frequent
+    hpo_id: HP:0001649
+    hpo_kr: 빈맥
+  - name: nausea
+    frequency: occasional
+    hpo_id: ''
+    hpo_kr: ''
+  - name: confusion
+    frequency: occasional
+    hpo_id: HP:0001289
+    hpo_kr: 의식 변화
+hospital_acquired_pneumonia:
+  disease_kr: 병원획득 폐렴 (HAP/VAP)
+  icd10:
+  - J15.0
+  - J15.1
+  - J15.5
+  - J15.6
+  - J95.851
+  icd11: CA20
+  icd9: '482.9'
+  symptoms:
+  - name: fever
+    frequency: common
+    hpo_id: HP:0001945
+    hpo_kr: 발열
+  - name: purulent sputum
+    frequency: common
+    hpo_id: HP:0033336
+    hpo_kr: 객담
+  - name: cough
+    frequency: common
+    hpo_id: HP:0012735
+    hpo_kr: 기침
+  - name: dyspnea
+    frequency: common
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: hypoxia
+    frequency: common
+    hpo_id: HP:0012418
+    hpo_kr: 저산소증
+  - name: tachypnea
+    frequency: common
+    hpo_id: HP:0002789
+    hpo_kr: 호흡 빠름
+  - name: altered mental status
+    frequency: occasional
+    hpo_id: HP:0001289
+    hpo_kr: 의식 변화
+aspiration_pneumonia:
+  disease_kr: 흡인성 폐렴
+  icd10:
+  - J69.0
+  icd11: CA63.0
+  icd9: '507.0'
+  symptoms:
+  - name: cough
+    frequency: common
+    hpo_id: HP:0012735
+    hpo_kr: 기침
+  - name: fever
+    frequency: common
+    hpo_id: HP:0001945
+    hpo_kr: 발열
+  - name: dyspnea
+    frequency: common
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: purulent sputum
+    frequency: frequent
+    hpo_id: HP:0033336
+    hpo_kr: 객담
+  - name: hypoxia
+    frequency: common
+    hpo_id: HP:0012418
+    hpo_kr: 저산소증
+copd_exacerbation:
+  disease_kr: COPD 급성 악화
+  icd10:
+  - J44.0
+  - J44.1
+  icd11: CB22.0
+  icd9: '491.21'
+  symptoms:
+  - name: dyspnea
+    frequency: common
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: cough
+    frequency: common
+    hpo_id: HP:0012735
+    hpo_kr: 기침
+  - name: sputum production
+    frequency: common
+    hpo_id: HP:0033336
+    hpo_kr: 객담
+  - name: wheezing
+    frequency: common
+    hpo_id: HP:0002099
+    hpo_kr: 천명음
+  - name: chest tightness
+    frequency: frequent
+    hpo_id: HP:0001082
+    hpo_kr: 흉부 압박감
+  - name: tachypnea
+    frequency: common
+    hpo_id: HP:0002789
+    hpo_kr: 호흡 빠름
+  - name: fatigue
+    frequency: frequent
+    hpo_id: HP:0012378
+    hpo_kr: 피로감
+  - name: fever
+    frequency: occasional
+    hpo_id: HP:0001945
+    hpo_kr: 발열
+asthma_exacerbation:
+  disease_kr: 천식 급성 악화
+  icd10:
+  - J45.21
+  - J45.31
+  - J45.41
+  - J45.51
+  - J46
+  icd11: CA23.1
+  icd9: '493.91'
+  symptoms:
+  - name: wheezing
+    frequency: common
+    hpo_id: HP:0002099
+    hpo_kr: 천명음
+  - name: dyspnea
+    frequency: common
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: chest tightness
+    frequency: common
+    hpo_id: HP:0001082
+    hpo_kr: 흉부 압박감
+  - name: cough
+    frequency: common
+    hpo_id: HP:0012735
+    hpo_kr: 기침
+  - name: tachypnea
+    frequency: frequent
+    hpo_id: HP:0002789
+    hpo_kr: 호흡 빠름
+  - name: tachycardia
+    frequency: frequent
+    hpo_id: HP:0001649
+    hpo_kr: 빈맥
+pulmonary_embolism:
+  disease_kr: 폐색전증
+  icd10:
+  - I26.0
+  - I26.02
+  - I26.09
+  - I26.90
+  - I26.92
+  - I26.99
+  icd11: BA80
+  icd9: '415.1'
+  symptoms:
+  - name: dyspnea
+    frequency: common
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: pleuritic chest pain
+    frequency: frequent
+    hpo_id: HP:0033193
+    hpo_kr: 흉막성 흉통
+  - name: cough
+    frequency: occasional
+    hpo_id: HP:0012735
+    hpo_kr: 기침
+  - name: tachypnea
+    frequency: common
+    hpo_id: HP:0002789
+    hpo_kr: 호흡 빠름
+  - name: tachycardia
+    frequency: frequent
+    hpo_id: HP:0001649
+    hpo_kr: 빈맥
+  - name: hemoptysis
+    frequency: occasional
+    hpo_id: HP:0002105
+    hpo_kr: 객혈
+  - name: syncope
+    frequency: occasional
+    hpo_id: HP:0001279
+    hpo_kr: 실신
+  - name: leg swelling
+    frequency: frequent
+    hpo_id: HP:0000969
+    hpo_kr: 부종
+  - name: fever
+    frequency: occasional
+    hpo_id: HP:0001945
+    hpo_kr: 발열
+pulmonary_edema:
+  disease_kr: 폐부종 / 심부전
+  icd10:
+  - J81.0
+  - J81.1
+  - I50.1
+  - I50.20
+  - I50.21
+  icd11: CB40
+  icd9: '514'
+  symptoms:
+  - name: dyspnea
+    frequency: common
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: orthopnea
+    frequency: common
+    hpo_id: HP:0001269
+    hpo_kr: 기좌호흡
+  - name: paroxysmal nocturnal dyspnea
+    frequency: frequent
+    hpo_id: HP:0002878
+    hpo_kr: 발작성 야간 호흡곤란
+  - name: cough
+    frequency: frequent
+    hpo_id: HP:0012735
+    hpo_kr: 기침
+  - name: peripheral edema
+    frequency: common
+    hpo_id: HP:0000969
+    hpo_kr: 부종
+  - name: tachycardia
+    frequency: frequent
+    hpo_id: HP:0001649
+    hpo_kr: 빈맥
+  - name: fatigue
+    frequency: common
+    hpo_id: HP:0012378
+    hpo_kr: 피로감
+  - name: weight loss
+    frequency: occasional
+    hpo_id: HP:0001824
+    hpo_kr: 체중 감소
+ards:
+  disease_kr: 급성호흡곤란증후군 (ARDS)
+  icd10:
+  - J80
+  icd11: CA90
+  icd9: '518.82'
+  symptoms:
+  - name: dyspnea
+    frequency: common
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: tachypnea
+    frequency: common
+    hpo_id: HP:0002789
+    hpo_kr: 호흡 빠름
+  - name: hypoxia
+    frequency: common
+    hpo_id: HP:0012418
+    hpo_kr: 저산소증
+  - name: respiratory distress
+    frequency: common
+    hpo_id: HP:0002098
+    hpo_kr: 호흡 곤란
+  - name: cyanosis
+    frequency: frequent
+    hpo_id: HP:0000961
+    hpo_kr: 청색증
+lung_cancer:
+  disease_kr: 폐암 (기관지 및 폐의 악성 신생물)
+  icd10:
+  - C34.0
+  - C34.1
+  - C34.2
+  - C34.3
+  - C34.8
+  - C34.9
+  icd11: 2C25
+  icd9: '162.9'
+  symptoms:
+  - name: cough
+    frequency: common
+    hpo_id: HP:0012735
+    hpo_kr: 기침
+  - name: hemoptysis
+    frequency: frequent
+    hpo_id: HP:0002105
+    hpo_kr: 객혈
+  - name: dyspnea
+    frequency: frequent
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: chest pain
+    frequency: frequent
+    hpo_id: HP:0100749
+    hpo_kr: 흉통
+  - name: weight loss
+    frequency: common
+    hpo_id: HP:0001824
+    hpo_kr: 체중 감소
+  - name: fatigue
+    frequency: common
+    hpo_id: HP:0012378
+    hpo_kr: 피로감
+  - name: anorexia
+    frequency: frequent
+    hpo_id: HP:0002039
+    hpo_kr: 식욕부진
+  - name: hoarseness
+    frequency: occasional
+    hpo_id: HP:0001742
+    hpo_kr: 쉰 목소리
+  - name: clubbing
+    frequency: occasional
+    hpo_id: HP:0001034
+    hpo_kr: 곤봉지
+tuberculosis:
+  disease_kr: 폐결핵
+  icd10:
+  - A15.0
+  - A15.3
+  - A15.5
+  - A15.6
+  - A15.9
+  icd11: 1B10.1
+  icd9: '010.0'
+  symptoms:
+  - name: cough
+    frequency: common
+    hpo_id: HP:0012735
+    hpo_kr: 기침
+  - name: fever
+    frequency: common
+    hpo_id: HP:0001945
+    hpo_kr: 발열
+  - name: night sweats
+    frequency: common
+    hpo_id: HP:0030166
+    hpo_kr: 야간 발한
+  - name: weight loss
+    frequency: common
+    hpo_id: HP:0001824
+    hpo_kr: 체중 감소
+  - name: hemoptysis
+    frequency: frequent
+    hpo_id: HP:0002105
+    hpo_kr: 객혈
+  - name: fatigue
+    frequency: common
+    hpo_id: HP:0012378
+    hpo_kr: 피로감
+  - name: anorexia
+    frequency: frequent
+    hpo_id: HP:0002039
+    hpo_kr: 식욕부진
+  - name: chest pain
+    frequency: occasional
+    hpo_id: HP:0100749
+    hpo_kr: 흉통
+pleural_effusion:
+  disease_kr: 흉수
+  icd10:
+  - J90
+  - J91.0
+  - J91.8
+  icd11: CB25
+  icd9: '511.9'
+  symptoms:
+  - name: dyspnea
+    frequency: common
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: pleuritic chest pain
+    frequency: frequent
+    hpo_id: HP:0033193
+    hpo_kr: 흉막성 흉통
+  - name: cough
+    frequency: frequent
+    hpo_id: HP:0012735
+    hpo_kr: 기침
+  - name: fever
+    frequency: occasional
+    hpo_id: HP:0001945
+    hpo_kr: 발열
+pneumothorax:
+  disease_kr: 기흉
+  icd10:
+  - J93.0
+  - J93.1
+  - J93.11
+  - J93.12
+  - J93.9
+  icd11: CB27
+  icd9: '512.9'
+  symptoms:
+  - name: chest pain
+    frequency: common
+    hpo_id: HP:0100749
+    hpo_kr: 흉통
+  - name: dyspnea
+    frequency: common
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: tachycardia
+    frequency: frequent
+    hpo_id: HP:0001649
+    hpo_kr: 빈맥
+  - name: tachypnea
+    frequency: frequent
+    hpo_id: HP:0002789
+    hpo_kr: 호흡 빠름
+interstitial_lung_disease:
+  disease_kr: 간질성 폐질환 / 폐섬유화증
+  icd10:
+  - J84.1
+  - J84.10
+  - J84.112
+  - J84.17
+  - J84.9
+  icd11: CB03
+  icd9: '516.9'
+  symptoms:
+  - name: dyspnea
+    frequency: common
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: dry cough
+    frequency: common
+    hpo_id: HP:0031245
+    hpo_kr: 만성 기침
+  - name: fatigue
+    frequency: frequent
+    hpo_id: HP:0012378
+    hpo_kr: 피로감
+  - name: clubbing
+    frequency: occasional
+    hpo_id: HP:0001034
+    hpo_kr: 곤봉지
+  - name: weight loss
+    frequency: occasional
+    hpo_id: HP:0001824
+    hpo_kr: 체중 감소
+sarcoidosis:
+  disease_kr: 사르코이드증
+  icd10:
+  - D86.0
+  - D86.1
+  - D86.2
+  - D86.9
+  icd11: 4B20
+  icd9: '135'
+  symptoms:
+  - name: cough
+    frequency: common
+    hpo_id: HP:0012735
+    hpo_kr: 기침
+  - name: dyspnea
+    frequency: frequent
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: fatigue
+    frequency: common
+    hpo_id: HP:0012378
+    hpo_kr: 피로감
+  - name: erythema nodosum
+    frequency: occasional
+    hpo_id: HP:0001081
+    hpo_kr: 결절 홍반
+  - name: joint pain
+    frequency: occasional
+    hpo_id: HP:0002829
+    hpo_kr: 관절통
+  - name: fever
+    frequency: occasional
+    hpo_id: HP:0001945
+    hpo_kr: 발열
+  - name: weight loss
+    frequency: occasional
+    hpo_id: HP:0001824
+    hpo_kr: 체중 감소
+  - name: chest pain
+    frequency: occasional
+    hpo_id: HP:0100749
+    hpo_kr: 흉통
+bronchiectasis:
+  disease_kr: 기관지확장증
+  icd10:
+  - J47.0
+  - J47.1
+  - J47.9
+  icd11: CB31
+  icd9: '494.0'
+  symptoms:
+  - name: chronic cough
+    frequency: common
+    hpo_id: HP:0031245
+    hpo_kr: 만성 기침
+  - name: sputum production
+    frequency: common
+    hpo_id: HP:0033336
+    hpo_kr: 객담
+  - name: hemoptysis
+    frequency: frequent
+    hpo_id: HP:0002105
+    hpo_kr: 객혈
+  - name: dyspnea
+    frequency: frequent
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: fever
+    frequency: occasional
+    hpo_id: HP:0001945
+    hpo_kr: 발열
+  - name: fatigue
+    frequency: frequent
+    hpo_id: HP:0012378
+    hpo_kr: 피로감
+pulmonary_hypertension:
+  disease_kr: 폐동맥 고혈압
+  icd10:
+  - I27.0
+  - I27.20
+  - I27.21
+  - I27.29
+  icd11: BB00
+  icd9: '416.0'
+  symptoms:
+  - name: dyspnea
+    frequency: common
+    hpo_id: HP:0002094
+    hpo_kr: 호흡곤란
+  - name: fatigue
+    frequency: common
+    hpo_id: HP:0012378
+    hpo_kr: 피로감
+  - name: chest pain
+    frequency: frequent
+    hpo_id: HP:0100749
+    hpo_kr: 흉통
+  - name: syncope
+    frequency: occasional
+    hpo_id: HP:0001279
+    hpo_kr: 실신
+  - name: peripheral edema
+    frequency: frequent
+    hpo_id: HP:0000969
+    hpo_kr: 부종
+  - name: palpitations
+    frequency: occasional
+    hpo_id: HP:0001962
+    hpo_kr: 두근거림
+lung_abscess:
+  disease_kr: 폐농양
+  icd10:
+  - J85.1
+  - J85.2
+  icd11: CB01
+  icd9: '513.0'
+  symptoms:
+  - name: fever
+    frequency: common
+    hpo_id: HP:0001945
+    hpo_kr: 발열
+  - name: cough
+    frequency: common
+    hpo_id: HP:0012735
+    hpo_kr: 기침
+  - name: purulent sputum
+    frequency: common
+    hpo_id: HP:0033336
+    hpo_kr: 객담
+  - name: weight loss
+    frequency: frequent
+    hpo_id: HP:0001824
+    hpo_kr: 체중 감소
+  - name: night sweats
+    frequency: frequent
+    hpo_id: HP:0030166
+    hpo_kr: 야간 발한
+  - name: hemoptysis
+    frequency: occasional
+    hpo_id: HP:0002105
+    hpo_kr: 객혈
+  - name: chest pain
+    frequency: occasional
+    hpo_id: HP:0100749
+    hpo_kr: 흉통

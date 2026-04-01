@@ -1,0 +1,2276 @@
+# ═══════════════════════════════════════════════════════════════
+# Vitals · Respiratory · Hemodynamic Reference_Range v1
+# MIMIC-IV chartevents ItemID 기반 — 폐 질환 진단 보조 도구
+#
+# 기준 원칙:
+#   - ranges (lower/upper): 값 < lower → hypo, 값 > upper → hyper
+#   - thresholds: 각 가이드라인 원문의 연산자(≤, <, ≥, >) 그대로 표기
+#
+# 연동 질환: 30개 (일반 17 + 기타 9 + 희귀 연관 4)
+#   profiles 17: CAP, HAP, 흡인성폐렴, COPD, 천식, PE, 폐부종,
+#     ARDS, 폐암, 폐결핵, 흉수, 기흉, ILD, 사르코이드증,
+#     기관지확장증, 폐동맥고혈압, 폐농양
+#   추가 13: 급성/만성 호흡부전, 바이러스폐렴, 인플루엔자,
+#     농흉, 무기폐, 폐기종, 수면무호흡, 과민성폐렴, 진폐증,
+#     폐호산구증가증, 급성기관지염, 급성세기관지염
+#
+# Sources: Harrison's 21st, GOLD 2024, GINA 2024, ATS/IDSA 2019,
+#   Berlin Definition 2012, ESC PE 2022, NEWS2 (RCP 2017),
+#   qSOFA (Seymour JAMA 2016), CURB-65, PESI (Aujesky 2005),
+#   ARDSNet (NEJM 2000), Surviving Sepsis 2021, BTS O2 2017,
+#   Wells PE (Ann Intern Med 2001), Amato NEJM 2015
+# ═══════════════════════════════════════════════════════════════
+
+# ─── A. Core Vital Signs (기본 활력징후) ───────────────────────
+
+220277:
+  name: SpO2 (Pulse Oximetry)
+  name_kr: 산소포화도 (맥박산소측정)
+  unit: '%'
+  category: Routine Vital Signs
+  ref_source: GOLD 2024; GINA 2024; BTS Oxygen Guideline 2017
+  ranges:
+    lower: 95
+    upper: 100
+  thresholds:
+  - name: borderline_hypoxemia
+    criterion: ≤94
+    source: BTS Oxygen Guideline 2017
+    note: 산소 보충 고려 시작
+  - name: abg_recommended_copd
+    criterion: ≤92
+    source: GOLD 2024
+    note: ABG 시행 권고
+  - name: life_threatening_asthma
+    criterion: <90
+    source: GINA 2024
+    note: 생명위협 천식
+  - name: severe_asthma_exacerbation
+    criterion: <92
+    source: GINA 2024
+    note: 중증 천식 악화
+  - name: ltot_indication_copd
+    criterion: ≤88
+    source: GOLD 2024; ATS/ERS
+    note: 장기 산소요법(LTOT) 적응증
+  - name: severe_hypoxemia
+    criterion: <85
+    source: Harrison's 21st
+    note: 즉각적 개입 필요
+  - name: target_general
+    criterion: 94–98
+    source: BTS Oxygen Guideline 2017
+    note: 일반 환자 목표 범위
+  - name: target_copd_co2_risk
+    criterion: 88–92
+    source: BTS Oxygen Guideline 2017
+    note: CO2 축적 위험 환자 목표 범위
+  medical_terms:
+    low: Hypoxemia (desaturation)
+    critical_low: Severe Hypoxemia (immediate intervention required)
+  scoring_systems:
+    NEWS2:
+      ≤91: 3
+      92–93: 2
+      94–95: 1
+      ≥96: 0
+    NEWS2_Scale2_COPD:
+      ≤83: 3
+      84–85: 2
+      86–87: 1
+      88–92: 0
+      93–94: 1
+      95–96: 2
+      ≥97: 3
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main:
+    - J13
+    - J14
+    - J15
+    - J18
+    pattern: '↓ (≤94%: 중증 지표)'
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main:
+    - J44.0
+    - J44.1
+    pattern: ↓ (≤88% → LTOT 적응; ≤92% → ABG 필요)
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main:
+    - J45
+    - J46
+    pattern: ↓ (<92% → 중증; <90% → 생명위협)
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main:
+    - I26.0
+    - I26.09
+    - I26.90
+    - I26.99
+    pattern: ↓ (급성 V/Q mismatch)
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main:
+    - J80
+    pattern: ↓↓ (SpO2/FiO2 비율로 중증도 대체 평가)
+  - disease_key: pneumothorax
+    disease_kr: 기흉
+    icd10_main:
+    - J93.0
+    - J93.1
+    - J93.9
+    pattern: ↓ (긴장성 기흉 시 급격 하강)
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main:
+    - J84.1
+    - J84.9
+    pattern: ↓ (운동 시 desaturation이 초기 징후)
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: &id001
+    - J69.0
+    pattern: ↓ (흡인 범위에 따라 다양; 대량 흡인 시 급격 저하)
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: &id002
+    - C34.0
+    - C34.1
+    - C34.2
+    - C34.3
+    - C34.8
+    - C34.9
+    pattern: ↓ (기도 폐쇄, 흉수, 림프관성 전이 시; 초기에는 정상)
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: &id003
+    - D86.0
+    - D86.1
+    - D86.2
+    - D86.9
+    pattern: ↓ (Stage III-IV 진행 시; 운동 시 desaturation)
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: &id004
+    - J47.0
+    - J47.1
+    - J47.9
+    pattern: ↓ (감염 악화 시 저하; 만성 colonization 환자에서 기저치 낮음)
+  - disease_key: acute_respiratory_failure
+    disease_kr: 급성 호흡부전
+    icd10_main: &id005
+    - J96.0
+    - J96.9
+    pattern: '↓↓ (Type 1: PaO2 <60mmHg; SpO2 급격 저하가 주 소견)'
+  - disease_key: chronic_respiratory_failure
+    disease_kr: 만성 호흡부전
+    icd10_main: &id006
+    - J96.1
+    pattern: ↓ (만성적 저하; LTOT 적용 환자에서 ≤88%)
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: &id007
+    - J12
+    - J12.8
+    - J12.9
+    pattern: ↓ (양측 GGO 시 현저; COVID-19에서 silent hypoxia 보고)
+  - disease_key: influenza_pneumonia
+    disease_kr: 인플루엔자
+    icd10_main: &id008
+    - J10
+    - J10.0
+    - J10.1
+    pattern: ↓ (2차 세균 감염 동반 시 급격 악화)
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: &id009
+    - J86
+    - J86.0
+    - J86.9
+    pattern: ↓ (흉수에 의한 폐 압박; 패혈증 동반 시 저하)
+  - disease_key: atelectasis
+    disease_kr: 무기폐 (폐허탈)
+    icd10_main: &id010
+    - J98.1
+    pattern: ↓ (폐엽 이상 범위 시 유의; 수술 후 흔한 원인)
+  - disease_key: emphysema
+    disease_kr: 폐기종
+    icd10_main: &id011
+    - J43
+    - J43.0
+    - J43.1
+    - J43.9
+    pattern: ↓ (만성적 가스교환 장애; COPD와 유사)
+  - disease_key: sleep_apnea
+    disease_kr: 수면무호흡
+    icd10_main: &id015
+    - G47.3
+    - G47.30
+    - G47.33
+    pattern: ↓ (간헐적 야간 desaturation; ODI ≥5 진단 기준 보조)
+  - disease_key: hypersensitivity_pneumonitis
+    disease_kr: 과민성 폐렴
+    icd10_main: &id012
+    - J67
+    - J67.9
+    pattern: ↓ (급성 노출 후 일시적 저하; 만성형에서 지속적)
+  - disease_key: pneumoconiosis
+    disease_kr: 진폐증
+    icd10_main: &id013
+    - J62
+    - J62.8
+    pattern: ↓ (진행성 massive fibrosis 시 점진적 저하)
+  - disease_key: pulmonary_eosinophilia
+    disease_kr: 폐 호산구증가증
+    icd10_main: &id014
+    - J82
+    pattern: ↓ (광범위 침윤 시; 경증은 정상 유지)
+  derived_indicators:
+  - name: SpO2/FiO2 ratio (S/F ratio)
+    description: ARDS 중증도 비침습적 대체 지표
+    source: Rice et al. Crit Care Med 2007
+    formula: SpO2 / FiO2
+    thresholds:
+      mild: ≤315
+      moderate: ≤235
+      severe: ≤148
+220210:
+  name: Respiratory Rate
+  name_kr: 호흡수
+  unit: insp/min
+  category: Respiratory
+  ref_source: Harrison's 21st Ch.33; qSOFA (Seymour JAMA 2016); NEWS2 (RCP 2017)
+  ranges:
+    lower: 12
+    upper: 20
+  thresholds:
+  - name: qsofa_criterion
+    criterion: ≥22
+    source: Seymour et al. JAMA 2016 (qSOFA)
+    note: '패혈증 선별: qSOFA 1점'
+  - name: severe_pneumonia_curb65
+    criterion: ≥30
+    source: ATS/IDSA CAP Guidelines 2019; CURB-65
+    note: 중증 폐렴 minor criteria; CURB-65 1점
+  - name: severe_asthma
+    criterion: '>25'
+    source: GINA 2024
+    note: 중증 천식 악화
+  - name: respiratory_depression
+    criterion: <8
+    source: NEWS2 (RCP 2017)
+    note: 호흡 억제 — 즉각 개입 필요
+  medical_terms:
+    low: Bradypnea (respiratory depression)
+    high: Tachypnea
+    critical_low: Severe Bradypnea (ventilatory failure risk)
+    critical_high: Severe Tachypnea (respiratory distress)
+  scoring_systems:
+    NEWS2:
+      ≤8: 3
+      9–11: 1
+      12–20: 0
+      21–24: 2
+      ≥25: 3
+    CURB65:
+      ≥30: 1
+    qSOFA:
+      ≥22: 1
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main:
+    - J13
+    - J14
+    - J15
+    - J18
+    pattern: ↑ (≥30 → 중증; 가장 민감한 활력징후 변화)
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main:
+    - I26.0
+    - I26.09
+    - I26.90
+    - I26.99
+    pattern: ↑ (빈호흡은 PE의 가장 흔한 징후)
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main:
+    - J80
+    pattern: ↑↑ (현저한 빈호흡, 호흡 보조근 사용)
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main:
+    - J45
+    - J46
+    pattern: ↑ (>25 → 중증; 호기 연장)
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main:
+    - J44.0
+    - J44.1
+    pattern: ↑ (보조근 사용, pursed-lip breathing)
+  - disease_key: pneumothorax
+    disease_kr: 기흉
+    icd10_main:
+    - J93.0
+    - J93.1
+    - J93.9
+    pattern: ↑ (긴장성 기흉 시 급격 상승)
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id001
+    pattern: ↑ (흡인 직후 급격 상승; 화학적 폐렴 반응)
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id002
+    pattern: ↑ (기도 폐쇄/흉수 시; 만성적으로 점진적 증가)
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id003
+    pattern: ↑ (폐 침범 정도에 비례; 경미한 경우 정상)
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: *id004
+    pattern: ↑ (감염 악화 시; 객담 배출 증가에 따른 반사적 빈호흡)
+  - disease_key: acute_respiratory_failure
+    disease_kr: 급성 호흡부전
+    icd10_main: *id005
+    pattern: '↑↑ (Type 1: 보상성 빈호흡 ≥30; Type 2: 호흡 억제 시 ↓ 가능)'
+  - disease_key: chronic_respiratory_failure
+    disease_kr: 만성 호흡부전
+    icd10_main: *id006
+    pattern: ↑ (만성 보상; 기저 RR 높을 수 있음)
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id007
+    pattern: ↑ (≥30 → 중증; COVID-19에서 ≥22는 qSOFA 기준 충족)
+  - disease_key: influenza_pneumonia
+    disease_kr: 인플루엔자
+    icd10_main: *id008
+    pattern: ↑ (고열 동반 시 더욱 증가)
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id009
+    pattern: ↑ (흉수 + 감염에 의한 제한적 환기)
+  - disease_key: atelectasis
+    disease_kr: 무기폐 (폐허탈)
+    icd10_main: *id010
+    pattern: ↑ (보상성 빈호흡; 대엽성 무기폐 시 현저)
+  - disease_key: emphysema
+    disease_kr: 폐기종
+    icd10_main: *id011
+    pattern: ↑ (호기 연장; pursed-lip breathing)
+  - disease_key: hypersensitivity_pneumonitis
+    disease_kr: 과민성 폐렴
+    icd10_main: *id012
+    pattern: ↑ (급성 노출 4-8시간 후 빈호흡 발생)
+  - disease_key: pneumoconiosis
+    disease_kr: 진폐증
+    icd10_main: *id013
+    pattern: ↑ (운동 시 특히 증가; 안정 시에는 경미)
+  - disease_key: pulmonary_eosinophilia
+    disease_kr: 폐 호산구증가증
+    icd10_main: *id014
+    pattern: ↑ (기관지 수축 동반 시)
+  - disease_key: acute_bronchitis
+    disease_kr: 급성 기관지염
+    icd10_main: &id016
+    - J20
+    - J20.8
+    - J20.9
+    pattern: 정상~경미 ↑ (기침 발작 시 일시적 상승; 중증 아니면 정상)
+  - disease_key: acute_bronchiolitis
+    disease_kr: 급성 세기관지염
+    icd10_main: &id017
+    - J21
+    - J21.8
+    - J21.9
+    pattern: ↑ (영유아에서 ≥60 → 중증; 호기 연장, 흉벽 함몰)
+  related_itemids:
+  - 224688
+  - 224689
+  - 224690
+224688:
+  name: Respiratory Rate (Set)
+  name_kr: 호흡수 (인공호흡기 설정)
+  unit: insp/min
+  category: Respiratory
+  ref_source: ARDSNet Protocol (NEJM 2000)
+  ranges:
+    lower: 12
+    upper: 35
+  medical_terms:
+    low: Low ventilator rate setting
+    high: High ventilator rate setting
+  note: '인공호흡기 설정 호흡수. ARDSNet: 6mL/kg Vt에 맞춰 pH 7.30 유지하도록 RR 조정 (최대 35)'
+224689:
+  name: Respiratory Rate (spontaneous)
+  name_kr: 자발 호흡수
+  unit: insp/min
+  category: Respiratory
+  ref_source: Harrison's 21st Ch.294
+  ranges:
+    lower: 10
+    upper: 25
+  medical_terms:
+    low: Low spontaneous respiratory effort
+    high: Increased respiratory drive
+  note: 인공호흡기 보조 중 자발 호흡. 높을수록 호흡 부하/불편감 시사
+224690:
+  name: Respiratory Rate (Total)
+  name_kr: 총 호흡수
+  unit: insp/min
+  category: Respiratory
+  ref_source: ARDSNet Protocol
+  ranges:
+    lower: 12
+    upper: 35
+  thresholds:
+  - name: dyssynchrony_concern
+    criterion: '>35'
+    source: ARDSNet Protocol (NEJM 2000)
+    note: 환자-인공호흡기 비동기 의심
+  medical_terms:
+    low: Low total rate
+    high: High total rate (dyssynchrony possible)
+220045:
+  name: Heart Rate
+  name_kr: 심박수
+  unit: bpm
+  category: Routine Vital Signs
+  ref_source: Harrison's 21st Ch.238; PESI (Aujesky 2005); NEWS2 (RCP 2017)
+  ranges:
+    lower: 60
+    upper: 100
+  thresholds:
+  - name: tachycardia
+    criterion: ≥100
+    source: Harrison's 21st Ed
+    note: 빈맥 정의
+  - name: wells_pe_criterion
+    criterion: '>100'
+    source: Wells et al. Ann Intern Med 2001
+    note: Wells PE Score +1.5점
+  - name: pesi_risk_factor
+    criterion: ≥110
+    source: Aujesky et al. Am J Med 2005 (PESI)
+    note: PESI +20점
+  - name: severe_tachycardia
+    criterion: ≥130
+    source: Harrison's 21st Ed
+    note: 혈역학적 불안정 우려
+  - name: life_threatening_asthma_bradycardia
+    criterion: <60
+    source: GINA 2024
+    note: 천식에서 서맥 = 불량 예후 징후
+  - name: severe_bradycardia
+    criterion: ≤40
+    source: NEWS2 (RCP 2017)
+    note: NEWS2 3점
+  medical_terms:
+    low: Bradycardia
+    high: Tachycardia
+    critical_low: Severe Bradycardia
+    critical_high: Severe Tachycardia (hemodynamic compromise)
+  scoring_systems:
+    NEWS2:
+      ≤40: 3
+      41–50: 1
+      51–90: 0
+      91–110: 1
+      111–130: 2
+      ≥131: 3
+    PESI:
+      ≥110: +20점
+    Wells_PE:
+      '>100': +1.5점
+  disease_associations:
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main:
+    - I26.0
+    - I26.09
+    - I26.90
+    - I26.99
+    pattern: ↑ (PE의 가장 흔한 활력징후 이상; Wells Score 구성)
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main:
+    - J13
+    - J14
+    - J15
+    - J18
+    pattern: ↑ (발열, 저산소에 의한 보상성 빈맥)
+  - disease_key: pneumothorax
+    disease_kr: 기흉
+    icd10_main:
+    - J93.0
+    - J93.1
+    - J93.9
+    pattern: '↑ (긴장성 기흉: 빈맥 + 저혈압)'
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main:
+    - J45
+    - J46
+    pattern: ↑ (≥120 → 중증; paradoxical bradycardia는 불량 징후)
+  - disease_key: pulmonary_hypertension
+    disease_kr: 폐동맥 고혈압
+    icd10_main:
+    - I27.0
+    - I27.20
+    - I27.21
+    - I27.29
+    pattern: ↑ (우심 부전 보상; 부정맥 동반 가능)
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main:
+    - J81.0
+    - J81.1
+    - I50.1
+    pattern: ↑ (심부전 보상)
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id001
+    pattern: ↑ (발열, 저산소에 의한 보상; 패혈증 동반 시 ≥100)
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id002
+    pattern: ↑ (SVC 증후군, 흉수, 빈혈에 의한 보상성 빈맥)
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id003
+    pattern: ↑ (드물게 심장 사르코이드증 시 부정맥/전도 장애)
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: *id004
+    pattern: ↑ (감염 악화 시; 만성 환자에서 기저치 상승 가능)
+  - disease_key: acute_respiratory_failure
+    disease_kr: 급성 호흡부전
+    icd10_main: *id005
+    pattern: ↑ (저산소 보상; ≥120 → 중증)
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id007
+    pattern: ↑ (발열에 비례; COVID-19에서 상대적 서맥 보고됨)
+  - disease_key: influenza_pneumonia
+    disease_kr: 인플루엔자
+    icd10_main: *id008
+    pattern: ↑ (고열에 의한 빈맥; 심근염 합병 시 부정맥)
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id009
+    pattern: ↑ (패혈증/발열에 의한 지속적 빈맥)
+  - disease_key: sleep_apnea
+    disease_kr: 수면무호흡
+    icd10_main: *id015
+    pattern: 가변적 (무호흡 중 서맥 → 각성 시 빈맥; 야간 부정맥)
+  - disease_key: pulmonary_eosinophilia
+    disease_kr: 폐 호산구증가증
+    icd10_main: *id014
+    pattern: 경미 ↑ (중증 기관지 수축 시)
+220050:
+  name: Arterial Blood Pressure systolic
+  name_kr: 동맥 수축기 혈압 (침습적)
+  unit: mmHg
+  category: Routine Vital Signs
+  ref_source: Harrison's 21st Ch.271; Surviving Sepsis Campaign 2021; PESI
+  ranges:
+    lower: 90
+    upper: 140
+  thresholds:
+  - name: qsofa_criterion
+    criterion: ≤100
+    source: Seymour et al. JAMA 2016 (qSOFA)
+    note: '패혈증 선별: qSOFA 1점'
+  - name: pesi_risk_factor
+    criterion: <100
+    source: Aujesky et al. Am J Med 2005 (PESI)
+    note: PESI +30점
+  - name: septic_shock
+    criterion: <90
+    source: Surviving Sepsis Campaign 2021
+    note: 패혈성 쇼크 (적절한 수액 소생 후에도 지속)
+  - name: massive_pe
+    criterion: <90
+    source: ESC PE Guidelines 2022
+    note: 대량 PE / hemodynamic instability
+  - name: hypertensive_crisis
+    criterion: ≥180
+    source: AHA/ACC 2017
+    note: 고혈압 위기
+  medical_terms:
+    low: Hypotension
+    high: Hypertension
+    critical_low: Severe Hypotension (shock)
+  scoring_systems:
+    NEWS2:
+      ≤90: 3
+      91–100: 2
+      101–110: 1
+      111–219: 0
+      ≥220: 3
+    PESI:
+      <100: +30점
+    qSOFA:
+      ≤100: 1
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main:
+    - J13
+    - J14
+    - J15
+    - J18
+    pattern: ↓ (<90 → 패혈성 쇼크; 중증 폐렴 major criteria)
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main:
+    - I26.0
+    - I26.09
+    - I26.90
+    - I26.99
+    pattern: ↓ (<90 → 대량 PE, hemodynamic instability)
+  - disease_key: pneumothorax
+    disease_kr: 기흉
+    icd10_main:
+    - J93.0
+    - J93.1
+    - J93.9
+    pattern: ↓ (긴장성 기흉 → obstructive shock)
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main:
+    - J80
+    pattern: ↓ (패혈증 동반 시; 양압환기에 의한 전부하 감소)
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id001
+    pattern: ↓ (대량 흡인 + 패혈증 시 저혈압; <90 → 쇼크)
+  - disease_key: acute_respiratory_failure
+    disease_kr: 급성 호흡부전
+    icd10_main: *id005
+    pattern: 가변적 (초기 교감 항진 → ↑; 진행 시 → ↓ 쇼크)
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id009
+    pattern: ↓ (패혈성 쇼크 동반 시; <90 → 중증)
+  - disease_key: sleep_apnea
+    disease_kr: 수면무호흡
+    icd10_main: *id015
+    pattern: ↑ (동반 고혈압 흔함; OSA 환자 50% 이상에서 HTN)
+  - disease_key: influenza_pneumonia
+    disease_kr: 인플루엔자
+    icd10_main: *id008
+    pattern: ↓ (중증/패혈증 동반 시)
+  related_itemids:
+  - 220051
+  - 220052
+  - 220179
+  - 220180
+  - 220181
+220051:
+  name: Arterial Blood Pressure diastolic
+  name_kr: 동맥 이완기 혈압 (침습적)
+  unit: mmHg
+  category: Routine Vital Signs
+  ref_source: Harrison's 21st Ch.271
+  ranges:
+    lower: 60
+    upper: 90
+  medical_terms:
+    low: Diastolic Hypotension
+    high: Diastolic Hypertension
+220052:
+  name: Arterial Blood Pressure mean
+  name_kr: 평균 동맥압 (침습적)
+  unit: mmHg
+  category: Routine Vital Signs
+  ref_source: Surviving Sepsis Campaign 2021
+  ranges:
+    lower: 65
+    upper: 105
+  thresholds:
+  - name: septic_shock_target
+    criterion: <65
+    source: Surviving Sepsis Campaign 2021
+    note: '패혈성 쇼크 정의: 적절한 수액 소생 후 MAP <65 + Lactate >2'
+  medical_terms:
+    low: Hypotension (MAP <65 → organ hypoperfusion)
+    high: Hypertension
+  note: 'MAP = (SBP + 2×DBP) / 3. Surviving Sepsis: MAP ≥65 mmHg 유지 목표'
+220179:
+  name: Non Invasive Blood Pressure systolic
+  name_kr: 비침습적 수축기 혈압
+  unit: mmHg
+  category: Routine Vital Signs
+  ref_source: Harrison's 21st Ch.271
+  ranges:
+    lower: 90
+    upper: 140
+  medical_terms:
+    low: Hypotension
+    high: Hypertension
+  note: 커프 측정. ICU 입실 전 또는 동맥관 없는 환자에서 사용
+220180:
+  name: Non Invasive Blood Pressure diastolic
+  name_kr: 비침습적 이완기 혈압
+  unit: mmHg
+  category: Routine Vital Signs
+  ref_source: Harrison's 21st Ch.271
+  ranges:
+    lower: 60
+    upper: 90
+  medical_terms:
+    low: Diastolic Hypotension
+    high: Diastolic Hypertension
+220181:
+  name: Non Invasive Blood Pressure mean
+  name_kr: 비침습적 평균 동맥압
+  unit: mmHg
+  category: Routine Vital Signs
+  ref_source: Harrison's 21st Ch.271
+  ranges:
+    lower: 65
+    upper: 105
+  medical_terms:
+    low: Hypotension
+    high: Hypertension
+223762:
+  name: Temperature Celsius
+  name_kr: 체온 (섭씨)
+  unit: °C
+  category: Routine Vital Signs
+  ref_source: Harrison's 21st Ch.17; NEWS2 (RCP 2017); O'Grady et al. Clin Infect Dis 2008
+  ranges:
+    lower: 36.1
+    upper: 37.2
+  thresholds:
+  - name: fever
+    criterion: ≥38.0
+    source: O'Grady et al. Clin Infect Dis 2008; Harrison's 21st
+    note: 발열 정의
+  - name: high_fever
+    criterion: ≥39.0
+    source: Harrison's 21st Ch.17
+    note: 고열
+  - name: hyperpyrexia
+    criterion: ≥40.0
+    source: Harrison's 21st Ch.17
+    note: 과고열 — 중추신경 손상 위험
+  - name: hypothermia
+    criterion: <36.0
+    source: NEWS2 (RCP 2017)
+    note: 저체온
+  - name: severe_hypothermia
+    criterion: ≤35.0
+    source: NEWS2 (RCP 2017); Surviving Sepsis 2021
+    note: 중증 저체온 — 패혈증 시 불량 예후
+  medical_terms:
+    low: Hypothermia
+    high: Fever (Pyrexia)
+    critical_low: Severe Hypothermia (poor prognosis in sepsis)
+    critical_high: Hyperpyrexia
+  scoring_systems:
+    NEWS2:
+      ≤35.0: 3
+      35.1–36.0: 1
+      36.1–38.0: 0
+      38.1–39.0: 1
+      ≥39.1: 2
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main:
+    - J13
+    - J14
+    - J15
+    - J18
+    pattern: ↑ (≥38°C; 노인/면역저하에서 정상일 수 있음)
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main:
+    - J15.0
+    - J15.1
+    - J15.5
+    - J15.6
+    pattern: ↑ (새로운 발열 → HAP/VAP 의심 트리거)
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main:
+    - A15.0
+    - A15.3
+    - A15.9
+    pattern: ↑ (미열, 오후/야간 발열 패턴)
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main:
+    - J85.1
+    - J85.2
+    pattern: ↑ (지속성 발열 + 화농성 객담)
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main:
+    - I26.0
+    - I26.09
+    - I26.90
+    - I26.99
+    pattern: ↑ (경미한 발열 가능; 감별진단 혼란 요소)
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id001
+    pattern: ↑ (흡인 24-48시간 후 발열; 화학적 폐렴은 초기 무열 가능)
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id002
+    pattern: 정상~경미 ↑ (폐쇄 후 폐렴 동반 시 발열; 종양 자체 열 가능)
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id003
+    pattern: 경미 ↑ (미열; 급성형에서 Löfgren 증후군 시 발열)
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: *id004
+    pattern: ↑ (감염 악화 시; 만성 colonization에서도 간헐적 발열)
+  - disease_key: acute_respiratory_failure
+    disease_kr: 급성 호흡부전
+    icd10_main: *id005
+    pattern: 가변적 (원인 질환에 따라; 감염성이면 ↑, 비감염성이면 정상)
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id007
+    pattern: '↑ (COVID-19: ≥37.3–38°C; 인플루엔자보다 경미할 수 있음)'
+  - disease_key: influenza_pneumonia
+    disease_kr: 인플루엔자
+    icd10_main: *id008
+    pattern: ↑↑ (급격한 고열 ≥39°C 특징적; 3-5일 지속)
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id009
+    pattern: ↑↑ (지속성 고열; 항생제 불응 발열의 흔한 원인)
+  - disease_key: hypersensitivity_pneumonitis
+    disease_kr: 과민성 폐렴
+    icd10_main: *id012
+    pattern: '↑ (급성형: 노출 4-8시간 후 발열+오한; 만성형은 무열)'
+  - disease_key: pulmonary_eosinophilia
+    disease_kr: 폐 호산구증가증
+    icd10_main: *id014
+    pattern: 경미 ↑ (기생충 관련 시 발열 동반)
+  - disease_key: acute_bronchitis
+    disease_kr: 급성 기관지염
+    icd10_main: *id016
+    pattern: 정상~경미 ↑ (≥38°C 드묾; 고열이면 폐렴 감별 필요)
+  - disease_key: acute_bronchiolitis
+    disease_kr: 급성 세기관지염
+    icd10_main: *id017
+    pattern: 경미 ↑ (저등도 발열 흔함; 고열이면 세균 중복감염 의심)
+  note: 패혈증에서 저체온(<36°C)은 발열보다 불량한 예후 시사
+  related_itemids:
+  - 223761
+223761:
+  name: Temperature Fahrenheit
+  name_kr: 체온 (화씨)
+  unit: °F
+  category: Routine Vital Signs
+  ref_source: Harrison's 21st Ch.17
+  ranges:
+    lower: 97.0
+    upper: 99.0
+  thresholds:
+  - name: fever
+    criterion: ≥100.4
+    source: Harrison's 21st Ch.17
+    note: 발열 정의 (=38.0°C)
+  - name: hypothermia
+    criterion: <96.8
+    source: Harrison's 21st Ch.17
+    note: 저체온 (=36.0°C)
+  medical_terms:
+    low: Hypothermia
+    high: Fever (Pyrexia)
+  note: '°F → °C 변환: (°F - 32) × 5/9'
+228640:
+  name: EtCO2 (End-Tidal CO2)
+  name_kr: 호기말 이산화탄소
+  unit: mmHg
+  category: Routine Vital Signs
+  ref_source: AHA ACLS 2020; Gravenstein, Capnography 2nd Ed
+  ranges:
+    lower: 35
+    upper: 45
+  thresholds:
+  - name: hypocapnia
+    criterion: <30
+    source: Harrison's 21st Ch.286
+    note: 과환기 or 심박출량 저하 or PE
+  - name: hypercapnia
+    criterion: '>50'
+    source: Harrison's 21st Ch.286
+    note: 저환기 or COPD or 기도 폐쇄
+  - name: cardiac_arrest_poor_prognosis
+    criterion: <10
+    source: AHA ACLS 2020
+    note: 심정지 중 EtCO2 <10 → 불량 예후
+  medical_terms:
+    low: Low EtCO2 (hyperventilation, low cardiac output, PE)
+    high: High EtCO2 (hypoventilation, COPD, airway obstruction)
+    critical_low: Very Low EtCO2 (cardiac arrest, massive PE)
+  disease_associations:
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main:
+    - I26.0
+    - I26.09
+    - I26.90
+    - I26.99
+    pattern: ↓ (사강 환기 증가 → EtCO2 급격 저하; PaCO2-EtCO2 gap 증가)
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main:
+    - J44.0
+    - J44.1
+    pattern: ↑ (CO2 축적; 만성 과탄산혈증 모니터링)
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main:
+    - J45
+    - J46
+    pattern: 초기 ↓ (과환기) → 정상화 → ↑ (피로/기도폐쇄 악화 = 위험 징후)
+  - disease_key: acute_respiratory_failure
+    disease_kr: 급성 호흡부전
+    icd10_main: *id005
+    pattern: 'Type 2: ↑ (CO2 축적; >50mmHg); Type 1: ↓ or 정상'
+  - disease_key: chronic_respiratory_failure
+    disease_kr: 만성 호흡부전
+    icd10_main: *id006
+    pattern: ↑ (만성 CO2 축적; 기저 EtCO2 높음)
+  - disease_key: emphysema
+    disease_kr: 폐기종
+    icd10_main: *id011
+    pattern: ↑ (air trapping에 의한 CO2 저류)
+  - disease_key: sleep_apnea
+    disease_kr: 수면무호흡
+    icd10_main: *id015
+    pattern: ↑ (OHS 동반 시 주간 과탄산혈증; OSA 단독은 정상)
+  note: 비침습적 CO2 모니터링. 인공호흡기 환자의 환기 적절성 실시간 평가
+223835:
+  name: Inspired O2 Fraction (FiO2)
+  name_kr: 흡입 산소 농도
+  unit: fraction (0.21–1.0)
+  category: Respiratory
+  ref_source: Berlin Definition 2012; ARDSNet Protocol (NEJM 2000); BTS Oxygen Guideline 2017
+  ranges:
+    lower: 0.21
+    upper: 1.0
+  thresholds:
+  - name: room_air
+    criterion: =0.21
+    source: 기본 대기 산소 농도
+    note: 보충 산소 없음
+  - name: oxygen_toxicity_risk
+    criterion: '>0.60'
+    source: BTS Oxygen Guideline 2017
+    note: 장기간(>24h) 노출 시 산소 독성 우려
+  medical_terms:
+    high: High FiO2 requirement (severe gas exchange impairment)
+  disease_associations:
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main:
+    - J80
+    pattern: ↑↑ (FiO2 >0.6 장기 사용 → 산소 독성)
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main:
+    - J13
+    - J14
+    - J15
+    - J18
+    pattern: ↑ (중증 폐렴에서 높은 FiO2 요구)
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main:
+    - J44.0
+    - J44.1
+    pattern: '주의: 과도한 FiO2 → CO2 narcosis 위험 (목표 SpO2 88–92%)'
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id001
+    pattern: ↑ (대량 흡인 시 높은 FiO2 요구; ARDS 진행 시 ≥0.6)
+  - disease_key: acute_respiratory_failure
+    disease_kr: 급성 호흡부전
+    icd10_main: *id005
+    pattern: ↑↑ (산소화 유지를 위한 FiO2 증량이 핵심 치료)
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id007
+    pattern: ↑ (양측 GGO → 높은 FiO2; HFNC 60L + FiO2 1.0까지 가능)
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id009
+    pattern: ↑ (흉수 + 감염에 의한 가스교환 장애)
+  - disease_key: atelectasis
+    disease_kr: 무기폐 (폐허탈)
+    icd10_main: *id010
+    pattern: ↑ (재팽창 전까지 FiO2 증량; 100% O2는 흡수 무기폐 악화 우려)
+  derived_indicators:
+  - name: PaO2/FiO2 ratio (P/F ratio)
+    description: ARDS Berlin Definition 중증도 분류
+    source: ARDS Definition Task Force. JAMA 2012
+    formula: PaO2 (mmHg) / FiO2 (with PEEP ≥5 cmH2O)
+    thresholds:
+      mild: ≤300 and >200
+      moderate: ≤200 and >100
+      severe: ≤100
+  - name: SpO2/FiO2 ratio (S/F ratio)
+    description: 비침습적 ARDS 중증도 대체 지표
+    source: Rice et al. Crit Care Med 2007
+    formula: SpO2 / FiO2
+    thresholds:
+      mild: ≤315
+      moderate: ≤235
+      severe: ≤148
+  related_itemids:
+  - 226754
+  - 227010
+220339:
+  name: PEEP set
+  name_kr: 호기말 양압 (설정값)
+  unit: cmH2O
+  category: Respiratory
+  ref_source: Berlin Definition 2012; ARDSNet Protocol (NEJM 2000)
+  ranges:
+    lower: 0
+    upper: 24
+  thresholds:
+  - name: ards_diagnostic_minimum
+    criterion: ≥5
+    source: ARDS Definition Task Force. JAMA 2012 (Berlin)
+    note: ARDS 진단 필수 조건
+  - name: moderate_ards_typical
+    criterion: ≥10
+    source: ARDSNet Low PEEP/FiO2 Table
+    note: 중등도 ARDS에서 일반적 설정
+  - name: high_peep
+    criterion: ≥15
+    source: ARDSNet High PEEP/FiO2 Table
+    note: 중증 ARDS — 높은 recruitability 시 고려
+  medical_terms:
+    high: High PEEP (severe gas exchange impairment, recruitable lung)
+  disease_associations:
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main:
+    - J80
+    pattern: ↑ (Berlin Definition에서 ≥5 필수; ARDSNet PEEP table 적용)
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main:
+    - J81.0
+    - J81.1
+    - I50.1
+    pattern: ↑ (양압으로 폐부종 감소 + 전부하 감소 효과)
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id001
+    pattern: ↑ (ARDS 진행 시 Berlin Definition에 따라 ≥5 적용)
+  - disease_key: acute_respiratory_failure
+    disease_kr: 급성 호흡부전
+    icd10_main: *id005
+    pattern: ↑ (폐 recruitment; ARDS 동반 시 ARDSNet table 적용)
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id007
+    pattern: '↑ (COVID-19 ARDS: 높은 PEEP에 반응 좋은 경우 많음)'
+  - disease_key: atelectasis
+    disease_kr: 무기폐 (폐허탈)
+    icd10_main: *id010
+    pattern: ↑ (폐 재팽창 촉진; 수술 후 예방적 CPAP/PEEP 적용)
+  derived_indicators:
+  - name: Ventilator dependence
+    description: 기계환기 여부 판별
+    formula: PEEP > 0 or FiO2 > 0.21
+    interpretation: true → 기계환기 중
+  related_itemids:
+  - 224700
+  - 224699
+224700:
+  name: Total PEEP Level
+  name_kr: 총 PEEP (설정 + 자동)
+  unit: cmH2O
+  category: Respiratory
+  ref_source: ARDSNet Protocol
+  ranges:
+    lower: 0
+    upper: 24
+  thresholds:
+  - name: auto_peep_significant
+    criterion: 총PEEP − 설정PEEP > 5
+    source: Harrison's 21st Ch.294
+    note: Auto-PEEP >5 → air trapping 시사 (COPD, 천식)
+  medical_terms:
+    high: Elevated total PEEP (auto-PEEP component → air trapping)
+224684:
+  name: Tidal Volume (set)
+  name_kr: 일회 호흡량 (설정값)
+  unit: mL
+  category: Respiratory
+  ref_source: ARDSNet Protocol (NEJM 2000); Amato et al. NEJM 2015
+  ranges:
+    lower: 300
+    upper: 700
+  thresholds:
+  - name: lung_protective_target
+    criterion: ≤6 mL/kg IBW
+    source: ARDSNet Protocol (NEJM 2000)
+    note: ARDS 폐보호 환기 목표
+  - name: upper_limit_ards
+    criterion: ≤8 mL/kg IBW
+    source: ARDSNet Protocol (NEJM 2000)
+    note: ARDS 최대 허용 Vt
+  medical_terms:
+    low: Low tidal volume (lung-protective ventilation)
+    high: High tidal volume (VILI risk)
+  disease_associations:
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main:
+    - J80
+    pattern: 목표 ≤6 mL/kg IBW; >8 mL/kg IBW 시 VILI 위험 증가
+  - disease_key: acute_respiratory_failure
+    disease_kr: 급성 호흡부전
+    icd10_main: *id005
+    pattern: ARDS 동반 시 ≤6 mL/kg IBW 폐보호 환기 적용
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id001
+    pattern: ARDS 진행 시 ≤6 mL/kg IBW; 초기에는 표준 Vt 가능
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id007
+    pattern: 'COVID-19 ARDS: 엄격한 ≤6 mL/kg IBW 적용'
+  note: IBW(남) = 50 + 0.91×(cm−152.4), IBW(여) = 45.5 + 0.91×(cm−152.4)
+  related_itemids:
+  - 224685
+  - 224686
+224685:
+  name: Tidal Volume (observed)
+  name_kr: 일회 호흡량 (실측값)
+  unit: mL
+  category: Respiratory
+  ref_source: ARDSNet Protocol
+  ranges:
+    lower: 300
+    upper: 700
+  medical_terms:
+    low: Low delivered tidal volume
+    high: High delivered tidal volume
+  note: 실제 전달된 Vt. 설정값과 차이 크면 leak 또는 compliance 변화 의심
+224686:
+  name: Tidal Volume (spontaneous)
+  name_kr: 자발 호흡 일회 호흡량
+  unit: mL
+  category: Respiratory
+  ref_source: Harrison's 21st Ch.294
+  ranges:
+    lower: 300
+    upper: 700
+  medical_terms:
+    low: Low spontaneous tidal volume (weaning failure risk)
+    high: High spontaneous tidal volume
+  note: RSBI(Rapid Shallow Breathing Index) = RR/Vt(L). RSBI <105 → weaning 성공 예측
+224687:
+  name: Minute Volume
+  name_kr: 분당 환기량
+  unit: L/min
+  category: Respiratory
+  ref_source: Harrison's 21st Ch.286
+  ranges:
+    lower: 5.0
+    upper: 10.0
+  thresholds:
+  - name: hyperventilation
+    criterion: '>12'
+    source: Harrison's 21st Ch.286
+    note: 과환기
+  - name: hypoventilation
+    criterion: <4
+    source: Harrison's 21st Ch.286
+    note: 저환기
+  medical_terms:
+    low: Hypoventilation
+    high: Hyperventilation (increased minute ventilation)
+  note: MV = RR × Vt. 높은 MV + 정상 PaCO2 → 사강 환기 증가 (PE, ARDS)
+224695:
+  name: Peak Inspiratory Pressure (PIP)
+  name_kr: 최대 흡기압
+  unit: cmH2O
+  category: Respiratory
+  ref_source: Harrison's 21st Ch.294; ARDSNet Protocol
+  ranges:
+    lower: 10
+    upper: 30
+  thresholds:
+  - name: concern
+    criterion: '>35'
+    source: Harrison's 21st Ch.294
+    note: 기도 압력 이상 상승
+  - name: critical
+    criterion: '>40'
+    source: Harrison's 21st Ch.294
+    note: 기압손상(barotrauma) 위험
+  medical_terms:
+    low: Normal/Low airway pressure
+    high: Elevated PIP (airway resistance ↑ or compliance ↓)
+  disease_associations:
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main:
+    - J45
+    - J46
+    pattern: ↑ (기도 저항 증가; PIP↑ but Pplat 정상 → 저항성 문제)
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main:
+    - J44.0
+    - J44.1
+    pattern: ↑ (기도 폐쇄 + auto-PEEP)
+  - disease_key: pneumothorax
+    disease_kr: 기흉
+    icd10_main:
+    - J93.0
+    - J93.1
+    - J93.9
+    pattern: ↑↑ (급격한 상승 → 긴장성 기흉 의심)
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main:
+    - J80
+    pattern: ↑ (compliance 저하; PIP↑ + Pplat↑ → compliance 문제)
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id001
+    pattern: ↑ (흡인 물질에 의한 기도 폐쇄 + compliance 저하)
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: *id004
+    pattern: ↑ (기도 분비물 + 기도벽 비후에 의한 저항 증가)
+  - disease_key: emphysema
+    disease_kr: 폐기종
+    icd10_main: *id011
+    pattern: ↑ (air trapping; PIP↑ but Pplat 정상 → 기도 저항 문제)
+  - disease_key: acute_bronchiolitis
+    disease_kr: 급성 세기관지염
+    icd10_main: *id017
+    pattern: ↑ (세기관지 부종 + 점액 마개에 의한 기도 저항 증가)
+  note: PIP↑ + Pplat 정상 = 기도 저항 ↑ (천식/COPD/분비물). PIP↑ + Pplat↑ = compliance ↓ (ARDS/폐부종) PIP↓는 임상적으로 정상 또는 양압환기 부족(insufficient
+    ventilatory support)을 의미할 수 있음 [Harrison's 21st Ch.294]. PIP↑ + Pplat 정상 = 기도 저항 ↑ (천식/COPD/분비물). PIP↑ + Pplat↑ = compliance
+    ↓ (ARDS/폐부종).
+224696:
+  name: Plateau Pressure
+  name_kr: 고원압 (정적 폐압)
+  unit: cmH2O
+  category: Respiratory
+  ref_source: ARDSNet Protocol (NEJM 2000); Amato et al. NEJM 2015
+  ranges:
+    lower: 10
+    upper: 25
+  thresholds:
+  - name: ardsnet_upper_limit
+    criterion: ≤30
+    source: ARDSNet Protocol (NEJM 2000)
+    note: ARDSNet 상한 목표. Pplat >30 → Vt 감량 필요
+  - name: driving_pressure_target
+    criterion: Pplat − PEEP < 15
+    source: Amato et al. NEJM 2015
+    note: Driving pressure <15 → 사망률 감소와 독립적 연관
+  medical_terms:
+    low: Normal compliance
+    high: Elevated Pplat (reduced lung compliance)
+  disease_associations:
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main:
+    - J80
+    pattern: ↑ (compliance 저하; Pplat >30 → Vt 감량)
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main:
+    - J81.0
+    - J81.1
+    - I50.1
+    pattern: ↑ (폐부종으로 compliance 저하)
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main:
+    - J84.1
+    - J84.9
+    pattern: ↑ (섬유화에 의한 만성적 compliance 저하)
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id001
+    pattern: ↑ (화학적 폐렴 → compliance 저하; ARDS 진행 시 현저)
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id007
+    pattern: ↑ (광범위 GGO → compliance 저하; COVID ARDS에서 phenotype별 차이)
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id003
+    pattern: ↑ (Stage IV 섬유화 시 compliance 저하)
+  - disease_key: pneumoconiosis
+    disease_kr: 진폐증
+    icd10_main: *id013
+    pattern: ↑ (진행성 섬유화 시 compliance 저하)
+  derived_indicators:
+  - name: Driving Pressure
+    description: ARDS 사망률의 독립적 예측 인자
+    source: Amato et al. NEJM 2015
+    formula: Pplat − PEEP
+    thresholds:
+      target: <15
+      concern: ≥15
+224697:
+  name: Mean Airway Pressure
+  name_kr: 평균 기도압
+  unit: cmH2O
+  category: Respiratory
+  ref_source: Harrison's 21st Ch.294
+  ranges:
+    lower: 5
+    upper: 20
+  medical_terms:
+    low: Low mean airway pressure
+    high: Elevated mean airway pressure
+  note: 산소화와 양의 상관. 높을수록 산소화 개선 가능하나 혈역학적 부작용 증가
+223834:
+  name: O2 Flow
+  name_kr: 산소 유량
+  unit: L/min
+  category: Respiratory
+  ref_source: BTS Oxygen Guideline 2017
+  ranges:
+    lower: 0
+    upper: 15
+  thresholds:
+  - name: nasal_cannula_max
+    criterion: ≤6
+    source: BTS Oxygen Guideline 2017
+    note: 비강 캐뉼라 최대 유량
+  - name: simple_mask_range
+    criterion: 5–10
+    source: BTS Oxygen Guideline 2017
+    note: 단순 산소 마스크 유량 범위
+  - name: reservoir_mask_range
+    criterion: 10–15
+    source: BTS Oxygen Guideline 2017
+    note: 비재호흡 마스크(reservoir) 유량 범위
+  - name: hfnc_max
+    criterion: ≤60
+    source: Frat et al. NEJM 2015 (FLORALI)
+    note: 고유량 비강 캐뉼라(HFNC) 최대 유량
+  medical_terms:
+    high: High O2 flow requirement (significant hypoxemia)
+  related_itemids:
+  - 227287
+  - 227582
+224738:
+  name: Inspiratory Time
+  name_kr: 흡기 시간
+  unit: sec
+  category: Respiratory
+  ref_source: ARDSNet Protocol
+  ranges:
+    lower: 0.6
+    upper: 1.2
+  medical_terms:
+    low: Short inspiratory time
+    high: Prolonged inspiratory time (IRV strategy)
+  note: I:E ratio 결정. ARDS에서 inverse ratio ventilation (I:E >1:1) 고려 가능
+220283:
+  name: Resistance (Airway)
+  name_kr: 기도 저항
+  unit: cmH2O/L/sec
+  category: Respiratory
+  ref_source: Harrison's 21st Ch.286
+  ranges:
+    lower: 5
+    upper: 15
+  thresholds:
+  - name: elevated
+    criterion: '>20'
+    source: Harrison's 21st Ch.286
+    note: 기도 저항 상승 (기관지 수축, 분비물, ETT 폐색)
+  medical_terms:
+    low: Normal airway resistance
+    high: Elevated airway resistance (bronchospasm, secretions, ETT obstruction)
+  disease_associations:
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main:
+    - J45
+    - J46
+    pattern: ↑↑ (기관지 수축; 치료 반응 모니터링 지표)
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main:
+    - J44.0
+    - J44.1
+    pattern: ↑ (기도 폐쇄 + 분비물)
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id001
+    pattern: ↑ (흡인 물질 + 반사적 기관지 수축)
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: *id004
+    pattern: ↑ (기도벽 비후 + 분비물 축적)
+  - disease_key: emphysema
+    disease_kr: 폐기종
+    icd10_main: *id011
+    pattern: ↑ (호기 시 동적 기도 허탈; expiratory flow limitation)
+  - disease_key: acute_bronchitis
+    disease_kr: 급성 기관지염
+    icd10_main: *id016
+    pattern: 경미 ↑ (기도 염증 + 분비물; 기관지 수축은 경미)
+  - disease_key: acute_bronchiolitis
+    disease_kr: 급성 세기관지염
+    icd10_main: *id017
+    pattern: ↑ (세기관지 부종 + 점액; 영유아에서 현저)
+  - disease_key: pulmonary_eosinophilia
+    disease_kr: 폐 호산구증가증
+    icd10_main: *id014
+    pattern: ↑ (호산구성 기도 염증에 의한 기관지 수축)
+229661:
+  name: Compliance (Respiratory System)
+  name_kr: 폐 순응도 (정적)
+  unit: mL/cmH2O
+  category: Respiratory
+  ref_source: Harrison's 21st Ch.286; ARDSNet Protocol
+  ranges:
+    lower: 60
+    upper: 100
+  thresholds:
+  - name: ards_typical
+    criterion: <40
+    source: Harrison's 21st Ch.294
+    note: ARDS에서 전형적인 compliance 범위 20–40
+  - name: severe_ards
+    criterion: <20
+    source: Harrison's 21st Ch.294
+    note: 중증 ARDS (baby lung)
+  medical_terms:
+    low: Reduced compliance (stiff lung)
+    high: Normal/Increased compliance
+  disease_associations:
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main:
+    - J80
+    pattern: ↓↓ (20–40 mL/cmH2O; baby lung concept)
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main:
+    - J81.0
+    - J81.1
+    - I50.1
+    pattern: ↓ (이뇨 후 개선)
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main:
+    - J84.1
+    - J84.9
+    pattern: ↓ (만성적 compliance 저하)
+  - disease_key: pneumothorax
+    disease_kr: 기흉
+    icd10_main:
+    - J93.0
+    - J93.1
+    - J93.9
+    pattern: ↓ (급격한 감소 → 긴장성 기흉 의심)
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id001
+    pattern: ↓ (화학적 폐렴 + ARDS 시 현저한 compliance 저하)
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id007
+    pattern: '↓ (COVID-19 ARDS: L-type은 비교적 보존, H-type은 현저 ↓)'
+  - disease_key: emphysema
+    disease_kr: 폐기종
+    icd10_main: *id011
+    pattern: ↑ (폐 탄성 소실로 compliance 오히려 증가; 과팽창)
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id003
+    pattern: ↓ (Stage IV 섬유화 시)
+  - disease_key: pneumoconiosis
+    disease_kr: 진폐증
+    icd10_main: *id013
+    pattern: ↓ (진행성 massive fibrosis 시 점진적 저하)
+  - disease_key: hypersensitivity_pneumonitis
+    disease_kr: 과민성 폐렴
+    icd10_main: *id012
+    pattern: ↓ (만성 섬유화형에서; 급성형은 일시적)
+  note: Static compliance = Vt / (Pplat − PEEP)
+220074:
+  name: Central Venous Pressure (CVP)
+  name_kr: 중심정맥압
+  unit: mmHg
+  category: Hemodynamics
+  ref_source: Harrison's 21st Ch.264; Surviving Sepsis Campaign 2021
+  ranges:
+    lower: 2
+    upper: 8
+  thresholds:
+  - name: elevated
+    criterion: '>12'
+    source: Harrison's 21st Ch.264
+    note: 용적 과부하 또는 우심 부전
+  - name: fluid_overload
+    criterion: '>15'
+    source: Harrison's 21st Ch.264
+    note: 명확한 용적 과부하
+  medical_terms:
+    low: Low CVP (hypovolemia)
+    high: Elevated CVP (fluid overload, RV failure, tamponade)
+  disease_associations:
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main:
+    - I26.0
+    - I26.09
+    - I26.90
+    - I26.99
+    pattern: ↑ (우심 부전 / RV 후부하 증가)
+  - disease_key: pulmonary_hypertension
+    disease_kr: 폐동맥 고혈압
+    icd10_main:
+    - I27.0
+    - I27.20
+    - I27.21
+    - I27.29
+    pattern: ↑ (만성 우심 부전)
+  - disease_key: pneumothorax
+    disease_kr: 기흉
+    icd10_main:
+    - J93.0
+    - J93.1
+    - J93.9
+    pattern: ↑ (긴장성 기흉 → 정맥 환류 차단)
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main:
+    - J81.0
+    - J81.1
+    - I50.1
+    pattern: ↑ (용적 과부하; 이뇨 치료 모니터링)
+  - disease_key: acute_respiratory_failure
+    disease_kr: 급성 호흡부전
+    icd10_main: *id005
+    pattern: '가변적 (패혈증: 초기 ↓ → 수액 후 ↑; ARDS + 양압환기: ↑)'
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id002
+    pattern: ↑ (SVC 증후군 시 현저한 상승; 종격동 종괴에 의한 정맥 압박)
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id009
+    pattern: '가변적 (패혈증: 수액 요구; 대량 흉수: 정맥환류 영향)'
+220059:
+  name: Pulmonary Artery Pressure systolic
+  name_kr: 폐동맥 수축기압
+  unit: mmHg
+  category: Hemodynamics
+  ref_source: ESC/ERS Pulmonary Hypertension Guidelines 2022
+  ranges:
+    lower: 15
+    upper: 30
+  thresholds:
+  - name: pulmonary_hypertension_mean
+    criterion: mPAP > 20 (at rest)
+    source: ESC/ERS PH Guidelines 2022
+    note: 폐동맥 고혈압 혈역학적 진단 기준 (6th WSPH)
+  - name: pre_capillary_ph
+    criterion: mPAP > 20 and PAWP ≤15 and PVR > 2 WU
+    source: ESC/ERS PH Guidelines 2022
+    note: 전모세혈관성 PH (Group 1,3,4,5)
+  - name: severe_ph
+    criterion: sPAP ≥60
+    source: ESC/ERS PH Guidelines 2022
+    note: 중증 폐동맥 고혈압
+  medical_terms:
+    low: Normal pulmonary pressure
+    high: Pulmonary Hypertension
+    critical_high: Severe Pulmonary Hypertension
+  disease_associations:
+  - disease_key: pulmonary_hypertension
+    disease_kr: 폐동맥 고혈압
+    icd10_main:
+    - I27.0
+    - I27.20
+    - I27.21
+    - I27.29
+    pattern: ↑ (mPAP >20 at rest → PH 진단)
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main:
+    - I26.0
+    - I26.09
+    - I26.90
+    - I26.99
+    pattern: ↑ (급성 RV pressure overload)
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main:
+    - J80
+    pattern: ↑ (저산소성 폐혈관 수축)
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main:
+    - J44.0
+    - J44.1
+    pattern: ↑ (만성 저산소 → cor pulmonale)
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main:
+    - J84.1
+    - J84.9
+    pattern: ↑ (폐혈관 파괴 → Group 3 PH)
+  - disease_key: chronic_respiratory_failure
+    disease_kr: 만성 호흡부전
+    icd10_main: *id006
+    pattern: ↑ (만성 저산소 → 폐혈관 remodeling → Group 3 PH)
+  - disease_key: emphysema
+    disease_kr: 폐기종
+    icd10_main: *id011
+    pattern: ↑ (폐혈관 파괴 + 만성 저산소 → cor pulmonale)
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id003
+    pattern: '↑ (Group 5 PH: 육아종성 혈관 침범 + 섬유화)'
+  - disease_key: sleep_apnea
+    disease_kr: 수면무호흡
+    icd10_main: *id015
+    pattern: ↑ (반복적 저산소 → 폐혈관 수축; OSA 관련 PH)
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: *id004
+    pattern: ↑ (만성 감염 + 저산소 → 이차적 PH 가능)
+  - disease_key: pneumoconiosis
+    disease_kr: 진폐증
+    icd10_main: *id013
+    pattern: ↑ (진행성 massive fibrosis → Group 3 PH)
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id002
+    pattern: ↑ (종양 색전 또는 혈관 압박에 의한 PH)
+  related_itemids:
+  - 220060
+220060:
+  name: Pulmonary Artery Pressure diastolic
+  name_kr: 폐동맥 이완기압
+  unit: mmHg
+  category: Hemodynamics
+  ref_source: ESC/ERS Pulmonary Hypertension Guidelines 2022
+  ranges:
+    lower: 5
+    upper: 15
+  medical_terms:
+    low: Normal
+    high: Elevated PA diastolic pressure
+  note: mPAP ≈ (sPAP + 2 × dPAP) / 3
+223849:
+  name: Ventilator Mode
+  name_kr: 인공호흡기 모드
+  unit: text
+  category: Respiratory
+  ref_source: Harrison's 21st Ch.294
+  type: categorical
+  values:
+  - CMV
+  - SIMV
+  - PSV
+  - CPAP
+  - PRVC
+  - APRV
+  - BiPAP
+  - HFOV
+  clinical_significance:
+    CMV: 완전 조절 환기 — 근이완/진정 상태; 심한 ARDS
+    PSV: 자발 호흡 보조 — weaning 과정
+    CPAP: 자발 호흡 + 양압 — weaning 최종 단계
+    APRV: Open lung approach — refractory ARDS
+  note: '모드 변화 패턴: CMV→SIMV→PSV→CPAP = 호전 경과'
+  related_itemids:
+  - 229314
+223986:
+  name: RUL Lung Sounds
+  name_kr: 우상엽 폐음
+  unit: text
+  category: Pulmonary
+  ref_source: Harrison's 21st Ch.284; Bates' Guide to Physical Examination 13th
+  type: categorical
+  values:
+  - Clear
+  - Diminished
+  - Absent
+  - Crackles
+  - Rhonchi
+  - Wheezes
+  - Bronchial
+  clinical_significance:
+    Clear: 정상 폐음
+    Diminished: 폐음 감소 — 흉수, 기흉, 무기폐, 비만
+    Absent: 폐음 소실 — 대량 기흉, 대량 흉수
+    Crackles: 수포음 — 폐렴, 폐부종, ILD, 기관지확장증
+    Rhonchi: 건성 수포음 — 기도 분비물, COPD
+    Wheezes: 천명음 — 천식, COPD, 기관지 수축
+    Bronchial: 기관지성 호흡음 — consolidation (폐렴)
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: &id018
+    - J13
+    - J14
+    - J15
+    - J18
+    pattern: Crackles, Bronchial (consolidation 부위)
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main: &id021
+    - J45.21
+    - J45.31
+    - J45.41
+    - J45.51
+    - J46
+    pattern: Wheezes (호기 시); silent chest = 생명위협
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: &id020
+    - J44.0
+    - J44.1
+    pattern: Wheezes, Rhonchi, Diminished
+  - disease_key: pleural_effusion
+    disease_kr: 흉수
+    icd10_main: &id023
+    - J90
+    - J91.0
+    - J91.8
+    pattern: Diminished/Absent (하부)
+  - disease_key: pneumothorax
+    disease_kr: 기흉
+    icd10_main: &id024
+    - J93.0
+    - J93.1
+    - J93.9
+    pattern: Diminished/Absent (환측)
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: &id022
+    - J81.0
+    - J81.1
+    - I50.1
+    pattern: Crackles (양측 하부, 중력 의존적)
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: &id025
+    - J84.1
+    - J84.10
+    - J84.9
+    pattern: Crackles (양측 기저부 velcro-type)
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: &id019
+    - J69.0
+    pattern: 'Crackles (중력 의존 부위: RLL, LLL 우세; 우측 하엽 가장 흔함)'
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: &id027
+    - C34.0
+    - C34.1
+    - C34.2
+    - C34.3
+    - C34.8
+    - C34.9
+    pattern: Diminished/Absent (폐쇄 후 무기폐), Wheezes (기도 내 종괴 시 국소적)
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: &id035
+    - D86.0
+    - D86.1
+    - D86.2
+    - D86.9
+    pattern: Clear (초기) → Crackles (Stage IV 섬유화 시)
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: &id026
+    - J47.0
+    - J47.1
+    - J47.9
+    pattern: Crackles (조대한 수포음, 지속적; 분비물 배출 후 변화)
+  - disease_key: acute_respiratory_failure
+    disease_kr: 급성 호흡부전
+    icd10_main: &id040
+    - J96.0
+    - J96.9
+    pattern: '원인 질환에 따라 다양 (폐렴: Crackles, 천식: Wheezes, ARDS: 양측 Crackles)'
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: &id030
+    - J12
+    - J12.8
+    - J12.9
+    pattern: 'Crackles (양측 미만성; COVID-19: 양측 하부 우세)'
+  - disease_key: influenza_pneumonia
+    disease_kr: 인플루엔자
+    icd10_main:
+    - J10
+    - J10.0
+    - J10.1
+    pattern: Crackles (미만성) 또는 Rhonchi (기도 분비물)
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: &id028
+    - J86
+    - J86.0
+    - J86.9
+    pattern: Diminished/Absent (흉수 측), Bronchial (흉수 상부 경계)
+  - disease_key: atelectasis
+    disease_kr: 무기폐 (폐허탈)
+    icd10_main: &id029
+    - J98.1
+    pattern: Diminished/Absent (환측), Bronchial (adjacent lung)
+  - disease_key: emphysema
+    disease_kr: 폐기종
+    icd10_main: &id031
+    - J43
+    - J43.0
+    - J43.1
+    - J43.9
+    pattern: Diminished (전반적 폐음 감소; 과팽창), Wheezes (호기 시)
+  - disease_key: hypersensitivity_pneumonitis
+    disease_kr: 과민성 폐렴
+    icd10_main: &id032
+    - J67
+    - J67.9
+    pattern: Crackles (양측 중하엽; squeaks 가능)
+  - disease_key: pneumoconiosis
+    disease_kr: 진폐증
+    icd10_main: &id033
+    - J62
+    - J62.8
+    pattern: Crackles (상엽 우세 가능; 진행 시 양측 미만성)
+  - disease_key: pulmonary_eosinophilia
+    disease_kr: 폐 호산구증가증
+    icd10_main: &id042
+    - J82
+    pattern: Wheezes (기관지 수축), Crackles (폐 침윤 부위)
+  - disease_key: acute_bronchitis
+    disease_kr: 급성 기관지염
+    icd10_main:
+    - J20
+    - J20.8
+    - J20.9
+    pattern: Rhonchi (기도 분비물), Wheezes (경미; 크래클은 드묾)
+  - disease_key: acute_bronchiolitis
+    disease_kr: 급성 세기관지염
+    icd10_main: &id034
+    - J21
+    - J21.8
+    - J21.9
+    pattern: Wheezes + Crackles (혼합; 호기 연장)
+  - disease_key: sleep_apnea
+    disease_kr: 수면무호흡
+    icd10_main:
+    - G47.3
+    - G47.30
+    - G47.33
+    pattern: Clear (수면 시 상기도 폐쇄이므로 폐음 자체는 정상)
+  related_itemids:
+  - 223987
+  - 223988
+  - 223989
+223987:
+  name: RLL Lung Sounds
+  name_kr: 우하엽 폐음
+  unit: text
+  category: Pulmonary
+  ref_source: Bohadana et al. NEJM 2014;370:744-751; Bates' 13th Ed (Bickley 2021); Harrison's 21st Ch.284
+  type: categorical
+  values:
+  - Clear
+  - Diminished
+  - Absent
+  - Crackles
+  - Rhonchi
+  - Wheezes
+  - Bronchial
+  clinical_significance:
+    Clear: 정상 vesicular 호흡음
+    Diminished: 폐음 감소 — 우측 흉수(가장 흔한 원인), 우측 기흉, 우하엽 무기폐, 비만, COPD 과팽창 [Bates' 13th]
+    Absent: 폐음 소실 — 대량 우측 기흉, 대량 우측 흉수, 완전 우하엽 무기폐 [Harrison's 21st]
+    Crackles: '수포음 — (1) Fine: IPF/ILD 양측 기저부 velcro crackles, 초기 폐부종 [NEJM 2014]; (2) Coarse: 흡인성 폐렴(RLL이 해부학적으로 가장 호발),
+      세균성 폐렴, 기관지확장증 [Harrison''s 21st]'
+    Rhonchi: 저음 연속음 — 기도 분비물(COPD 악화, 기관지확장증); 기침 후 소실 또는 변화 [NEJM 2014; ERS 2000]
+    Wheezes: 고음 연속음 — 천식, COPD 악화; RLL 국소 wheezes 시 기관지 내 종양/이물 감별 필요 [Forgacs, Chest 1978]
+    Bronchial: 기관지성 호흡음 — 폐 말초에서 청취 시 consolidation(대엽성 폐렴), 무기폐 인접 부위 [NEJM 2014]
+  note: RLL은 흡인성 폐렴��� 가장 호발 부위 — 우주기관지가 좌측보다 넓고(평균 16mm vs 13mm), 짧고(2.5cm vs 5cm), 수직 각도가 가파름(25° vs 45°)으로 흡인물이 중력에 의해
+    우선 유입 [Harrison's 21st Ch.257; Murray & Nadel 7th Ch.36]. 또한 자유 흉수는 중력 의존적으로 하엽에 저류하며, 간 때문에 우측 횡격막이 높아 우측 흉수가 좌측보다 임상적으로
+    더 흔하게 감지됨 [Bates' 13th].
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id018
+    pattern: Crackles, Bronchial (대엽성 consolidation; RLL은 CAP에서 가장 흔한 침범 엽 중 하나) [Harrison's 21st]
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: &id037
+    - J15.0
+    - J15.1
+    - J15.5
+    - J15.6
+    - J95.851
+    pattern: Crackles, Bronchial (HAP/VAP에서 하엽 침범 흔���) [ATS/IDSA 2016]
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id019
+    pattern: Crackles (RLL이 해부학적으로 가장 흔한 흡인 부위; 앙와위 흡인 시 후분절 우세) [Harrison's 21st Ch.257]
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id020
+    pattern: Wheezes, Rhonchi, Diminished (전반적이나 하엽에서 더 뚜렷할 수 있음) [GOLD 2024]
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main: *id021
+    pattern: Wheezes (양측 미만성 호기 wheezes; silent chest = 생명위협) [GINA 2024]
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: &id039
+    - I26.0
+    - I26.09
+    - I26.90
+    - I26.99
+    pattern: Diminished (폐경색 시 국소), Pleural rub (경색 인접 흉막 마찰음) [ESC PE 2022]
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id022
+    pattern: Fine Crackles (양측 하부 대칭, 중력 의존적; 하엽에서 가장 먼저 출현) [NEJM 2014; Harrison's 21st]
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: &id038
+    - J80
+    pattern: Crackles (양측 미만성; 하엽 우세 시작 → 전엽 확산) [Berlin Definition; Harrison's 21st]
+  - disease_key: pleural_effusion
+    disease_kr: 흉수
+    icd10_main: *id023
+    pattern: Diminished/Absent (우측 흉수 시 RLL에서 가장 먼저 감소; 흉수-폐 경계에서 bronchial/egophony) [Bates' 13th]
+  - disease_key: pneumothorax
+    disease_kr: 기흉
+    icd10_main: *id024
+    pattern: Diminished/Absent (우측 기흉 시; 긴장성이면 기관 좌측 편위 동반) [Harrison's 21st]
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id025
+    pattern: Fine Crackles (양측 기저부 velcro-type; IPF, 석면폐증에서 하엽 우세 — 'bilateral basal crackles') [ATS/ERS IPF 2022; Murray
+      & Nadel 7th]
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: &id041
+    - J85.1
+    - J85.2
+    pattern: Crackles (하엽 후분절 호발; 흡인 기전과 동일한 해부학적 이유), Bronchial (공동 인접) [Harrison's 21st]
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: *id026
+    pattern: Coarse Crackles (지속적; 체위 배액/기침 후 변화), Rhonchi (분비물 축적) [ERS Bronchiectasis 2017]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id027
+    pattern: Diminished (폐쇄 후 무기폐 시), 국소 Wheezes (기관지 내 종양; 흡기 wheezes는 고정 폐쇄 시사) [Harrison's 21st Ch.74]
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: &id036
+    - A15.0
+    - A15.3
+    - A15.5
+    - A15.6
+    - A15.9
+    pattern: Crackles (활동성 감염 시; RLL은 결핵에서 비전형 부위이나 면역저하/당뇨 환자에서 하엽 침범 가능) [Harrison's 21st Ch.173]
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id028
+    pattern: Diminished/Absent (감염성 흉수; 우측에서 더 흔), Bronchial (흉수 상부 경계) [BTS Pleural Disease 2023]
+  - disease_key: atelectasis
+    disease_kr: 무기폐 (폐허탈)
+    icd10_main: *id029
+    pattern: Diminished/Absent (RLL 무기폐 — 수술 후 가장 흔한 부위), Bronchial (인접 허파 조직) [Harrison's 21st]
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id030
+    pattern: Crackles (양측 하부 우세; COVID-19에서 RLL 초기 침범 빈도 높음) [Lancet Respir Med 2020]
+  - disease_key: emphysema
+    disease_kr: 폐기종
+    icd10_main: *id031
+    pattern: Diminished (과팽창에 의한 전반적 폐음 감소), Wheezes (호기 시) [GOLD 2024]
+  - disease_key: hypersensitivity_pneumonitis
+    disease_kr: 과민성 폐렴
+    icd10_main: *id032
+    pattern: Crackles (양측 중하엽; inspiratory squeaks 동반 가능) [ATS/JRS/ALAT HP 2020]
+  - disease_key: pneumoconiosis
+    disease_kr: 진폐증
+    icd10_main: *id033
+    pattern: Crackles (석면폐증은 하엽 우세; 규폐증은 상엽 우세) [Harrison's 21st Ch.287]
+  - disease_key: acute_bronchiolitis
+    disease_kr: 급성 세기관지염
+    icd10_main: *id034
+    pattern: Wheezes + Fine Crackles (혼합; 호기 연장; 영유아에서 하엽 우세) [AAP 2014]
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id035
+    pattern: Clear (Stage I-II) → Crackles (Stage IV 섬유화 시) [ATS/ERS/WASOG 2020]
+223988:
+  name: LUL Lung Sounds
+  name_kr: 좌상엽 폐음
+  unit: text
+  category: Pulmonary
+  ref_source: Bohadana et al. NEJM 2014;370:744-751; Bates' 13th Ed (Bickley 2021); Harrison's 21st Ch.284
+  type: categorical
+  values:
+  - Clear
+  - Diminished
+  - Absent
+  - Crackles
+  - Rhonchi
+  - Wheezes
+  - Bronchial
+  clinical_significance:
+    Clear: 정상 vesicular 호흡음
+    Diminished: 폐음 감소 — 좌측 기흉, 좌측 상부 흉수(드묾), 좌상엽 무기폐, 비만, COPD 과팽창 [Bates' 13th]
+    Absent: 폐음 소실 — 대량 좌측 기흉, 좌상엽 완전 무기폐 [Harrison's 21st]
+    Crackles: '수포음 — (1) Fine: 사르코이드증(Stage IV), 진폐증(상엽 섬유화) [Murray & Nadel 7th]; (2) Coarse: 폐결핵(상엽 첨후분절 공동/침윤), 세균성 폐렴
+      [Harrison''s 21st]'
+    Rhonchi: 저음 연속음 — 기도 분비물(COPD, 기관지확장증); 좌상엽 기관지 종양 시 국소적 [NEJM 2014]
+    Wheezes: 고음 연속음 — 천식, COPD; LUL 국소 wheezes 시 좌상엽 기관지 내 종양/이물 감별 [Forgacs, Chest 1978]
+    Bronchial: 기관지성 호흡음 — consolidation(폐렴, 폐결핵 공동 주변), ���상엽 무기폐 인접 부위 [NEJM 2014]
+  note: LUL에는 해부학적으로 Lingula(좌설엽)가 포함되며 이는 우중엽(RML)에 대응하는 구조. Lingula 병변은 좌상엽 청진 영역에서 포착됨 [Bates' 13th]. 좌상엽은 우상엽(RUL)과 함께
+    폐결핵, 진폐증, 사르코이드증의 상엽 우세 병변 평가에 핵심. 단, 좌측 심장 인접으로 심음 간섭이 있을 수 있으며 전흉부 청진 시 주의 필요 [Bates' 13th].
+  disease_associations:
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id036
+    pattern: Crackles, Bronchial (상엽 첨후분절 호발; RUL 다음으로 LUL이 결핵 호발 부위; 공동 형성 시 amphoric breathing) [Harrison's 21st Ch.173]
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id018
+    pattern: Crackles, Bronchial (좌상엽 ��엽성 폐렴 시; lingula 포함) [ATS/IDSA 2019]
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: *id037
+    pattern: Crackles, Bronchial (HAP에서 상엽 침범 가능) [ATS/IDSA 2016]
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id020
+    pattern: Wheezes, Rhonchi, Diminished (양측 미만성; 상엽 과팽창 현저) [GOLD 2024]
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main: *id021
+    pattern: Wheezes (양측 미만성 호기 wheezes; silent chest = 생명위협) [GINA 2024]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id027
+    pattern: Diminished (좌상엽 종양에 의한 무기폐), 국소 Wheezes (기관지 내 종양; 좌상엽 기관지암은 Pancoast 종양 가능) [Harrison's 21st Ch.74]
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id035
+    pattern: Clear (Stage I-II) → Crackles (Stage III-IV에서 상엽 섬유화 우세; 양측 폐문 림프절 비대 동반) [ATS/ERS/WASOG 2020; Harrison's 21st
+      Ch.360]
+  - disease_key: pneumoconiosis
+    disease_kr: 진폐증
+    icd10_main: *id033
+    pattern: 'Crackles (규폐증: 상엽 우세 진행성 거대 섬유화(PMF); 탄광부 진폐증도 상엽 우세) [Harrison''s 21st Ch.287; Murray & Nadel 7th]'
+  - disease_key: pneumothorax
+    disease_kr: 기흉
+    icd10_main: *id024
+    pattern: Diminished/Absent (좌측 기흉 시; 자발성 기흉은 상엽 첨부 bleb 파열로 상엽에서 시작) [Harrison's 21st]
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id022
+    pattern: Crackles (진행 시 양측 상엽까지 확산; 초기에는 하엽에 국한) [Harrison's 21st]
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id038
+    pattern: Crackles (양측 미만성; 진행 시 상엽 포함 전 폐야 침범) [Berlin Definition]
+  - disease_key: pleural_effusion
+    disease_kr: 흉수
+    icd10_main: *id023
+    pattern: Diminished (좌측 흉수 — 대량일 때 상부까지 확장; 소량이면 LLL에 국한) [Bates' 13th]
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id025
+    pattern: 'Crackles (NSIP: 상엽 포함 미만성; IPF는 기저부 우세이나 진행 시 상엽까지) [ATS/ERS IPF 2022]'
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: *id026
+    pattern: Coarse Crackles (상엽 기관지확장증 — 결핵 후유증, ABPA에서 중심성 상엽 침범) [ERS Bronchiectasis 2017]
+  - disease_key: emphysema
+    disease_kr: 폐기종
+    icd10_main: *id031
+    pattern: Diminished (상엽 우세 소엽중심성 폐기종 — 흡연 관련; 전반적 폐음 감소) [GOLD 2024; Murray & Nadel 7th]
+  - disease_key: hypersensitivity_pneumonitis
+    disease_kr: 과민성 폐렴
+    icd10_main: *id032
+    pattern: Crackles (만성형 — 상엽 포함 미만성 섬유화; 급성형은 양측 중하엽) [ATS/JRS/ALAT HP 2020]
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id030
+    pattern: Crackles (미만성 양측; COVID-19 진행 시 상엽 침범) [Lancet Respir Med 2020]
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id019
+    pattern: Crackles (기립위에서 흡인 시 상엽 후분절 침범 가능; 앙와위 기본은 하엽) [Harrison's 21st Ch.257]
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id039
+    pattern: Diminished (폐경색 시 국소), Pleural rub [ESC PE 2022]
+  - disease_key: acute_respiratory_failure
+    disease_kr: 급성 호흡부전
+    icd10_main: *id040
+    pattern: 원인 질환에 따라 다양 [Harrison's 21st Ch.294]
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id041
+    pattern: Crackles, Bronchial (기립위 흡인 시 상엽 후분절 농양 형성 가능) [Harrison's 21st]
+  - disease_key: pulmonary_eosinophilia
+    disease_kr: 폐 호산구증가증
+    icd10_main: *id042
+    pattern: Wheezes (기관지 수축), Crackles (폐 침윤 — 만성 호산구성 폐렴은 말초/상엽 우세) [Harrison's 21st Ch.287]
+223989:
+  name: LLL Lung Sounds
+  name_kr: 좌하엽 폐음
+  unit: text
+  category: Pulmonary
+  ref_source: Bohadana et al. NEJM 2014;370:744-751; Bates' 13th Ed (Bickley 2021); Harrison's 21st Ch.284
+  type: categorical
+  values:
+  - Clear
+  - Diminished
+  - Absent
+  - Crackles
+  - Rhonchi
+  - Wheezes
+  - Bronchial
+  clinical_significance:
+    Clear: 정상 vesicular 호흡음
+    Diminished: 폐음 감소 — 좌측 흉수(하부 저류), 좌측 기흉, 좌하엽 무기폐, 비만, COPD 과팽창 [Bates' 13th]
+    Absent: 폐음 소실 — 대량 좌측 기흉, 대량 좌측 흉수, 완전 좌하엽 무기폐 [Harrison's 21st]
+    Crackles: '수포음 — (1) Fine: IPF/ILD 양측 기저부 velcro crackles, 초기 폐부종 [NEJM 2014]; (2) Coarse: 흡인성 폐렴(RLL 다음으로 LLL 호발), 세균성
+      폐렴, 기관지확장증 [Harrison''s 21st]'
+    Rhonchi: 저음 연속음 — 기도 분비물(COPD, 기관지확장증); 기침 후 소실 또는 변화 [NEJM 2014; ERS 2000]
+    Wheezes: 고음 연속음 — 천식, COPD; LLL 국소 wheezes 시 좌하엽 기관지 종양/이물 감별 [Forgacs, Chest 1978]
+    Bronchial: 기관지성 호흡음 — consolidation(대엽성 폐렴), 좌하엽 무기폐 인접 부위 [NEJM 2014]
+  note: LLL은 RLL과 함께 중력 의존 부위로서 흡인성 폐렴, 흉수, 폐부종의 초기 이상이 나타나는 부위. 단, 해부학적으로 좌주기관지가 우측보다 길고(5cm vs 2.5cm) 각도가 완만하여(45° vs 25°)
+    흡인 빈도는 RLL보다 낮음 [Harrison's 21st Ch.257; Murray & Nadel 7th]. 좌측 하부 청진 시 심장 인접에 의한 cardiac artifact 주의 — 심첨부 인접으로 심음이
+    폐음과 중첩될 수 있음 [Bates' 13th].
+  disease_associations:
+  - disease_key: community_acquired_pneumonia
+    disease_kr: 지역사회획득 폐렴 (CAP)
+    icd10_main: *id018
+    pattern: Crackles, Bronchial (좌하엽 대엽성 폐렴; 하엽은 CAP에서 가장 흔한 침범 부위) [Harrison's 21st; ATS/IDSA 2019]
+  - disease_key: hospital_acquired_pneumonia
+    disease_kr: 병원획득 폐렴 (HAP/VAP)
+    icd10_main: *id037
+    pattern: Crackles, Bronchial (HAP/VAP에서 하엽 침범 흔함; 앙와위 장기 환자) [ATS/IDSA 2016]
+  - disease_key: aspiration_pneumonia
+    disease_kr: 흡인성 폐렴
+    icd10_main: *id019
+    pattern: Crackles (RLL 다음으로 LLL이 흡인 호발; 좌측와위 시 LLL 우선 침범) [Harrison's 21st Ch.257; Murray & Nadel 7th]
+  - disease_key: copd_exacerbation
+    disease_kr: COPD 급성 악화
+    icd10_main: *id020
+    pattern: Wheezes, Rhonchi, Diminished (양측 미만성) [GOLD 2024]
+  - disease_key: asthma_exacerbation
+    disease_kr: 천식 급성 악화
+    icd10_main: *id021
+    pattern: Wheezes (양측 미만성 호기 wheezes; silent chest = 생명위협) [GINA 2024]
+  - disease_key: pulmonary_embolism
+    disease_kr: 폐색전증
+    icd10_main: *id039
+    pattern: Diminished (하엽 폐경색 — PE의 가장 흔한 경색 부위), Pleural rub [ESC PE 2022; Harrison's 21st]
+  - disease_key: pulmonary_edema
+    disease_kr: 폐부종 / 심부전
+    icd10_main: *id022
+    pattern: Fine Crackles (양측 하부 대칭, 중력 의존적; LLL과 RLL에서 가장 먼저 출현) [NEJM 2014; Harrison's 21st]
+  - disease_key: ards
+    disease_kr: 급성호흡곤란증후군 (ARDS)
+    icd10_main: *id038
+    pattern: Crackles (양측 미만성; 하엽 우세 시작 → 전엽 확산) [Berlin Definition; Harrison's 21st]
+  - disease_key: pleural_effusion
+    disease_kr: 흉수
+    icd10_main: *id023
+    pattern: Diminished/Absent (좌측 흉수 시 LLL에서 가장 먼저 폐음 감소; 흉수-폐 경계에서 egophony) [Bates' 13th]
+  - disease_key: pneumothorax
+    disease_kr: 기흉
+    icd10_main: *id024
+    pattern: Diminished/Absent (좌측 기흉 시; 좌측 긴장성 기흉은 심장 우측 편위 → 급성 순환 허탈) [Harrison's 21st]
+  - disease_key: interstitial_lung_disease
+    disease_kr: 간질성 폐질환 / 폐섬유화증
+    icd10_main: *id025
+    pattern: Fine Crackles (양측 기저부 velcro-type; IPF, 석면폐증은 기저부에서 시작하여 양측 LLL/RLL이 초기 청진 소견) [ATS/ERS IPF 2022; Murray & Nadel
+      7th]
+  - disease_key: lung_abscess
+    disease_kr: 폐농양
+    icd10_main: *id041
+    pattern: Crackles (하엽 후분절 — 흡인 기전에 의한 농양 호발 부위), Bronchial (공동 인접) [Harrison's 21st]
+  - disease_key: bronchiectasis
+    disease_kr: 기관지확장증
+    icd10_main: *id026
+    pattern: Coarse Crackles (지속적; 하엽 기관지확장증 흔함), Rhonchi (분비물 축적) [ERS Bronchiectasis 2017]
+  - disease_key: lung_cancer
+    disease_kr: 폐암
+    icd10_main: *id027
+    pattern: Diminished (좌하엽 종양에 의한 무기폐 또는 동반 흉수), 국소 Wheezes [Harrison's 21st Ch.74]
+  - disease_key: tuberculosis
+    disease_kr: 폐결핵
+    icd10_main: *id036
+    pattern: Crackles (비전형 부위이나 면역저하/당뇨/노인에서 하엽 결핵 침범 가능) [Harrison's 21st Ch.173]
+  - disease_key: empyema
+    disease_kr: 농흉
+    icd10_main: *id028
+    pattern: Diminished/Absent (감염성 좌측 흉수), Bronchial (흉수 상부 경계) [BTS Pleural Disease 2023]
+  - disease_key: atelectasis
+    disease_kr: 무기폐 (폐허탈)
+    icd10_main: *id029
+    pattern: Diminished/Absent (좌하엽 무기폐 — 심장 수술 후 좌측 횡격막 신경 손상으로 흔함) [Harrison's 21st]
+  - disease_key: viral_pneumonia
+    disease_kr: 바이러스 폐렴
+    icd10_main: *id030
+    pattern: Crackles (양측 하부 우세; COVID-19 초기 하엽 GGO) [Lancet Respir Med 2020]
+  - disease_key: emphysema
+    disease_kr: 폐기종
+    icd10_main: *id031
+    pattern: Diminished (과팽창에 의한 폐음 감소) [GOLD 2024]
+  - disease_key: hypersensitivity_pneumonitis
+    disease_kr: 과민성 폐렴
+    icd10_main: *id032
+    pattern: Crackles (양측 중하엽; inspiratory squeaks 동반) [ATS/JRS/ALAT HP 2020]
+  - disease_key: pneumoconiosis
+    disease_kr: 진폐증
+    icd10_main: *id033
+    pattern: Crackles (석면폐증은 하엽 우세 — LLL/RLL 양측 기저부 crackles) [Harrison's 21st Ch.287]
+  - disease_key: sarcoidosis
+    disease_kr: 사르코이드증
+    icd10_main: *id035
+    pattern: Clear (Stage I-II) → Crackles (Stage IV 섬유화 시 미만성) [ATS/ERS/WASOG 2020]
+  - disease_key: acute_bronchiolitis
+    disease_kr: 급성 세기관지염
+    icd10_main: *id034
+    pattern: Wheezes + Fine Crackles (양측 하엽 우세; 호기 연장) [AAP 2014]
+  - disease_key: pulmonary_eosinophilia
+    disease_kr: 폐 호산구증가증
+    icd10_main: *id042
+    pattern: Wheezes, Crackles (폐 침윤 부위; 급성 호산구성 폐렴은 양측 미만성) [Harrison's 21st Ch.287]
