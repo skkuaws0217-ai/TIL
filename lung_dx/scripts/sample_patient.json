@@ -1,0 +1,25 @@
+{
+  "case_id": "SAMPLE-001",
+  "age": 65,
+  "sex": "M",
+  "chief_complaint": "발열, 기침, 호흡곤란 3일",
+  "symptoms": ["cough", "fever", "dyspnea", "sputum production", "pleuritic chest pain"],
+  "hpo_symptoms": ["HP:0012735", "HP:0001945", "HP:0002094"],
+  "lab_results": [
+    {"itemid": 51301, "value": 18.5},
+    {"itemid": 50889, "value": 150.0},
+    {"itemid": 50821, "value": 58.0},
+    {"itemid": 50813, "value": 3.2},
+    {"itemid": 50818, "value": 32.0},
+    {"itemid": 50820, "value": 7.48}
+  ],
+  "vitals_respiratory_hemodynamic": [
+    {"itemid": 220277, "value": 88.0},
+    {"itemid": 220210, "value": 32.0},
+    {"itemid": 220045, "value": 115.0},
+    {"itemid": 223762, "value": 39.2},
+    {"itemid": 220050, "value": 95.0}
+  ],
+  "micro_findings": ["Streptococcus pneumoniae"],
+  "include_rare_screening": false
+}
